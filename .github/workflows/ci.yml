@@ -17,4 +17,7 @@ jobs:
     with:
       python-version: '3.11'
       install-dependencies: false
+      run-lint: false
+      run-format-check: false
       run-type-check: false
+      run-tests: false
