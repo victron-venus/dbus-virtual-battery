@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Create Release
+    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/release.yml@c817fbf
+    with:
+      tag-pattern: '^v[0-9]+\.[0-9]+\.[0-9]+$'
+      generate-notes: true
