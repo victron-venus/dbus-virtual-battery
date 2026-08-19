@@ -11,19 +11,42 @@
 
 The Virtual Battery Simulator creates a virtual battery by calculating values from a SmartShunt minus other battery chains. This is used for battery chains without a physical BMS (Battery Management System).
 
+## Use Case Example
+
+Imagine you have an energy storage system with:
+- Five excellent Pylontech batteries with built-in BMS (Battery Management System) providing accurate telemetry
+- Several older "dummy" batteries without BMS that are still in good condition but you don't want to discard
+- A main SmartShunt measuring the total system current/power going to/from all batteries combined
+
+The challenge is monitoring those old batteries - you need to know if their charging current becomes unreasonably low or if their power output has degraded significantly, so you can see this on your monitoring graphs (like Grafana) and take appropriate action.
+
+This is exactly what the Virtual Battery Simulator solves:
+1. The SmartShunt gives you the total system current (let's call it I_total)
+2. Each of your five Pylontech batteries reports its individual current via MQTT/D-Bus (I_pylon1, I_pylon2, etc.)
+3. By subtracting all the known battery currents from the total: I_virtual = I_total - ΣI_known_batteries
+4. The result is the combined current of all your "dummy" batteries without BMS
+5. This virtual battery's current/power appears in your monitoring system just like any other battery
+6. You can now set up alerts when the virtual battery's current drops below a threshold, indicating degradation in your old batteries
+7. You can visualize the virtual battery's performance over time alongside your other batteries
+
+The virtual battery inherits voltage from the reference batteries (assuming parallel connection) and calculates its current as the remainder after subtracting all measured battery currents from the total system measurement.
+
 ## Architecture
 
 ```
-    SmartShunt (total system) - Chain1 - Chain2 = Virtual Chain3
+    SmartShunt (total system) - Chain1 - Chain2 - ... - ChainN = Virtual Chain
 
     [SmartShunt] ----\
     [Chain 1]   ------ [This Script] --> D-Bus --> Victron GX
     [Chain 2]   ------/
+    ...
+    [Chain N]   ------/
 ```
 
-The virtual battery inherits voltage from chain1/chain2 (parallel connection) and calculates current as:
+The virtual battery inherits voltage from chain1/chainN (parallel connection) and calculates current as:
 ```
-SmartShunt_current - chain1_current - chain2_current
+I_virtual = I_smartshunt - ΣI_chain1_to_N
+V_virtual ≈ V_chain1 (assuming parallel connection)
 ```
 
 When any source is missing, the script shows:
@@ -34,7 +57,7 @@ When any source is missing, the script shows:
 ## Usage
 
 ```bash
-./dbus-virtual-battery.py --smartshunt ttyUSB4 --chains mqtt_chain1 mqtt_chain2
+./dbus-virtual-battery.py --smartshunt ttyUSB4 --chains mqtt_chain1 mqtt_chain2 mqtt_chain3 mqtt_chain4 mqtt_chain5
 ```
 
 ## Installation
@@ -54,7 +77,7 @@ When any source is missing, the script shows:
 
 The script accepts the following command-line arguments:
 - `--smartshunt`: Device path for the SmartShunt (e.g., ttyUSB4)
-- `--chains`: Space-separated list of chain identifiers to subtract (e.g., mqtt_chain1 mqtt_chain2)
+- `--chains`: Space-separated list of chain identifiers to subtract (e.g., mqtt_chain1 mqtt_chain2 ...)
 - `--help`: Show help message
 
 ## License
