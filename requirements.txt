@@ -1,0 +1,5 @@
+dbus-python
+PyGObject
+vedbus
+pytest
+pytest-cov
