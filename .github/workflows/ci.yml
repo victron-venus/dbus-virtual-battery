@@ -12,7 +12,7 @@ permissions:
 jobs:
   ci:
     name: CI
-    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml@c8247e511d9c3012488ffcdd4f55c27b1456df78
+    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml@a78088ea195a2ddca0f719b8a8630f3ecb478b3a
     with:
       python-version: '3.11'
       run-type-check: false  # Disable type checking as the original didn't have it
