@@ -9,10 +9,11 @@
 set -e
 
 INSTALL_DIR="/data/apps/dbus-virtual-battery"
+SEPARATOR="=============================================="
 
-echo "=============================================="
+echo "$SEPARATOR"
 echo "  dbus-virtual-battery Installer for Venus OS"
-echo "=============================================="
+echo "$SEPARATOR"
 echo ""
 
 # Create install directory
