@@ -3,9 +3,8 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
-    branches: ['**']
+    branches: [main]
 
 permissions:
   contents: read
@@ -16,8 +15,4 @@ jobs:
     uses: victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml@a8c0e51b1de43cac8c90d966326684553ca166ff
     with:
       python-version: '3.11'
-      install-dependencies: false
-      run-lint: false
-      run-format-check: false
-      run-type-check: false
-      run-tests: false
+      run-type-check: false  # Disable type checking as the original didn't have it
