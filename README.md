@@ -86,14 +86,14 @@ echo "400" > /data/setupOptions/dbus-virtual-battery/chainCapacity
 
 ## System Architecture
 
-```
-[SmartShunt] --> [Total System Measurement]  
-[Chain 1] --> [Battery 1 Measurements]  
-[Chain 2] --> [Battery 2 Measurements]  
-                          ↓
-[dbus-virtual-battery] --> SmartShunt - (Chain1 + Chain2 + ...) = Virtual Chain
-                          ↓
-[Virtual Chain] --> [Virtual Battery Measurements] --> Victron GUI
+```mermaid
+graph LR
+    A[SmartShunt] --> B[Total System Measurement]
+    C[Chain 1] --> D[Battery 1 Measurements]
+    E[Chain 2] --> F[Battery 2 Measurements]
+    B & D & F --> G[dbus-virtual-battery<br/>SmartShunt - (Chain1 + Chain2 + ...) = Virtual Chain]
+    G --> H[Virtual Chain<br/>Virtual Battery Measurements]
+    H --> I[Victron GUI]
 ```
 
 The virtual battery service appears on D-Bus as:
