@@ -11,18 +11,13 @@ import gc
 import logging
 import os
 import signal
-import sys
+from collections.abc import Callable
 from time import time
-from typing import Any, Callable
+from typing import Any
 
 import dbus
-
-if sys.version_info.major == 2:
-    import gobject
-else:
-    from gi.repository import GLib as gobject
-
 from dbus.mainloop.glib import DBusGMainLoop
+from gi.repository import GLib as gobject
 
 logger = logging.getLogger("MqttBattery")
 
@@ -34,7 +29,11 @@ PATH_DC_POWER = "/Dc/0/Power"
 
 def get_bus() -> dbus.Bus:
     """Get the appropriate D-Bus (session or system)."""
-    return dbus.SessionBus() if "DBUS_SESSION_BUS_ADDRESS" in os.environ else dbus.SystemBus()
+    return (
+        dbus.SessionBus()
+        if "DBUS_SESSION_BUS_ADDRESS" in os.environ
+        else dbus.SystemBus()
+    )
 
 
 def setup_main_loop() -> tuple[Any, Any]:
@@ -61,7 +60,9 @@ def create_shutdown_handler(mainloop: Any) -> Callable[[int, Any], None]:
     """
 
     def graceful_shutdown(signum: int, frame: Any) -> None:
-        sig_name = signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
+        sig_name = (
+            signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
+        )
         logger.info("Received %s, shutting down gracefully...", sig_name)
         mainloop.quit()
 
@@ -97,8 +98,8 @@ def create_poll_function(
         nonlocal gc_counter
         try:
             service.update()
-        except Exception as e:
-            logger.exception("Error in poll: %s", e)
+        except Exception:
+            logger.exception("Error in poll")
 
         # Periodic garbage collection for memory-constrained Venus OS
         gc_counter += 1
