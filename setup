@@ -1,0 +1,115 @@
+#!/bin/bash
+
+# dbus-virtual-battery SetupHelper compatible setup script
+# Virtual Battery Calculator for Victron Venus OS
+
+#### following line incorporates SetupHelper resources into this script
+source "/data/SetupHelper/HelperResources/IncludeHelpers"
+#### end of lines to include helper resources
+
+# Default configuration
+defaultSmartshuntIndex="0"          # Index of SmartShunt to use if multiple found
+defaultEnableVirtual="true"         # Enable virtual battery (always true for this package)
+defaultChainCapacity="280"          # Chain capacity in Ah (4x 70Ah batteries)
+defaultInstance="514"               # D-Bus device instance
+defaultProductName="Virtual Battery Chain 3"  # Product name in GUI
+
+# Read configuration from setupOptions
+readConfig() {
+    # SmartShunt index (for selecting which SmartShunt if multiple found)
+    if [ -f "$setupOptionsDir/smartshuntIndex" ]; then
+        smartshuntIndex=$(cat "$setupOptionsDir/smartshuntIndex")
+    else
+        smartshuntIndex="$defaultSmartshuntIndex"
+    fi
+
+    # Enable virtual battery (should always be true for this package)
+    if [ -f "$setupOptionsDir/enableVirtual" ]; then
+        enableVirtual=$(cat "$setupOptionsDir/enableVirtual")
+    else
+        enableVirtual="$defaultEnableVirtual"
+    fi
+
+    # Chain capacity in Ah
+    if [ -f "$setupOptionsDir/chainCapacity" ]; then
+        chainCapacity=$(cat "$setupOptionsDir/chainCapacity")
+    else
+        chainCapacity="$defaultChainCapacity"
+    fi
+
+    # D-Bus device instance
+    if [ -f "$setupOptionsDir/instance" ]; then
+        instance=$(cat "$setupOptionsDir/instance")
+    else
+        instance="$defaultInstance"
+    fi
+
+    # Product name for GUI
+    if [ -f "$setupOptionsDir/productName" ]; then
+        productName=$(cat "$setupOptionsDir/productName")
+    else
+        productName="$defaultProductName"
+    fi
+}
+
+# Create the virtual battery service
+createVirtualBatteryService() {
+    local serviceName="dbus-virtual-chain"
+    local instanceNum=$instance
+
+    echo ">>> Setting up Virtual Battery service..."
+    mkdir -p /service/$serviceName/log /var/log/$serviceName
+
+    # Build command line arguments
+    local cmdArgs=""
+
+    # Only add smartshunt-index if it's not the default (0) to keep command cleaner
+    if [ "$smartshuntIndex" != "0" ]; then
+        cmdArgs="$cmdArgs --smartshunt-index $smartshuntIndex"
+    fi
+
+    # Always add instance, product-name, and capacity
+    cmdArgs="$cmdArgs --instance $instanceNum --product-name \"$productName\" --capacity $chainCapacity"
+
+    cat > /service/$serviceName/run << 'EOF'
+exec python3 /data/apps/dbus-virtual-battery/dbus-virtual-battery.py $cmdArgs
+EOF
+    chmod +x /service/$serviceName/run
+
+    cat > /service/$serviceName/log/run << 'EOF'
+exec svlogd -tt /var/log/dbus-virtual-chain
+EOF
+    chmod +x /service/$serviceName/log/run
+
+    echo "Created /service/dbus-virtual-chain"
+}
+
+# Main execution
+case "$1" in
+    "")
+        # No arguments - show help
+        echo "dbus-virtual-battery SetupHelper script"
+        echo "Usage: $0 {install|remove}"
+        ;;
+    install)
+        readConfig
+
+        # Check if virtual battery is enabled
+        if [ "$enableVirtual" = "true" ]; then
+            createVirtualBatteryService
+            echo "  svstat /service/dbus-virtual-chain"
+        else
+            echo "Virtual battery is disabled in configuration"
+        fi
+        ;;
+    remove)
+        echo "Removing dbus-virtual-battery service..."
+        rm -rf /service/dbus-virtual-chain
+        # Note: We don't stop the service here as SetupHelper handles that
+        ;;
+    *)
+        echo "Invalid command: $1"
+        echo "Usage: $0 {install|remove}"
+        exit 1
+        ;;
+esac

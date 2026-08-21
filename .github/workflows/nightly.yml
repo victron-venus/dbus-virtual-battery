@@ -1,0 +1,40 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  nightly-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create PackageManager archive
+        run: |
+          PKG_NAME="dbus-mqtt-battery"
+          ARCHIVE="${PKG_NAME}-nightly.tar.gz"
+          mkdir -p "${PKG_NAME}"
+          cp dbus-mqtt-battery.py "${PKG_NAME}/" 2>/dev/null || true
+          cp dbus-virtual-battery.py "${PKG_NAME}/" 2>/dev/null || true
+          cp setup gitHubInfo version "${PKG_NAME}/" 2>/dev/null || true
+          tar -czf "$ARCHIVE" "${PKG_NAME}/"
+          echo "ARCHIVE=$ARCHIVE" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Nightly Release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228
+        with:
+          tag_name: nightly
+          name: "Nightly Build (Development)"
+          body: |
+            Automated daily package for Venus OS testing.
+            Commit: ${{ github.sha }}
+          prerelease: true
+          overwrite_files: true
+          files: dbus-mqtt-battery-nightly.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -3,9 +3,8 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
-    branches: ['**']
+    branches: [main]
 
 permissions:
   contents: read
@@ -13,11 +12,10 @@ permissions:
 jobs:
   ci:
     name: CI
-    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml@a8c0e51b1de43cac8c90d966326684553ca166ff
+    uses: victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml@4d14da8bcf4a827c74ef43ee8339ee174d92caf6
     with:
       python-version: '3.11'
-      install-dependencies: false
-      run-lint: false
-      run-format-check: false
-      run-type-check: false
-      run-tests: false
+      run-type-check: false  # Disable type checking as the original didn't have it
+      # Service code imports dbus/vedbus (Venus OS runtime only) — untestable in CI
+      # without stubbing the whole D-Bus stack. Raise once real tests with mocks exist.
+      coverage-threshold: 0
