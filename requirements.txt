@@ -1,5 +1,6 @@
 dbus-python>=1.2.0
 PyGObject
-vedbus
 pytest
 pytest-cov
+# vedbus comes from velib_python on the Venus OS device (/opt/victronenergy/...),
+# not from PyPI — do not add it here.
