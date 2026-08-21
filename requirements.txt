@@ -1,4 +1,4 @@
-dbus-python>=1.2.0
+dbus-python>=1.4.0
 PyGObject
 pytest
 pytest-cov
