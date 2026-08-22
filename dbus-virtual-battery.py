@@ -141,9 +141,7 @@ class DbusReader:
             value = obj.GetValue()
 
             # Handle dbus types and empty lists
-            if value is None or (
-                isinstance(value, (list, dbus.Array)) and len(value) == 0
-            ):
+            if value is None or (isinstance(value, (list, dbus.Array)) and len(value) == 0):
                 return None
 
             if hasattr(value, "real"):
@@ -162,10 +160,11 @@ class DbusReader:
             error_str = str(e)
             if "UnknownObject" not in error_str and "NameHasNoOwner" not in error_str:
                 # Connection might be broken
-                if (
-                    "Connection refused" in error_str
-                    or "org.freedesktop.DBus.Error.Disconnected" in error_str
-                ):
+                conn_lost_markers = (
+                    "Connection refused",
+                    "org.freedesktop.DBus.Error.Disconnected",
+                )
+                if any(m in error_str for m in conn_lost_markers):
                     logger.warning("D-Bus connection lost, will reconnect")
                     self.bus = None
                 else:
@@ -255,16 +254,12 @@ class VirtualBatteryService:
         # Track data sources
         self.smartshunt = SourceStatus(
             "SmartShunt",
-            f"com.victronenergy.battery.{smartshunt_suffix}"
-            if smartshunt_suffix
-            else "",
+            f"com.victronenergy.battery.{smartshunt_suffix}" if smartshunt_suffix else "",
         )
         self.smartshunt_suffix = smartshunt_suffix
         self.chains: list[SourceStatus] = []
         for i, suffix in enumerate(chain_suffixes):
-            self.chains.append(
-                SourceStatus(f"Chain{i + 1}", f"com.victronenergy.battery.{suffix}")
-            )
+            self.chains.append(SourceStatus(f"Chain{i + 1}", f"com.victronenergy.battery.{suffix}"))
 
         # Track consumed Ah for SoC calculation
         self.consumed_ah = 0.0
@@ -288,23 +283,14 @@ class VirtualBatteryService:
         Returns the suffix at the given index, or None if not found.
         """
         # Common SmartShunt/service patterns
-        smartshunt_patterns = [
-            "ttyUSB",
-            "ttyACM",
-            "ve_bus",
-            "ve.can",
-            "smartshunt",
-            "shunt",
-        ]
+        smartshunt_patterns = ["ttyUSB", "ttyACM", "ve_bus", "ve.can", "smartshunt", "shunt"]
         all_services = self.dbus_reader.list_battery_services(
             pattern="", exclude_self="virtual_chain"
         )
 
         # Filter for likely SmartShunt services
         candidates = [
-            s
-            for s in all_services
-            if any(p.lower() in s.lower() for p in smartshunt_patterns)
+            s for s in all_services if any(p.lower() in s.lower() for p in smartshunt_patterns)
         ]
 
         # If no candidates match patterns, fall back to all services (already excludes virtual_chain)
@@ -352,9 +338,7 @@ class VirtualBatteryService:
         # Battery system configuration for GUI v2
         # This virtual chain represents 4 batteries in series (4S config, 48V nominal)
         self._dbusservice.add_path("/System/NrOfBatteries", 4)  # 4 batteries per chain
-        self._dbusservice.add_path(
-            "/System/NrOfCellsPerBattery", 4
-        )  # 4 cells per 12V battery
+        self._dbusservice.add_path("/System/NrOfCellsPerBattery", 4)  # 4 cells per 12V battery
         self._dbusservice.add_path("/System/BatteriesParallel", 1)
         self._dbusservice.add_path("/System/BatteriesSeries", 4)
 
@@ -421,9 +405,7 @@ class VirtualBatteryService:
         # Check if data is stale
         if source.online and (now - source.last_seen) > DATA_TIMEOUT:
             source.online = False
-            logger.warning(
-                "%s went offline (no data for %ss)", source.name, DATA_TIMEOUT
-            )
+            logger.warning("%s went offline (no data for %ss)", source.name, DATA_TIMEOUT)
         return False
 
     def _get_status_string(self) -> tuple[str, str, bool]:
@@ -534,9 +516,7 @@ class VirtualBatteryService:
         virtual_power = virtual_voltage * virtual_current
 
         # Estimate cell voltage (16 cells total = 4 batteries × 4 cells per battery)
-        cell_voltage = (
-            virtual_voltage / 16.0 if virtual_voltage and virtual_voltage > 0 else None
-        )
+        cell_voltage = virtual_voltage / 16.0 if virtual_voltage and virtual_voltage > 0 else None
 
         # Calculate SoC as average of available chains (not SmartShunt)
         # Since all chains are in parallel, they should have similar SoC
@@ -550,9 +530,7 @@ class VirtualBatteryService:
             virtual_soc = sum(chain_soc_values) / len(chain_soc_values)
         else:
             # Fall back to SmartShunt SoC if no chains available
-            virtual_soc = (
-                self.smartshunt.soc if self.smartshunt.soc is not None else 0.0
-            )
+            virtual_soc = self.smartshunt.soc if self.smartshunt.soc is not None else 0.0
 
         virtual_soc = max(0.0, min(100.0, virtual_soc))
 
@@ -590,18 +568,14 @@ class VirtualBatteryService:
             self._dbusservice["/System/MinCellVoltage"] = round(cell_voltage, 3)
             self._dbusservice["/System/MaxCellVoltage"] = round(cell_voltage, 3)
             self._dbusservice["/Voltages/Sum"] = round(virtual_voltage, 2)
-            self._dbusservice["/Voltages/Diff"] = (
-                0.0  # Virtual battery has no cell difference
-            )
+            self._dbusservice["/Voltages/Diff"] = 0.0  # Virtual battery has no cell difference
             # Set all 16 cells to estimated average voltage (dbus-serialbattery format)
             for i in range(1, 17):
                 self._dbusservice[f"/Voltages/Cell{i}"] = round(cell_voltage, 3)
 
         # Update CustomName to show status when sources missing
         if not all_online:
-            self._dbusservice["/CustomName"] = (
-                f"{self.product_name} [Missing: {missing_str}]"
-            )
+            self._dbusservice["/CustomName"] = f"{self.product_name} [Missing: {missing_str}]"
         else:
             self._dbusservice["/CustomName"] = self.product_name
 
@@ -620,9 +594,7 @@ class VirtualBatteryService:
 
 def main():
     """Main entry point for virtual battery D-Bus service."""
-    parser = argparse.ArgumentParser(
-        description="Virtual Battery Calculator for Victron"
-    )
+    parser = argparse.ArgumentParser(description="Virtual Battery Calculator for Victron")
     parser.add_argument(
         "--smartshunt",
         default=None,
@@ -656,9 +628,7 @@ def main():
 
     logger.info("=== dbus-virtual-battery v%s ===", VERSION)
     if args.smartshunt:
-        logger.info(
-            "SmartShunt: com.victronenergy.battery.%s (user-specified)", args.smartshunt
-        )
+        logger.info("SmartShunt: com.victronenergy.battery.%s (user-specified)", args.smartshunt)
     else:
         logger.info("SmartShunt: auto-discover (index %d)", args.smartshunt_index)
     if args.chains:
