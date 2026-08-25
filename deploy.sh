@@ -24,9 +24,10 @@ echo "$SEPARATOR"
 echo "SSH Host: $SSH_HOST"
 echo ""
 
-# Stop service before replacing files (avoids crash-loop during copy)
+# Stop service+log pair before replacing files: replacing a supervised tree
+# live leaves orphan supervises watching deleted directories
 echo ">>> Stopping service..."
-ssh "$SSH_HOST" "svc -d /service/$SERVICE 2>/dev/null || true"
+ssh "$SSH_HOST" "svc -dx /service/$SERVICE 2>/dev/null || true; svc -dx /service/$SERVICE/log 2>/dev/null || true"
 
 # Download and install
 echo ">>> Downloading latest version..."
@@ -41,7 +42,7 @@ ssh "$SSH_HOST" "$APP_DIR/setup install"
 
 # Restart service
 echo ">>> Starting service..."
-ssh "$SSH_HOST" "svc -u /service/$SERVICE 2>/dev/null || true"
+ssh "$SSH_HOST" "svc -u /service/$SERVICE/log 2>/dev/null || true; svc -u /service/$SERVICE 2>/dev/null || true"
 
 # Wait for service to start
 echo ""
