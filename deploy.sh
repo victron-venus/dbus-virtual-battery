@@ -1,79 +1,90 @@
 #!/bin/bash
 #
-# Deploy dbus-mqtt-battery to Venus OS via SetupHelper method
+# Deploy dbus-virtual-battery to Venus OS
 #
-# Usage: ./deploy.sh
+# Usage: ./deploy.sh [SSH_HOST]
 #
-# This downloads the latest version from GitHub and runs setup install
+# Downloads latest version from GitHub (victron-venus/dbus-virtual-battery)
+# into /data/dbus-virtual-battery and runs setup install.
 #
+# Package name matches the GitHub repo name, so PackageManager can also
+# manage updates after this initial deploy.
 
 set -e
 
-SSH_HOST="${SSH_HOST:-Cerbo}"
+SSH_HOST="${1:-${SSH_HOST:-Cerbo}}"
+REPO="victron-venus/dbus-virtual-battery"
+APP_DIR="/data/dbus-virtual-battery"
+SERVICE="dbus-virtual-chain"
 SEPARATOR="=============================================="
 
-if [[ -z "$SSH_HOST" ]]; then
-    echo "Error: SSH_HOST is not set" >&2
-    exit 1
-fi
-
 echo "$SEPARATOR"
-echo "  Deploying dbus-mqtt-battery to Venus OS"
+echo "  Deploying dbus-virtual-battery to Venus OS"
 echo "$SEPARATOR"
 echo "SSH Host: $SSH_HOST"
 echo ""
 
+# Stop service before replacing files (avoids crash-loop during copy)
+echo ">>> Stopping service..."
+ssh "$SSH_HOST" "svc -d /service/$SERVICE 2>/dev/null || true"
+
 # Download and install
 echo ">>> Downloading latest version..."
-ssh "$SSH_HOST" 'rm -rf /data/dbus-mqtt-battery && \
-cd /data && \
-wget -qO - https://github.com/victron-venus/dbus-mqtt-battery/archive/main.tar.gz | tar -xzf - && \
-mv dbus-mqtt-battery-main dbus-mqtt-battery && \
-chmod +x /data/dbus-mqtt-battery/setup'
+ssh "$SSH_HOST" "rm -rf $APP_DIR && \
+mkdir -p /data && cd /data && \
+wget -qO - https://github.com/$REPO/archive/main.tar.gz | tar -xzf - && \
+mv dbus-virtual-battery-main dbus-virtual-battery && \
+chmod +x $APP_DIR/setup"
 
 echo ">>> Running setup install..."
-ssh "$SSH_HOST" '/data/dbus-mqtt-battery/setup install'
+ssh "$SSH_HOST" "$APP_DIR/setup install"
 
-# Restart PackageManager to discover package
-echo ">>> Restarting PackageManager..."
-ssh "$SSH_HOST" "svc -t /service/PackageManager 2>/dev/null || true"
+# Restart service
+echo ">>> Starting service..."
+ssh "$SSH_HOST" "svc -u /service/$SERVICE 2>/dev/null || true"
 
-# Wait for services to start
+# Wait for service to start
 echo ""
-echo ">>> Waiting for services to start..."
+echo ">>> Waiting for service to start..."
 sleep 8
 
 echo ""
 echo "$SEPARATOR"
 echo "  Service Status"
 echo "$SEPARATOR"
-ssh "$SSH_HOST" 'svstat /service/dbus-mqtt-chain* /service/dbus-virtual-chain 2>/dev/null || echo "No services found"'
+ssh "$SSH_HOST" "svstat /service/$SERVICE 2>/dev/null || echo 'Service not found'"
 
 echo ""
 echo "$SEPARATOR"
 echo "  D-Bus Values"
 echo "$SEPARATOR"
-ssh "$SSH_HOST" 'for svc in dbus-mqtt-chain1 dbus-mqtt-chain2 virtual_chain; do
-  name=$(timeout 3 dbus-send --system --print-reply --dest=com.victronenergy.battery.$svc /ProductName com.victronenergy.BusItem.GetValue 2>/dev/null | grep string | sed "s/.*\"\(.*\)\"/\1/")
-  soc=$(timeout 3 dbus-send --system --print-reply --dest=com.victronenergy.battery.$svc /Soc com.victronenergy.BusItem.GetValue 2>/dev/null | grep -E "double|int32" | awk "{print \$NF}")
-  current=$(timeout 3 dbus-send --system --print-reply --dest=com.victronenergy.battery.$svc /Dc/0/Current com.victronenergy.BusItem.GetValue 2>/dev/null | grep double | awk "{print \$NF}")
-  if [[ -n "$name" ]]; then
-    printf "%-25s SoC: %5s%%  Current: %6sA\n" "$name" "$soc" "$current"
-  fi
-done'
+ssh "$SSH_HOST" 'svc=com.victronenergy.battery.virtual_chain
+# NOTE: no "timeout" on Venus OS busybox - call dbus-send directly
+str() { dbus-send --system --print-reply --dest=$svc $1 com.victronenergy.BusItem.GetValue 2>/dev/null | grep variant | sed "s/.*string //; s/\"//g"; }
+num() { dbus-send --system --print-reply --dest=$svc $1 com.victronenergy.BusItem.GetValue 2>/dev/null | grep variant | awk "{print \$NF}"; }
+name=$(str /ProductName)
+soc=$(num /Soc)
+voltage=$(num /Dc/0/Voltage)
+current=$(num /Dc/0/Current)
+if [[ -n "$name" ]]; then
+  printf "%-25s SoC: %5s%%  Voltage: %6sV  Current: %6sA\n" "$name" "$soc" "$voltage" "$current"
+else
+  echo "Virtual battery D-Bus service not responding yet"
+fi'
 
 echo ""
 echo "$SEPARATOR"
 echo "  Deployment Complete!"
 echo "$SEPARATOR"
 echo ""
-echo "Configuration: /data/setupOptions/dbus-mqtt-battery/"
-echo "  chains       - Number of chains (default: 2)"
-echo "  batteries    - Batteries per chain (default: 4)"
-echo "  enableVirtual - Enable virtual battery (default: true)"
-echo "  smartshunt   - SmartShunt port (default: ttyUSB0)"
+echo "Configuration: /data/setupOptions/dbus-virtual-battery/"
+echo "  smartshuntIndex - SmartShunt index if multiple found (default: 0)"
+echo "  enableVirtual   - Enable virtual battery (default: true)"
+echo "  chainCapacity   - Chain capacity in Ah (default: 280)"
+echo "  instance        - D-Bus device instance (default: 514)"
+echo "  productName     - Product name in GUI (default: Virtual Battery Chain 3)"
 echo ""
 echo "Commands:"
-echo "  Update:   ./deploy.sh"
-echo "  Uninstall: ssh $SSH_HOST '/data/dbus-mqtt-battery/setup uninstall'"
-echo "  Logs:      ssh $SSH_HOST 'tail -f /var/log/dbus-mqtt-chain1/current'"
+echo "  Update:    ./deploy.sh"
+echo "  Uninstall: ssh $SSH_HOST '$APP_DIR/setup uninstall'"
+echo "  Logs:      ssh $SSH_HOST 'tail -f /var/log/$SERVICE/current'"
