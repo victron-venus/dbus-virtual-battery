@@ -8,7 +8,7 @@
 
 set -e
 
-INSTALL_DIR="/data/apps/dbus-virtual-battery"
+INSTALL_DIR="/data/dbus-virtual-battery"
 SEPARATOR="=============================================="
 
 echo "$SEPARATOR"
