@@ -573,23 +573,43 @@ class VirtualBatteryService:
         self.last_update = time()
 
         # Update D-Bus paths
-        self._dbusservice[PATH_DC_VOLTAGE] = round(virtual_voltage, 2) if virtual_voltage is not None else None
-        self._dbusservice[PATH_DC_CURRENT] = round(virtual_current, 2) if virtual_current is not None else None
-        self._dbusservice[PATH_DC_POWER] = round(virtual_power, 1) if virtual_power is not None else None
-        self._dbusservice["/Soc"] = round(virtual_soc, 1) if virtual_soc is not None else None
-        self._dbusservice["/Capacity"] = round(remaining_capacity, 1) if remaining_capacity is not None else None
-        self._dbusservice["/ConsumedAmphours"] = round(self.consumed_ah, 1) if self.consumed_ah is not None else None
+        self._dbusservice[PATH_DC_VOLTAGE] = (
+            round(virtual_voltage, 2) if virtual_voltage is not None else None
+        )
+        self._dbusservice[PATH_DC_CURRENT] = (
+            round(virtual_current, 2) if virtual_current is not None else None
+        )
+        self._dbusservice[PATH_DC_POWER] = (
+            round(virtual_power, 1) if virtual_power is not None else None
+        )
+        self._dbusservice["/Soc"] = (
+            round(virtual_soc, 1) if virtual_soc is not None else None
+        )
+        self._dbusservice["/Capacity"] = (
+            round(remaining_capacity, 1) if remaining_capacity is not None else None
+        )
+        self._dbusservice["/ConsumedAmphours"] = (
+            round(self.consumed_ah, 1) if self.consumed_ah is not None else None
+        )
 
         # Calculate TimeToGo (in seconds)
-        if (virtual_current is not None and remaining_capacity is not None and
-            virtual_current < -0.5 and remaining_capacity > 0):
+        if (
+            virtual_current is not None
+            and remaining_capacity is not None
+            and virtual_current < -0.5
+            and remaining_capacity > 0
+        ):
             # Discharging: time = remaining capacity / discharge current
             hours = remaining_capacity / abs(virtual_current)
             # Cap at 7 days max
             time_to_go = min(int(hours * 3600), 7 * 24 * 3600)
             self._dbusservice["/TimeToGo"] = time_to_go
-        elif (virtual_current is not None and remaining_capacity is not None and
-              virtual_current > 0.5 and self.chain_capacity > remaining_capacity):
+        elif (
+            virtual_current is not None
+            and remaining_capacity is not None
+            and virtual_current > 0.5
+            and self.chain_capacity > remaining_capacity
+        ):
             # Charging: time = (full - remaining) / charge current
             hours = (self.chain_capacity - remaining_capacity) / virtual_current
             # Cap at 7 days max
@@ -602,7 +622,9 @@ class VirtualBatteryService:
         if cell_voltage:
             self._dbusservice["/System/MinCellVoltage"] = round(cell_voltage, 3)
             self._dbusservice["/System/MaxCellVoltage"] = round(cell_voltage, 3)
-            self._dbusservice["/Voltages/Sum"] = round(virtual_voltage, 2) if virtual_voltage is not None else None
+            self._dbusservice["/Voltages/Sum"] = (
+                round(virtual_voltage, 2) if virtual_voltage is not None else None
+            )
             self._dbusservice["/Voltages/Diff"] = (
                 0.0  # Virtual battery has no cell difference
             )
