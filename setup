@@ -55,10 +55,13 @@ readConfig() {
 # Create the virtual battery service
 createVirtualBatteryService() {
     local serviceName="dbus-virtual-chain"
-    local instanceNum=$instance
+    local serviceDir="/data/dbus-virtual-battery/service/$serviceName"
 
     echo ">>> Setting up Virtual Battery service..."
-    mkdir -p /service/$serviceName/log /var/log/$serviceName
+
+    # Service dir lives under /data so it survives /service tmpfs wipes;
+    # linked into /service below (same pattern as dbus-mqtt-battery chains)
+    mkdir -p $serviceDir/log /var/log/$serviceName
 
     # Build command line arguments
     local cmdArgs=""
@@ -69,29 +72,47 @@ createVirtualBatteryService() {
     fi
 
     # Always add instance, product-name, and capacity
-    cmdArgs="$cmdArgs --instance $instanceNum --product-name \"$productName\" --capacity $chainCapacity"
+    cmdArgs="$cmdArgs --instance $instance --product-name \"$productName\" --capacity $chainCapacity"
 
-    cat > /service/$serviceName/run << 'EOF'
-exec python3 /data/apps/dbus-virtual-battery/dbus-virtual-battery.py $cmdArgs
+    cat > $serviceDir/run << EOF
+#!/bin/sh
+exec 2>&1
+exec python3 /data/dbus-virtual-battery/dbus-virtual-battery.py $cmdArgs
 EOF
-    chmod +x /service/$serviceName/run
+    chmod +x $serviceDir/run
 
-    cat > /service/$serviceName/log/run << 'EOF'
-exec svlogd -tt /var/log/dbus-virtual-chain
+    # multilog, not svlogd - svlogd is not part of Venus OS
+    cat > $serviceDir/log/run << 'EOF'
+#!/bin/sh
+exec 2>&1
+exec multilog t s25000 n4 /var/log/dbus-virtual-chain
 EOF
-    chmod +x /service/$serviceName/log/run
+    chmod +x $serviceDir/log/run
 
-    echo "Created /service/dbus-virtual-chain"
+    # Link into /service (replaces stale/dangling links)
+    ln -sfn $serviceDir /service/$serviceName
+
+    # Register with PackageManager for GUI management and auto-updates
+    pmDir="/data/packageManager/dbus-virtual-battery"
+    mkdir -p "$pmDir"
+    [ -f "$scriptDir/gitHubInfo" ] && cp "$scriptDir/gitHubInfo" "$pmDir/"
+    ln -sf "$scriptDir" "$pmDir/current"
+
+    echo "Created /service/$serviceName -> $serviceDir"
 }
 
 # Main execution
-case "$1" in
-    "")
-        # No arguments - show help
+# SetupHelper drives this script via $scriptAction (set by IncludeHelpers);
+# manual runs without an action show help
+case "${scriptAction:-NONE}" in
+    NONE)
+        # No action - show help
         echo "dbus-virtual-battery SetupHelper script"
-        echo "Usage: $0 {install|remove}"
+        echo "Usage: run via SetupHelper PackageManager, or manually:"
+        echo "  scriptAction=INSTALL   $0"
+        echo "  scriptAction=UNINSTALL $0"
         ;;
-    install)
+    INSTALL)
         readConfig
 
         # Check if virtual battery is enabled
@@ -102,14 +123,14 @@ case "$1" in
             echo "Virtual battery is disabled in configuration"
         fi
         ;;
-    remove)
+    UNINSTALL)
         echo "Removing dbus-virtual-battery service..."
         rm -rf /service/dbus-virtual-chain
+        rm -rf /data/dbus-virtual-battery/service/dbus-virtual-chain
         # Note: We don't stop the service here as SetupHelper handles that
         ;;
     *)
-        echo "Invalid command: $1"
-        echo "Usage: $0 {install|remove}"
+        echo "Invalid action: $scriptAction"
         exit 1
         ;;
 esac
