@@ -80,6 +80,110 @@ DATA_TIMEOUT = 30.0
 # Default battery capacity per chain (Ah) - used for SoC calculation
 DEFAULT_CHAIN_CAPACITY = 280.0  # 4x 70Ah batteries in series
 
+# Total cell count: 4 batteries in series × 4 cells per 12V battery
+CELLS_PER_CHAIN = 16
+TIME_TO_GO_CAP_SECONDS = 7 * 24 * 3600
+CHARGE_DISCHARGE_THRESHOLD_A = 0.5
+
+
+def calculate_virtual_battery(
+    smartshunt_voltage: float | None,
+    smartshunt_current: float | None,
+    chains: list[dict],
+    chain_capacity: float,
+) -> dict:
+    """Pure calculator: derive virtual battery values from sources.
+
+    Each chain dict: {voltage: float|None, current: float|None, soc: float|None}.
+    """
+    if smartshunt_voltage is None or smartshunt_current is None:
+        return {
+            "voltage": None,
+            "current": None,
+            "power": None,
+            "soc": None,
+            "soc_valid": False,
+            "cell_voltage": None,
+            "consumed_ah": None,
+            "remaining_capacity": None,
+            "time_to_go": None,
+            "status": "SmartShunt missing",
+        }
+
+    chain_current_total = 0.0
+    chain_voltage_sum = 0.0
+    chains_with_voltage = 0
+    chain_soc_values: list[float] = []
+
+    for chain in chains:
+        current = chain.get("current")
+        voltage = chain.get("voltage")
+        soc = chain.get("soc")
+        if current is not None:
+            chain_current_total += current
+        if voltage is not None and voltage > 0:
+            chain_voltage_sum += voltage
+            chains_with_voltage += 1
+        if soc is not None and soc >= 0:
+            chain_soc_values.append(soc)
+
+    virtual_current = smartshunt_current - chain_current_total
+    virtual_voltage = (
+        chain_voltage_sum / chains_with_voltage if chains_with_voltage > 0 else None
+    )
+    virtual_power = (
+        virtual_voltage * virtual_current
+        if virtual_voltage is not None and virtual_current is not None
+        else None
+    )
+    cell_voltage = (
+        virtual_voltage / CELLS_PER_CHAIN
+        if virtual_voltage is not None and virtual_voltage > 0
+        else None
+    )
+    virtual_soc = (
+        sum(chain_soc_values) / len(chain_soc_values) if chain_soc_values else None
+    )
+
+    if virtual_soc is not None:
+        consumed_ah = chain_capacity * (1.0 - virtual_soc / 100.0)
+        remaining_capacity = chain_capacity - consumed_ah
+    else:
+        consumed_ah = None
+        remaining_capacity = None
+
+    if (
+        virtual_current is not None
+        and remaining_capacity is not None
+        and virtual_current < -CHARGE_DISCHARGE_THRESHOLD_A
+        and remaining_capacity > 0
+    ):
+        hours = remaining_capacity / abs(virtual_current)
+        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+    elif (
+        virtual_current is not None
+        and remaining_capacity is not None
+        and virtual_current > CHARGE_DISCHARGE_THRESHOLD_A
+        and chain_capacity > remaining_capacity
+    ):
+        hours = (chain_capacity - remaining_capacity) / virtual_current
+        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+    else:
+        time_to_go = None
+
+    return {
+        "voltage": virtual_voltage,
+        "current": virtual_current,
+        "power": virtual_power,
+        "soc": virtual_soc,
+        "soc_valid": virtual_soc is not None,
+        "cell_voltage": cell_voltage,
+        "consumed_ah": consumed_ah,
+        "remaining_capacity": remaining_capacity,
+        "time_to_go": time_to_go,
+        "status": "ok",
+    }
+
 
 class SourceStatus:
     """Track status of a data source"""
@@ -516,60 +620,32 @@ class VirtualBatteryService:
 
         self._dbusservice["/Connected"] = 1
 
-        # Calculate virtual battery values
-        # Sum current from online chains only
-        chain_current_total = 0.0
-        chain_voltage_sum = 0.0
-        chains_with_voltage = 0
+        # Build chain inputs from online sources
+        chains = [
+            {
+                "voltage": c.voltage,
+                "current": c.current,
+                "soc": c.soc,
+            }
+            for c in self.chains
+            if c.online
+        ]
 
-        for chain in self.chains:
-            if chain.online and chain.current is not None:
-                chain_current_total += chain.current
-            if chain.online and chain.voltage is not None and chain.voltage > 0:
-                chain_voltage_sum += chain.voltage
-                chains_with_voltage += 1
-
-        # Calculate virtual current
-        # NOTE: If some chains are offline, this will be inaccurate
-        # We cannot subtract their actual current since we don't have measurements
-        virtual_current = self.smartshunt.current - chain_current_total
-
-        # Use chain voltage average for consistency (parallel connection)
-        if chains_with_voltage > 0:
-            virtual_voltage = chain_voltage_sum / chains_with_voltage
-        else:
-            virtual_voltage = None  # No fallback to SmartShunt
-
-        if virtual_voltage is not None and virtual_current is not None:
-            virtual_power = virtual_voltage * virtual_current
-        else:
-            virtual_power = None
-
-        # Estimate cell voltage (16 cells total = 4 batteries × 4 cells per battery)
-        cell_voltage = (
-            virtual_voltage / 16.0 if virtual_voltage and virtual_voltage > 0 else None
+        # Pure calculator
+        calc = calculate_virtual_battery(
+            self.smartshunt.voltage,
+            self.smartshunt.current,
+            chains,
+            self.chain_capacity,
         )
-
-        # Calculate SoC as average of available chains (not SmartShunt)
-        # Since all chains are in parallel, they should have similar SoC
-        chain_soc_values = []
-        for chain in self.chains:
-            if chain.online and chain.soc is not None and chain.soc >= 0:
-                chain_soc_values.append(chain.soc)
-
-        if chain_soc_values:
-            # Use average SoC from available chains
-            virtual_soc = sum(chain_soc_values) / len(chain_soc_values)
-        else:
-            virtual_soc = None  # No fallback to SmartShunt
-
-        # Calculate consumed Ah and remaining capacity from SoC
-        if virtual_soc is not None:
-            self.consumed_ah = self.chain_capacity * (1.0 - virtual_soc / 100.0)
-            remaining_capacity = self.chain_capacity - self.consumed_ah
-        else:
-            self.consumed_ah = None
-            remaining_capacity = None
+        virtual_voltage = calc["voltage"]
+        virtual_current = calc["current"]
+        virtual_power = calc["power"]
+        virtual_soc = calc["soc"]
+        cell_voltage = calc["cell_voltage"]
+        self.consumed_ah = calc["consumed_ah"]
+        remaining_capacity = calc["remaining_capacity"]
+        time_to_go = calc["time_to_go"]
         self.last_update = time()
 
         # Update D-Bus paths
@@ -592,32 +668,8 @@ class VirtualBatteryService:
             round(self.consumed_ah, 1) if self.consumed_ah is not None else None
         )
 
-        # Calculate TimeToGo (in seconds)
-        if (
-            virtual_current is not None
-            and remaining_capacity is not None
-            and virtual_current < -0.5
-            and remaining_capacity > 0
-        ):
-            # Discharging: time = remaining capacity / discharge current
-            hours = remaining_capacity / abs(virtual_current)
-            # Cap at 7 days max
-            time_to_go = min(int(hours * 3600), 7 * 24 * 3600)
-            self._dbusservice["/TimeToGo"] = time_to_go
-        elif (
-            virtual_current is not None
-            and remaining_capacity is not None
-            and virtual_current > 0.5
-            and self.chain_capacity > remaining_capacity
-        ):
-            # Charging: time = (full - remaining) / charge current
-            hours = (self.chain_capacity - remaining_capacity) / virtual_current
-            # Cap at 7 days max
-            time_to_go = min(int(hours * 3600), 7 * 24 * 3600)
-            self._dbusservice["/TimeToGo"] = time_to_go
-        else:
-            # Idle or very low current - no meaningful time-to-go
-            self._dbusservice["/TimeToGo"] = None
+        # TimeToGo computed by calculate_virtual_battery()
+        self._dbusservice["/TimeToGo"] = time_to_go
 
         if cell_voltage:
             self._dbusservice["/System/MinCellVoltage"] = round(cell_voltage, 3)
@@ -645,7 +697,7 @@ class VirtualBatteryService:
         v_c_str = f"{virtual_current:.2f}" if virtual_current is not None else "None"
         v_s_str = f"{virtual_soc:.0f}" if virtual_soc is not None else "None"
         logger.debug(
-            f"Virtual: {v_v_str}V {v_c_str}A {v_s_str}% (SS: {self.smartshunt.current:.2f}A, Chains: {chain_current_total:.2f}A, Online: {modules_online}/{modules_online + modules_offline})",
+            f"Virtual: {v_v_str}V {v_c_str}A {v_s_str}% (Online: {modules_online}/{modules_online + modules_offline})",
         )
 
 
