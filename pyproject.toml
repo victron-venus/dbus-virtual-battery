@@ -1,11 +1,6 @@
 # Project configuration for dbus-virtual-battery.
-# Exists primarily to configure ruff: a vendored package at
-# `dbus_mqtt_battery.local/` is shared from a sibling project whose naming
-# (with the literal `.local` segment) trips ruff's N999 module-naming check
-# and produces a false positive in CI. Excluding it keeps the linter green
-# without renaming shared code.
+# Shared D-Bus utils provided by sibling project dbus-mqtt-battery.
+# No local vendored package — uses dbus_shared from Venus OS.
 
 [tool.ruff]
-extend-exclude = [
-    "dbus_mqtt_battery.local",
-]
+extend-exclude = []
