@@ -16,6 +16,8 @@ jobs:
     with:
       python-version: '3.11'
       run-type-check: false  # Disable type checking as the original didn't have it
-      # Service code imports dbus/vedbus (Venus OS runtime only) — untestable in CI
-      # without stubbing the whole D-Bus stack. Raise once real tests with mocks exist.
-      coverage-threshold: 0
+      # Calculator unit tests in tests/test_calculator.py cover the pure
+      # derivation logic. The runtime entrypoint still imports dbus/vedbus
+      # (Venus OS only) and is exercised by on-device tests, not CI.
+      coverage-threshold: 80
+      test-args: tests/test_calculator.py

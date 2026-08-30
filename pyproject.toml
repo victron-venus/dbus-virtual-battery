@@ -2,5 +2,14 @@
 # Shared D-Bus utils provided by sibling project dbus-mqtt-battery.
 # No local vendored package — uses dbus_shared from Venus OS.
 
+[project]
+name = "dbus-virtual-battery"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = []
+test = ["pytest>=7.0", "pytest-cov>=4.0"]
+
 [tool.ruff]
 extend-exclude = []
