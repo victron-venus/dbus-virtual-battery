@@ -155,7 +155,6 @@ Once installed and running, the virtual battery will appear in:
 
 This package contains:
 - `dbus-virtual-battery.py` - Main virtual battery calculation service
-- `dbus_mqtt_battery/` - Shared utility package (D-Bus helpers, configuration)
 - `setup` - SetupHelper compatible installation script
 - `version` - Package version
 - `install.sh` - Venus OS installer (for manual installation)
@@ -171,11 +170,9 @@ Version numbers consist of three fields: Major.Minor.Patch
 
 Version is stored in:
 1. `version` file (read by runtime/dashboards)
-2. `dbus_mqtt_battery/config.py` (used by setuptools/pip)  
-3. Git tag (e.g., `v2.6.0`) that marks the release
+2. Git tag (e.g., `v2.6.0`) that marks the release
 
 When releasing:
-1. Update `dbus_mqtt_battery/config.py` version
-2. Update the `version` file to the same string
-3. Commit both changes
-4. Create and push a Git tag with the same version (prefixed with `v`)
+1. Update the `version` file
+2. Commit the change
+3. Create and push a Git tag with the same version (prefixed with `v`)

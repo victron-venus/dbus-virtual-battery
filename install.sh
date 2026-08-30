@@ -25,11 +25,6 @@ if [[ -f "dbus-virtual-battery.py" ]] ; then
     echo "Copied dbus-virtual-battery.py"
 fi
 
-# Copy dbus_mqtt_battery package (shared utilities)
-if [[ -d "dbus_mqtt_battery" ]] ; then
-    cp -r dbus_mqtt_battery "$INSTALL_DIR/"
-    echo "Copied dbus_mqtt_battery package"
-fi
 
 # Copy version file
 if [[ -f "version" ]] ; then
