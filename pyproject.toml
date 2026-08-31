@@ -9,7 +9,7 @@ requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = []
-test = ["pytest>=7.0", "pytest-cov>=4.0"]
+test = ["pytest>=7.0", "pytest-cov>=7.1.0"]
 
 [tool.ruff]
 extend-exclude = []
