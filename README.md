@@ -161,23 +161,13 @@ This package contains:
 - `version` - Package version
 - `install.sh` - Venus OS installer (for manual installation)
 - `register-package.sh` - Package registration helper
-- `release.sh` - Release automation script
+- `release.sh` - Wrapper for the local release client
 
-## Versioning
+<!-- ci-release-process:start -->
+## Release process
 
-Version numbers consist of three fields: Major.Minor.Patch
-- Major: Backwards-incompatible changes
-- Minor: Backwards-compatible feature additions
-- Patch: Backwards-compatible bug fixes
-
-Version is stored in:
-1. `version` file (read by runtime/dashboards)
-2. Git tag (e.g., `v2.6.0`) that marks the release
-
-When releasing:
-1. Update the `version` file
-2. Commit the change
-3. Create and push a Git tag with the same version (prefixed with `v`)
+See the [release strategy](RELEASING.md) for validation, nightly, beta, RC and stable promotion rules, and the [operator runbook](docs/release-workflow.md) for local commands.
+<!-- ci-release-process:end -->
 
 ## Release v2.7.4
 

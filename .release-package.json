@@ -1,0 +1,14 @@
+{
+  "name": "dbus-virtual-battery",
+  "include": [
+    "dbus-virtual-battery.py",
+    "setup",
+    "gitHubInfo",
+    "version",
+    "install.sh",
+    "requirements.txt",
+    "pyproject.toml",
+    "README.md",
+    "LICENSE"
+  ]
+}

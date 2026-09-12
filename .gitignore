@@ -18,3 +18,8 @@ __pycache__/
 *.backup
 .coverage*
 coverage.xml
+
+# Local validation and candidate packaging
+.venv-ci/
+release-dist/
+bandit-results.json
