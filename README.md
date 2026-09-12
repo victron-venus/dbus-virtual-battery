@@ -178,3 +178,9 @@ When releasing:
 1. Update the `version` file
 2. Commit the change
 3. Create and push a Git tag with the same version (prefixed with `v`)
+
+## Release v2.7.3
+
+The `--smartshunt-index` option now selects the requested discovered SmartShunt. The service reports its own version instead of the separately installed shared helper package's version.
+
+GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. The separately installed `dbus_shared` package and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
