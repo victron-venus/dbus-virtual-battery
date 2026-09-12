@@ -54,24 +54,43 @@ sys.path.insert(
 
 import dbus
 
-# Import shared components from dbus_shared
-from dbus_shared import (
-    PATH_DC_CURRENT,
-    PATH_DC_POWER,
-    PATH_DC_VOLTAGE,
-    POLL_INTERVAL_MS,
-    create_poll_function,
-    get_bus,
-    register_signal_handlers,
-    run_main_loop,
-    setup_dbus_paths_common,
-    setup_dbus_paths_dc,
-    setup_main_loop,
-)
+# Existing Venus installations can provide this API through the MQTT battery
+# package. Fall back only when dbus_shared itself is absent, not when one of an
+# installed helper's own dependencies is broken.
+try:
+    from dbus_shared import (
+        PATH_DC_CURRENT,
+        PATH_DC_POWER,
+        PATH_DC_VOLTAGE,
+        POLL_INTERVAL_MS,
+        create_poll_function,
+        get_bus,
+        register_signal_handlers,
+        run_main_loop,
+        setup_dbus_paths_common,
+        setup_dbus_paths_dc,
+        setup_main_loop,
+    )
+except ModuleNotFoundError as error:
+    if error.name != "dbus_shared":
+        raise
+    from dbus_mqtt_battery import (
+        PATH_DC_CURRENT,
+        PATH_DC_POWER,
+        PATH_DC_VOLTAGE,
+        POLL_INTERVAL_MS,
+        create_poll_function,
+        get_bus,
+        register_signal_handlers,
+        run_main_loop,
+        setup_dbus_paths_common,
+        setup_dbus_paths_dc,
+        setup_main_loop,
+    )
 from vedbus import VeDbusService
 
 # This service reports its own release, independently of shared helper versions.
-VERSION = "2.7.4"
+VERSION = "2.7.5"
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

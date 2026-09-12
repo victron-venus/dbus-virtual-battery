@@ -1,10 +1,10 @@
 # Project configuration for dbus-virtual-battery.
 # Shared D-Bus utils provided by sibling project dbus-mqtt-battery.
-# No local vendored package — uses dbus_shared from Venus OS.
+# No local vendored package: use dbus_shared or the installed MQTT battery helper.
 
 [project]
 name = "dbus-virtual-battery"
-version = "2.7.4"
+version = "2.7.5"
 requires-python = ">=3.11"
 
 [project.optional-dependencies]

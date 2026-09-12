@@ -151,7 +151,7 @@ Once installed and running, the virtual battery will appear in:
 - Python 3.7+
 - velib_python (included with Venus OS)
 - dbus-python
-- The separately installed `dbus_shared` package, providing the common D-Bus paths and main-loop helpers imported by the entrypoint. It must be importable on the device; this repository does not bundle it.
+- Either the separately installed `dbus_shared` package or the compatible `dbus_mqtt_battery` package already used by existing Venus installations. The helper must be importable; this repository does not bundle it. Errors inside an installed helper remain visible instead of being silently replaced.
 
 ## Source Code
 
@@ -216,10 +216,14 @@ virtual chain. Complete live data restores calculations automatically.
 
 SetupHelper installs `/data/dbus-virtual-battery/boot.sh` before an existing
 `exit 0` in `/data/rc.local` to restore `/service/dbus-virtual-chain`. Install the
-shared `dbus_shared` package alongside the repository first. `install.sh` is a
+shared `dbus_shared` or `dbus_mqtt_battery` helper package first. `install.sh` is a
 file-copy helper; running it from `/data/dbus-virtual-battery` is supported,
 but SetupHelper still performs service registration. Logs use native `multilog`
 with four rotated 25 KB files plus the current file.
+
+Version 2.7.5 completes SetupHelper's installed-version bookkeeping. Start it
+after the intended SmartShunt and MQTT chains are available: default source
+discovery occurs at startup, so installation order must preserve that topology.
 
 Calculator tests load the actual production function; no copied implementation
 is used as the test subject. Separate source-loss regressions exercise the

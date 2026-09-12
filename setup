@@ -145,6 +145,7 @@ case "${scriptAction:-NONE}" in
         else
             echo "Virtual battery is disabled in configuration"
         fi
+        endScript
         ;;
     UNINSTALL)
         echo "Removing dbus-virtual-battery service..."
@@ -152,6 +153,7 @@ case "${scriptAction:-NONE}" in
         rm -rf /service/dbus-virtual-chain
         rm -rf /data/dbus-virtual-battery/service/dbus-virtual-chain
         # Note: We don't stop the service here as SetupHelper handles that
+        endScript
         ;;
     *)
         echo "Invalid action: $scriptAction"
