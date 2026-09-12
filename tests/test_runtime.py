@@ -13,7 +13,7 @@ from tests.fake_dbus import DBusException
 def test_reader_connect_failure_and_reconnect_throttle(runtime, monkeypatch):
     """A failed connection retries only after the configured interval."""
     clock = [1.0]
-    monkeypatch.setattr(runtime, "time", lambda: clock[0])
+    monkeypatch.setattr(runtime, "monotonic", lambda: clock[0])
     bus = Mock()
     runtime.get_bus.side_effect = [DBusException("unavailable"), bus]
     reader = runtime.DbusReader()
@@ -42,7 +42,7 @@ def test_reader_values(runtime, value, expected):
 def test_reader_cache_expires(runtime, monkeypatch):
     """Fresh cached values avoid transport calls and expired values are refreshed."""
     clock = [100.0]
-    monkeypatch.setattr(runtime, "time", lambda: clock[0])
+    monkeypatch.setattr(runtime, "monotonic", lambda: clock[0])
     bus = runtime.get_bus.return_value
     bus.get_object.return_value.GetValue.side_effect = [50, 51]
     reader = runtime.DbusReader()

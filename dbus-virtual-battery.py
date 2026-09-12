@@ -32,7 +32,7 @@ import logging
 import math
 import os
 import sys
-from time import sleep, time
+from time import monotonic, sleep, time
 
 # Add shared package to Python path
 sys.path.insert(
@@ -232,12 +232,15 @@ class DbusReader:
         self._cache = {}
         self._cache_time = {}
         self._cache_ttl = 1.0  # Cache values for 1 second
-        self._last_reconnect_attempt = 0
+        self._last_reconnect_attempt = None
         self._reconnect_interval = 5.0  # Minimum seconds between reconnect attempts
         self._connect()
 
     def _connect(self):
         """Connect to D-Bus"""
+        self._last_reconnect_attempt = monotonic()
+        self._cache.clear()
+        self._cache_time.clear()
         try:
             self.bus = get_bus()
             logger.debug("D-Bus connection established")
@@ -252,11 +255,13 @@ class DbusReader:
         if self.bus is not None:
             return True
 
-        now = time()
-        if (now - self._last_reconnect_attempt) < self._reconnect_interval:
+        now = monotonic()
+        if (
+            self._last_reconnect_attempt is not None
+            and now - self._last_reconnect_attempt < self._reconnect_interval
+        ):
             return False
 
-        self._last_reconnect_attempt = now
         return self._connect()
 
     def get_value(self, service: str, path: str) -> float | None:
@@ -265,12 +270,12 @@ class DbusReader:
             return None
 
         cache_key = f"{service}{path}"
-        now = time()
+        now = monotonic()
 
         # Return cached value if fresh
         if (
             cache_key in self._cache
-            and (now - self._cache_time.get(cache_key, 0)) < self._cache_ttl
+            and 0 <= now - self._cache_time.get(cache_key, 0) < self._cache_ttl
         ):
             return self._cache[cache_key]
 
@@ -309,6 +314,8 @@ class DbusReader:
                 if any(m in error_str for m in conn_lost_markers):
                     logger.warning("D-Bus connection lost, will reconnect")
                     self.bus = None
+                    self._cache.clear()
+                    self._cache_time.clear()
                 else:
                     logger.debug("D-Bus error reading %s%s: %s", service, path, e)
             return None
