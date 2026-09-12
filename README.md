@@ -29,9 +29,10 @@ The dbus-virtual-battery service creates a virtual battery by calculating values
 ### SmartShunt Auto-Discovery
 - Automatically discovers all SmartShunt services on D-Bus matching patterns (`ttyUSB*`, `ttyACM*`, `ve_bus`, `ve.can`, `smartshunt`, `shunt`)
 - Uses the first discovered SmartShunt by default (index 0)
+- `--smartshunt-index 1` selects the second discovered SmartShunt when starting the service directly; SetupHelper passes `smartshuntIndex` through the same option. An explicit `--smartshunt` suffix takes precedence.
 - Configure which SmartShunt to use via `setupOptions/smartshuntIndex` (zero-based index)
 
-### Chain Auto-Discovery  
+### Chain Auto-Discovery
 - Automatically discovers ALL battery services on D-Bus
 - Excludes:
   - `virtual_chain` (the virtual battery service itself)
@@ -70,7 +71,7 @@ echo "1" > /data/setupOptions/dbus-virtual-battery/smartshuntIndex
 # Use the second SmartShunt found (index 1)
 ```
 
-### Manual Chain Specification  
+### Manual Chain Specification
 ```bash
 echo "mqtt_chain1,mqtt_chain2" > /data/setupOptions/dbus-virtual-battery/chains
 # Subtract only these specific chains (disables auto-discovery)
@@ -78,7 +79,7 @@ echo "mqtt_chain1,mqtt_chain2" > /data/setupOptions/dbus-virtual-battery/chains
 
 ### Custom Capacity
 ```bash
-echo "400" > /data/setupOptions/dbus-virtual-battery/chainCapacity  
+echo "400" > /data/setupOptions/dbus-virtual-battery/chainCapacity
 # Use 400Ah capacity instead of default 280Ah
 ```
 
@@ -101,33 +102,33 @@ The virtual battery service appears on D-Bus as:
 
 ### Option 1: SetupHelper (Recommended)
 
-1. **Configure (optional, before install)**  
+1. **Configure (optional, before install)**
    ```bash
    mkdir -p /data/setupOptions/dbus-virtual-battery
-   
+
    # SmartShunt index (0 = first, 1 = second, etc.)
    echo "0" > /data/setupOptions/dbus-virtual-battery/smartshuntIndex
-   
+
    # Chain capacity in Ah (default: 280 for 4x 70Ah batteries)
    echo "280" > /data/setupOptions/dbus-virtual-battery/chainCapacity
-   
+
    # D-Bus instance (default: 514)
    echo "514" > /data/setupOptions/dbus-virtual-battery/instance
-   
+
    # Product name for GUI (default: "Virtual Battery Chain 3")
    echo "Virtual Battery Chain 3" > /data/setupOptions/dbus-virtual-battery/productName
    ```
-   
+
    > **Note**: Virtual battery is **enabled by default**. The `enableVirtual` option exists but should remain `true`.
 
-2. **Install**  
+2. **Install**
    - PackageManager → dbus-virtual-battery → Install
 
 ### How PackageManager Works
 
 PackageManager discovers packages by scanning `/data/` for directories containing both a `version` file and a `setup` script. The `setup` script (sourced from this repo) is executed with the `INSTALL` action by SetupHelper, which:
 
-- Creates the virtual battery service (`dbus-virtual-chain`) 
+- Creates the virtual battery service (`dbus-virtual-chain`)
 - Copies Python scripts to `/data/dbus-virtual-battery/`
 
 ## Configuration Notes
@@ -150,6 +151,7 @@ Once installed and running, the virtual battery will appear in:
 - Python 3.7+
 - velib_python (included with Venus OS)
 - dbus-python
+- The separately installed `dbus_shared` package, providing the common D-Bus paths and main-loop helpers imported by the entrypoint. It must be importable on the device; this repository does not bundle it.
 
 ## Source Code
 
@@ -165,7 +167,7 @@ This package contains:
 
 Version numbers consist of three fields: Major.Minor.Patch
 - Major: Backwards-incompatible changes
-- Minor: Backwards-compatible feature additions  
+- Minor: Backwards-compatible feature additions
 - Patch: Backwards-compatible bug fixes
 
 Version is stored in:

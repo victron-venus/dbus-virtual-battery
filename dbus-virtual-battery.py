@@ -764,6 +764,7 @@ def main():
     # Create virtual battery service
     service = VirtualBatteryService(
         smartshunt_suffix=args.smartshunt,
+        smartshunt_index=args.smartshunt_index,
         chain_suffixes=args.chains,
         device_instance=args.instance,
         product_name=args.product_name,
