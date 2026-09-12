@@ -179,11 +179,11 @@ When releasing:
 2. Commit the change
 3. Create and push a Git tag with the same version (prefixed with `v`)
 
-## Release v2.7.3
+## Release v2.7.4
 
-The `--smartshunt-index` option now selects the requested discovered SmartShunt. The service reports its own version instead of the separately installed shared helper package's version.
-
-GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. The separately installed `dbus_shared` package and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
+Disconnected upstream sources no longer contribute cached measurements to the
+virtual battery. This patch preserves existing discovery, timeout and recovery
+behavior for sources without an explicit connection status.
 
 ### Source connection status
 
@@ -192,3 +192,14 @@ even if it still exposes its last measurements. A disconnected SmartShunt makes
 the virtual battery unavailable; a disconnected chain is omitted and reported as
 missing. Fresh connected readings restore normal calculations. Sources without
 `/Connected` retain the existing measurement-based availability and timeout behavior.
+
+Download the [v2.7.4 runtime archive](https://github.com/victron-venus/dbus-virtual-battery/releases/download/v2.7.4/dbus-virtual-battery-v2.7.4.tar.gz)
+and its [SHA256 checksum](https://github.com/victron-venus/dbus-virtual-battery/releases/download/v2.7.4/dbus-virtual-battery-v2.7.4.tar.gz.sha256).
+Use the existing SetupHelper installation procedure above. Venus OS libraries and
+the separately installed `dbus_shared` package remain required.
+
+## Release v2.7.3
+
+The `--smartshunt-index` option now selects the requested discovered SmartShunt. The service reports its own version instead of the separately installed shared helper package's version.
+
+GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. The separately installed `dbus_shared` package and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
