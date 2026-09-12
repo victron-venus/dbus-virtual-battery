@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Release](https://img.shields.io/github/v/release/victron-venus/dbus-virtual-battery)](https://github.com/victron-venus/dbus-virtual-battery/releases)
 [![Downloads](https://img.shields.io/github/downloads/victron-venus/dbus-virtual-battery/total)](https://github.com/victron-venus/dbus-virtual-battery/releases)
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Venus OS](https://img.shields.io/badge/Venus%20OS-3.x-blue)](https://github.com/victronenergy/venus)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)](https://github.com/victron-venus/dbus-virtual-battery)
 [![GitHub watchers](https://img.shields.io/github/watchers/victron-venus/dbus-virtual-battery)](https://github.com/victron-venus/dbus-virtual-battery/watchers)
@@ -40,9 +40,9 @@ The dbus-virtual-battery service creates a virtual battery by calculating values
 - All remaining battery services are treated as chains to subtract from the SmartShunt
 
 ### Manual Override
-All auto-discovery can be overridden via configuration:
+SmartShunt selection is configurable through SetupHelper; explicit source lists are available through the runtime CLI:
 - `setupOptions/smartshuntIndex`: Select which SmartShunt to use (if multiple found)
-- `setupOptions/chains`: Specify exact chain service suffixes to subtract (comma-separated, disables auto-discovery)
+- `--chains mqtt_chain1 mqtt_chain2`: Specify exact chain suffixes in a custom runtime launcher. The bundled SetupHelper script does not read a `setupOptions/chains` file; reinstalling regenerates its default launcher.
 
 ## Configuration Options
 
@@ -72,10 +72,7 @@ echo "1" > /data/setupOptions/dbus-virtual-battery/smartshuntIndex
 ```
 
 ### Manual Chain Specification
-```bash
-echo "mqtt_chain1,mqtt_chain2" > /data/setupOptions/dbus-virtual-battery/chains
-# Subtract only these specific chains (disables auto-discovery)
-```
+For a separately maintained runtime launcher, add `--chains mqtt_chain1 mqtt_chain2` to its Python command. The arguments are space-separated service suffixes. Do not start a second process alongside the supervised service. The bundled SetupHelper configuration retains automatic chain discovery.
 
 ### Custom Capacity
 ```bash
@@ -129,26 +126,26 @@ The virtual battery service appears on D-Bus as:
 PackageManager discovers packages by scanning `/data/` for directories containing both a `version` file and a `setup` script. The `setup` script (sourced from this repo) is executed with the `INSTALL` action by SetupHelper, which:
 
 - Creates the virtual battery service (`dbus-virtual-chain`)
-- Copies Python scripts to `/data/dbus-virtual-battery/`
+- Uses runtime files already extracted into `/data/dbus-virtual-battery/` and records the installed version
 
 ## Configuration Notes
 
 - **SmartShunt Selection**: When multiple SmartShunts are present, use `smartshuntIndex` to select which one to use (0-based indexing)
-- **Chain Selection**: By default, all discovered battery chains (excluding virtual_chain and SmartShunt) are used. To specify exact chains, use the `chains` option with comma-separated service suffixes (e.g., `mqtt_chain1,mqtt_chain2`)
+- **Chain Selection**: By default, all discovered battery chains (excluding virtual_chain and SmartShunt) are used. An explicit list requires the runtime `--chains` arguments in a custom launcher; SetupHelper does not consume `setupOptions/chains`.
 - **Capacity Setting**: The `chainCapacity` option sets the amp-hour capacity used for calculating Ah-related properties. Set this to match your actual battery bank capacity.
-- **Service Management**: After installation, use `svcadm enable/disable/restart dbus-virtual-chain` to manage the service
+- **Service Management**: After installation, use Venus OS daemontools: `svc -d /service/dbus-virtual-chain` to stop, `svc -u /service/dbus-virtual-chain` to start, and `svc -t /service/dbus-virtual-chain` to restart the process
 
 ## Monitoring
 
 Once installed and running, the virtual battery will appear in:
 - Victron GUI (VRM Portal, etc.) as a battery device
 - D-Bus under `com.victronenergy.battery.virtual_chain`
-- Logs accessible via `svlogd /var/log/dbus-virtual-chain`
+- Read logs with `tail -n 50 /var/log/dbus-virtual-chain/current`; the service uses native `multilog` rotation
 
 ## Dependencies
 
 - Venus OS 2.8 or later
-- Python 3.7+
+- Python 3.11+
 - velib_python (included with Venus OS)
 - dbus-python
 - Either the separately installed `dbus_shared` package or the compatible `dbus_mqtt_battery` package already used by existing Venus installations. The helper must be importable; this repository does not bundle it. Errors inside an installed helper remain visible instead of being silently replaced.
@@ -202,7 +199,7 @@ the separately installed `dbus_shared` package remain required.
 
 The `--smartshunt-index` option now selects the requested discovered SmartShunt. The service reports its own version instead of the separately installed shared helper package's version.
 
-GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. The separately installed `dbus_shared` package and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
+GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. A compatible shared helper provider and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
 
 ## Venus OS source validity and persistence
 
@@ -228,3 +225,10 @@ discovery occurs at startup, so installation order must preserve that topology.
 Calculator tests load the actual production function; no copied implementation
 is used as the test subject. Separate source-loss regressions exercise the
 production D-Bus update methods with hardware-free inputs.
+
+Version 2.7.6 uses monotonic time for the reader's one-second cache and
+five-second reconnect interval, and clears cached values when the connection
+changes. Wall-clock corrections therefore cannot extend cached source validity
+or suppress transport recovery. These reader safeguards do not replace an
+upstream service's own freshness reporting: `/Connected=1` with finite retained
+values is indistinguishable from a new physical measurement on this interface.
