@@ -184,3 +184,11 @@ When releasing:
 The `--smartshunt-index` option now selects the requested discovered SmartShunt. The service reports its own version instead of the separately installed shared helper package's version.
 
 GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. The separately installed `dbus_shared` package and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
+
+### Source connection status
+
+An upstream source reporting `/Connected = 0` is immediately treated as offline,
+even if it still exposes its last measurements. A disconnected SmartShunt makes
+the virtual battery unavailable; a disconnected chain is omitted and reported as
+missing. Fresh connected readings restore normal calculations. Sources without
+`/Connected` retain the existing measurement-based availability and timeout behavior.

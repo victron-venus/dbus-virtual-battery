@@ -514,6 +514,11 @@ class VirtualBatteryService:
 
     def _read_source(self, source: SourceStatus) -> bool:
         """Read data from a source and update its status. Returns True if data is valid."""
+        # Some upstream services retain their last measurements after disconnecting.
+        if self.dbus_reader.get_value(source.service, "/Connected") == 0:
+            source.online = False
+            return False
+
         voltage = self.dbus_reader.get_value(source.service, PATH_DC_VOLTAGE)
         current = self.dbus_reader.get_value(source.service, PATH_DC_CURRENT)
         soc = self.dbus_reader.get_value(source.service, "/Soc")
