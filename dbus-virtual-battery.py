@@ -59,7 +59,6 @@ from dbus_shared import (
     PATH_DC_POWER,
     PATH_DC_VOLTAGE,
     POLL_INTERVAL_MS,
-    VERSION,
     create_poll_function,
     get_bus,
     register_signal_handlers,
@@ -69,6 +68,9 @@ from dbus_shared import (
     setup_main_loop,
 )
 from vedbus import VeDbusService
+
+# This service reports its own release, independently of shared helper versions.
+VERSION = "2.7.3"
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
