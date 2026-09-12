@@ -70,7 +70,7 @@ from dbus_shared import (
 from vedbus import VeDbusService
 
 # This service reports its own release, independently of shared helper versions.
-VERSION = "2.7.3"
+VERSION = "2.7.4"
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
