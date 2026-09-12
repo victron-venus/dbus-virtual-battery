@@ -18,7 +18,7 @@ and calculates current as: SmartShunt_current - chain1_current - chain2_current
 
 When any source is missing, the script shows:
 - Which sources are online/offline
-- Partial data where available
+- Invalid derived measurements until all required sources recover
 - Warnings in the GUI
 
 Usage:
@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import math
 import os
 import sys
 from time import sleep, time
@@ -272,6 +273,8 @@ class DbusReader:
                 except (ValueError, TypeError):
                     return None
 
+            if not math.isfinite(value):
+                return None
             self._cache[cache_key] = value
             self._cache_time[cache_key] = now
             return value
@@ -517,37 +520,38 @@ class VirtualBatteryService:
 
     def _read_source(self, source: SourceStatus) -> bool:
         """Read data from a source and update its status. Returns True if data is valid."""
-        # Some upstream services retain their last measurements after disconnecting.
-        if self.dbus_reader.get_value(source.service, PATH_CONNECTED) == 0:
-            source.online = False
-            return False
-
+        connected = self.dbus_reader.get_value(source.service, "/Connected")
         voltage = self.dbus_reader.get_value(source.service, PATH_DC_VOLTAGE)
         current = self.dbus_reader.get_value(source.service, PATH_DC_CURRENT)
         soc = self.dbus_reader.get_value(source.service, "/Soc")
         power = self.dbus_reader.get_value(source.service, PATH_DC_POWER)
 
-        now = time()
-
-        # Check if we got valid data (at least voltage and current)
-        if voltage is not None and current is not None:
+        # A registered service can retain old values while reporting offline.
+        # Missing/invalid data must not remain eligible for subtraction.
+        if (
+            connected == 1
+            and voltage is not None
+            and current is not None
+            and math.isfinite(voltage)
+            and math.isfinite(current)
+        ):
             source.voltage = voltage
             source.current = current
-            source.soc = soc
-            source.power = power if power is not None else voltage * current
-            source.online = True
-            source.last_seen = now
-            return True
-        # If no data yet, check if service exists on D-Bus (service running but no MQTT data yet)
-        if self.dbus_reader.service_exists(source.service):
-            source.online = True  # Service exists = consider online
-            # Keep last_seen as 0 or previous value
-        # Check if data is stale
-        if source.online and (now - source.last_seen) > DATA_TIMEOUT:
-            source.online = False
-            logger.warning(
-                "%s went offline (no data for %ss)", source.name, DATA_TIMEOUT
+            source.soc = soc if soc is not None and math.isfinite(soc) else None
+            source.power = (
+                power
+                if power is not None and math.isfinite(power)
+                else voltage * current
             )
+            source.online = True
+            source.last_seen = time()
+            return True
+        if source.online:
+            logger.warning(
+                "%s went offline or stopped publishing valid measurements", source.name
+            )
+        source.online = False
+        source.voltage = source.current = source.soc = source.power = None
         return False
 
     def _get_status_string(self) -> tuple[str, str, bool]:
@@ -618,17 +622,33 @@ class VirtualBatteryService:
             else:
                 logger.info("All sources online")
 
-        # Check if SmartShunt is available (required for any calculation)
-        if not self.smartshunt.online:
-            logger.debug("SmartShunt offline - cannot calculate virtual battery")
-            self._dbusservice[PATH_CONNECTED] = 0
+        # Every current source is required: omitting one attributes its current
+        # to the virtual chain and produces a false remaining capacity estimate.
+        if not all_online:
+            logger.debug("Source unavailable - cannot calculate virtual battery")
+            self._dbusservice["/Connected"] = 0
             self._dbusservice[PATH_DC_VOLTAGE] = None
             self._dbusservice[PATH_DC_CURRENT] = None
             self._dbusservice[PATH_DC_POWER] = None
             self._dbusservice["/Soc"] = None
+            for path in (
+                "/Capacity",
+                "/ConsumedAmphours",
+                "/TimeToGo",
+                "/System/MinCellVoltage",
+                "/System/MaxCellVoltage",
+                "/Voltages/Sum",
+                "/Voltages/Diff",
+            ):
+                self._dbusservice[path] = None
+            for index in range(1, CELLS_PER_CHAIN + 1):
+                self._dbusservice[f"/Voltages/Cell{index}"] = None
+            self._dbusservice["/CustomName"] = (
+                f"{self.product_name} [Missing: {missing_str}]"
+            )
             return
 
-        self._dbusservice[PATH_CONNECTED] = 1
+        self._dbusservice["/Connected"] = 1
 
         # Build chain inputs from online sources
         chains = [

@@ -203,3 +203,24 @@ the separately installed `dbus_shared` package remain required.
 The `--smartshunt-index` option now selects the requested discovered SmartShunt. The service reports its own version instead of the separately installed shared helper package's version.
 
 GitHub stable and nightly downloads contain a `dbus-virtual-battery/` directory with the production entrypoint, executable SetupHelper `setup`, `gitHubInfo`, and `version`. A SHA256 checksum accompanies each archive. The separately installed `dbus_shared` package and Venus OS platform libraries remain prerequisites; the archive does not bundle or replace them.
+
+## Venus OS source validity and persistence
+
+The virtual current is a subtraction, so every configured source must publish
+`/Connected=1` and finite voltage/current measurements. Cached numeric values
+from a disconnected source are discarded. If any required chain or SmartShunt
+is unavailable, `/Connected=0` and all derived measurements, capacity, time to
+go, and estimated cell voltages become invalid. Source status paths identify
+the missing input. This avoids assigning an unavailable chain's current to the
+virtual chain. Complete live data restores calculations automatically.
+
+SetupHelper installs `/data/dbus-virtual-battery/boot.sh` before an existing
+`exit 0` in `/data/rc.local` to restore `/service/dbus-virtual-chain`. Install the
+shared `dbus_shared` package alongside the repository first. `install.sh` is a
+file-copy helper; running it from `/data/dbus-virtual-battery` is supported,
+but SetupHelper still performs service registration. Logs use native `multilog`
+with four rotated 25 KB files plus the current file.
+
+Calculator tests load the actual production function; no copied implementation
+is used as the test subject. Separate source-loss regressions exercise the
+production D-Bus update methods with hardware-free inputs.

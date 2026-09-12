@@ -153,7 +153,7 @@ def test_source_timeout_and_power_fallback(runtime, monkeypatch):
         runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["chain"]
     )
     source = service.smartshunt
-    reader.get_value.side_effect = [None, 50, -2, 80, None]
+    reader.get_value.side_effect = [1, 50, -2, 80, None]
     assert service._read_source(source)
     assert source.power == -100
     assert source.online
@@ -162,7 +162,7 @@ def test_source_timeout_and_power_fallback(runtime, monkeypatch):
     reader.service_exists.return_value = True
     clock[0] += 10
     assert not service._read_source(source)
-    assert source.online
+    assert not source.online
     clock[0] += runtime.DATA_TIMEOUT
     assert not service._read_source(source)
     assert not source.online
@@ -177,9 +177,19 @@ def test_update_publishes_calculator_values_and_marks_missing_sources(
         runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["a", "b"]
     )
     values = {
-        "ss": {"/Dc/0/Voltage": 51.2, "/Dc/0/Current": 30.0, "/Soc": 80},
-        "a": {"/Dc/0/Voltage": 51.2, "/Dc/0/Current": 10.0, "/Soc": 70},
-        "b": {"/Dc/0/Voltage": 51.2, "/Dc/0/Current": 5.0, "/Soc": 90},
+        "ss": {
+            "/Connected": 1,
+            "/Dc/0/Voltage": 51.2,
+            "/Dc/0/Current": 30.0,
+            "/Soc": 80,
+        },
+        "a": {
+            "/Connected": 1,
+            "/Dc/0/Voltage": 51.2,
+            "/Dc/0/Current": 10.0,
+            "/Soc": 70,
+        },
+        "b": {"/Connected": 1, "/Dc/0/Voltage": 51.2, "/Dc/0/Current": 5.0, "/Soc": 90},
     }
     reader.get_value.side_effect = lambda name, path: values.get(
         name.rsplit(".", 1)[-1], {}
@@ -203,7 +213,9 @@ def test_update_publishes_calculator_values_and_marks_missing_sources(
     assert paths["/System/NrOfModulesOnline"] == 2
     assert paths["/System/NrOfModulesOffline"] == 1
     assert paths["/Info/MissingSources"] == "Chain2"
-    assert paths["/Dc/0/Current"] == 20
+    assert paths["/Dc/0/Current"] is None
+    assert paths["/Capacity"] is None
+    assert paths["/Voltages/Cell1"] is None
     assert "Missing: Chain2" in paths["/CustomName"]
     values.pop("ss")
     monkeypatch.setattr(runtime, "time", lambda: 1200.0)
@@ -221,12 +233,12 @@ def test_update_without_chains_has_partial_status(runtime, monkeypatch):
         runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["missing"]
     )
     reader.get_value.side_effect = lambda name, path: (
-        {"/Dc/0/Voltage": 50, "/Dc/0/Current": 4}.get(path)
+        {"/Connected": 1, "/Dc/0/Voltage": 50, "/Dc/0/Current": 4}.get(path)
         if name.endswith(".ss")
         else None
     )
     service.update()
-    assert service._dbusservice["/Dc/0/Current"] == 4
+    assert service._dbusservice["/Dc/0/Current"] is None
     assert service._dbusservice["/Dc/0/Voltage"] is None
     assert service._dbusservice["/Capacity"] is None
     assert service._dbusservice["/TimeToGo"] is None
@@ -307,7 +319,7 @@ def test_explicit_disconnect_retained_readings_and_recovery(
             assert paths["/Connected"] == 0
             assert paths["/Dc/0/Current"] is None
         else:
-            assert paths["/Dc/0/Current"] == 12
+            assert paths["/Dc/0/Current"] is None
             assert paths["/Dc/0/Voltage"] is None
     values[disconnected]["/Connected"] = 1
     clock[0] += 1
