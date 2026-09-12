@@ -153,7 +153,7 @@ def test_source_timeout_and_power_fallback(runtime, monkeypatch):
         runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["chain"]
     )
     source = service.smartshunt
-    reader.get_value.side_effect = [50, -2, 80, None]
+    reader.get_value.side_effect = [None, 50, -2, 80, None]
     assert service._read_source(source)
     assert source.power == -100
     assert source.online
@@ -270,3 +270,50 @@ def test_main_wires_options_and_polling(runtime, monkeypatch, arguments):
         runtime.POLL_INTERVAL_MS,
         runtime.create_poll_function.return_value,
     )
+
+
+@pytest.mark.parametrize("disconnected", ["ss", "chain"])
+def test_explicit_disconnect_retained_readings_and_recovery(
+    runtime, monkeypatch, disconnected
+):
+    """Disconnected upstream readings must not revive source freshness or derived output."""
+    clock = [1000.0]
+    monkeypatch.setattr(runtime, "time", lambda: clock[0])
+    service, reader = make_service(
+        runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["chain"]
+    )
+    values = {
+        "ss": {"/Connected": 1, "/Dc/0/Voltage": 50, "/Dc/0/Current": 12, "/Soc": 80},
+        "chain": {"/Connected": 1, "/Dc/0/Voltage": 50, "/Dc/0/Current": 3, "/Soc": 70},
+    }
+    reader.service_exists.return_value = True
+    reader.get_value.side_effect = lambda name, path: values[
+        name.rsplit(".", 1)[-1]
+    ].get(path)
+    service.update()
+    paths = service._dbusservice
+    assert paths["/Info/DataComplete"] == 1
+    source = service.smartshunt if disconnected == "ss" else service.chains[0]
+    last_seen = source.last_seen
+    values[disconnected]["/Connected"] = 0
+    for elapsed in (1, runtime.DATA_TIMEOUT + 1):
+        clock[0] = 1000.0 + elapsed
+        service.update()
+        assert not source.online
+        assert source.last_seen == last_seen
+        assert paths["/System/NrOfModulesOffline"] == 1
+        assert paths["/Info/DataComplete"] == 0
+        if disconnected == "ss":
+            assert paths["/Connected"] == 0
+            assert paths["/Dc/0/Current"] is None
+        else:
+            assert paths["/Dc/0/Current"] == 12
+            assert paths["/Dc/0/Voltage"] is None
+    values[disconnected]["/Connected"] = 1
+    clock[0] += 1
+    service.update()
+    assert source.online
+    assert source.last_seen == clock[0]
+    assert paths["/Info/DataComplete"] == 1
+    assert paths["/System/NrOfModulesOffline"] == 0
+    assert paths["/Dc/0/Current"] == 9
