@@ -226,7 +226,7 @@ Calculator tests load the actual production function; no copied implementation
 is used as the test subject. Separate source-loss regressions exercise the
 production D-Bus update methods with hardware-free inputs.
 
-The next revision uses monotonic time for the reader's one-second cache and
+Version 2.7.6 uses monotonic time for the reader's one-second cache and
 five-second reconnect interval, and clears cached values when the connection
 changes. Wall-clock corrections therefore cannot extend cached source validity
 or suppress transport recovery. These reader safeguards do not replace an

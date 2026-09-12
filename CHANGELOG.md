@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.7.6] - 2026-09-12
 
 ### Fixed
 - Use monotonic intervals for the D-Bus reader cache and reconnect throttle so a wall-clock correction cannot prolong stale measurements or postpone recovery.
