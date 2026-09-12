@@ -187,6 +187,9 @@ def calculate_virtual_battery(
     }
 
 
+PATH_CONNECTED = "/Connected"
+
+
 class SourceStatus:
     """Track status of a data source"""
 
@@ -515,7 +518,7 @@ class VirtualBatteryService:
     def _read_source(self, source: SourceStatus) -> bool:
         """Read data from a source and update its status. Returns True if data is valid."""
         # Some upstream services retain their last measurements after disconnecting.
-        if self.dbus_reader.get_value(source.service, "/Connected") == 0:
+        if self.dbus_reader.get_value(source.service, PATH_CONNECTED) == 0:
             source.online = False
             return False
 
@@ -618,14 +621,14 @@ class VirtualBatteryService:
         # Check if SmartShunt is available (required for any calculation)
         if not self.smartshunt.online:
             logger.debug("SmartShunt offline - cannot calculate virtual battery")
-            self._dbusservice["/Connected"] = 0
+            self._dbusservice[PATH_CONNECTED] = 0
             self._dbusservice[PATH_DC_VOLTAGE] = None
             self._dbusservice[PATH_DC_CURRENT] = None
             self._dbusservice[PATH_DC_POWER] = None
             self._dbusservice["/Soc"] = None
             return
 
-        self._dbusservice["/Connected"] = 1
+        self._dbusservice[PATH_CONNECTED] = 1
 
         # Build chain inputs from online sources
         chains = [
