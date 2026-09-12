@@ -9,6 +9,7 @@
 set -e
 
 INSTALL_DIR="/data/dbus-virtual-battery"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SEPARATOR="=============================================="
 
 echo "$SEPARATOR"
@@ -20,15 +21,15 @@ echo ""
 mkdir -p "$INSTALL_DIR"
 
 # Copy Python scripts (if running from source directory)
-if [[ -f "dbus-virtual-battery.py" ]] ; then
-    cp dbus-virtual-battery.py "$INSTALL_DIR/"
+if [[ -f "$SCRIPT_DIR/dbus-virtual-battery.py" && "$SCRIPT_DIR" != "$INSTALL_DIR" ]] ; then
+    cp "$SCRIPT_DIR/dbus-virtual-battery.py" "$INSTALL_DIR/"
     echo "Copied dbus-virtual-battery.py"
 fi
 
 
 # Copy version file
-if [[ -f "version" ]] ; then
-    cp version "$INSTALL_DIR/"
+if [[ -f "$SCRIPT_DIR/version" && "$SCRIPT_DIR" != "$INSTALL_DIR" ]] ; then
+    cp "$SCRIPT_DIR/version" "$INSTALL_DIR/"
     echo "Copied version file"
 fi
 

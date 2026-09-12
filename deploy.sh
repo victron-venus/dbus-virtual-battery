@@ -24,18 +24,27 @@ echo "$SEPARATOR"
 echo "SSH Host: $SSH_HOST"
 echo ""
 
-# Stop service+log pair before replacing files: replacing a supervised tree
-# live leaves orphan supervises watching deleted directories
+# Stop the process while retaining supervisor and logger directory inodes.
 echo ">>> Stopping service..."
-ssh "$SSH_HOST" "svc -dx /service/$SERVICE 2>/dev/null || true; svc -dx /service/$SERVICE/log 2>/dev/null || true"
+ssh "$SSH_HOST" "svc -d /service/$SERVICE 2>/dev/null || true"
 
 # Download and install
 echo ">>> Downloading latest version..."
-ssh "$SSH_HOST" "rm -rf $APP_DIR && \
-mkdir -p /data && cd /data && \
-wget -qO - https://github.com/$REPO/archive/main.tar.gz | tar -xzf - && \
-mv dbus-virtual-battery-main dbus-virtual-battery && \
-chmod +x $APP_DIR/setup"
+ssh "$SSH_HOST" "sh -s -- '$REPO' '$APP_DIR'" <<'REMOTE_STAGE'
+set -eu
+repository=$1
+destination=$2
+package=${repository##*/}
+staging=$(mktemp -d)
+trap 'rm -rf "$staging"' EXIT HUP INT TERM
+wget -qO "$staging/source.tar.gz" "https://github.com/$repository/archive/main.tar.gz"
+tar -xzf "$staging/source.tar.gz" -C "$staging"
+[ -f "$staging/$package-main/setup" ]
+[ -f "$staging/$package-main/$package.py" ]
+mkdir -p "$destination"
+cp -R "$staging/$package-main/." "$destination/"
+chmod +x "$destination/setup"
+REMOTE_STAGE
 
 echo ">>> Running setup install..."
 ssh "$SSH_HOST" "$APP_DIR/setup install"
