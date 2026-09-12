@@ -1,17 +1,17 @@
 """Tests for calculate_virtual_battery() pure calculator.
 
-Pulled directly from dbus-virtual-battery.py — no D-Bus, no I/O.
+Imports the actual dbus-virtual-battery.py calculator with hardware-only doubles.
 """
 
 import pytest
 
-from tests.calculator import (
-    CELLS_PER_CHAIN,
-    CHARGE_DISCHARGE_THRESHOLD_A,
-    DEFAULT_CHAIN_CAPACITY,
-    TIME_TO_GO_CAP_SECONDS,
-    calculate_virtual_battery,
-)
+from tests.runtime_loader import runtime
+
+CELLS_PER_CHAIN = runtime.CELLS_PER_CHAIN
+CHARGE_DISCHARGE_THRESHOLD_A = runtime.CHARGE_DISCHARGE_THRESHOLD_A
+DEFAULT_CHAIN_CAPACITY = runtime.DEFAULT_CHAIN_CAPACITY
+TIME_TO_GO_CAP_SECONDS = runtime.TIME_TO_GO_CAP_SECONDS
+calculate_virtual_battery = runtime.calculate_virtual_battery
 
 
 def make(voltage=None, current=None, soc=None):

@@ -6,17 +6,11 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '**.json'
-      - '**.yaml'
-      - '**.yml'
   pull_request:
     branches: [main]
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '**.json'
-      - '**.yaml'
-      - '**.yml'
 
 permissions:
   contents: read
@@ -28,8 +22,5 @@ jobs:
     with:
       python-version: '3.11'
       run-type-check: false  # Disable type checking as the original didn't have it
-      # Calculator unit tests in tests/test_calculator.py cover the pure
-      # derivation logic. The runtime entrypoint still imports dbus/vedbus
-      # (Venus OS only) and is exercised by on-device tests, not CI.
       coverage-threshold: 80
-      test-args: tests/test_calculator.py
+      test-args: tests/
