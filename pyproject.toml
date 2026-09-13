@@ -17,4 +17,18 @@ extend-exclude = []
 [tool.coverage.run]
 # Shared release tooling has its own mandatory contract suite. Keep application
 # and native packaging coverage, including scripts/package_release.py, here.
-omit = ["tests/*", "scripts/release.py", "scripts/release_control.py"]
+omit = [
+    "tests/*",
+    "scripts/release.py",
+    "scripts/release_control.py",
+    "scripts/prepare_version.py",
+    "scripts/release_container_labels.py",
+    "scripts/release_state.py",
+    "scripts/release_version_adapter.py",
+    "scripts/release_versioned.py",
+    "scripts/stage_release_assets.py",
+    "scripts/version_plan.py",
+    "scripts/version_receipt.py",
+    "scripts/write_binary_build_metadata.py",
+    "scripts/write_web_build_metadata.py",
+]
