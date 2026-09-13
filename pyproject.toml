@@ -15,4 +15,6 @@ test = ["pytest>=9.1.1", "pytest-cov>=7.1.0"]
 extend-exclude = []
 
 [tool.coverage.run]
-omit = ["tests/*"]
+# Shared release tooling has its own mandatory contract suite. Keep application
+# and native packaging coverage, including scripts/package_release.py, here.
+omit = ["tests/*", "scripts/release.py", "scripts/release_control.py"]
