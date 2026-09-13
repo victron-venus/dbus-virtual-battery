@@ -90,7 +90,7 @@ except ModuleNotFoundError as error:
 from vedbus import VeDbusService
 
 # This service reports its own release, independently of shared helper versions.
-VERSION = "2.7.6"
+VERSION = "2.7.7"
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
