@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Release](https://img.shields.io/github/v/release/victron-venus/dbus-virtual-battery)](https://github.com/victron-venus/dbus-virtual-battery/releases)
 [![Downloads](https://img.shields.io/github/downloads/victron-venus/dbus-virtual-battery/total)](https://github.com/victron-venus/dbus-virtual-battery/releases)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12.x](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![Venus OS](https://img.shields.io/badge/Venus%20OS-3.x-blue)](https://github.com/victronenergy/venus)
 [![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)](https://github.com/victron-venus/dbus-virtual-battery)
 [![GitHub watchers](https://img.shields.io/github/watchers/victron-venus/dbus-virtual-battery)](https://github.com/victron-venus/dbus-virtual-battery/watchers)
@@ -19,6 +19,15 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/victron-venus/dbus-virtual-battery/pulls)
 [![Made with Python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Victron Community](https://img.shields.io/badge/Victron-Community-blue)](https://community.victronenergy.com/)
+
+## Python runtime
+
+Native Venus OS packages target **Python 3.12.x**. The audited Cerbo on Venus OS
+v3.75 reports Python **3.12.13**; the [official Venus OS v3.79 manifest](https://updates.victronenergy.com/feeds/venus/release/sdk/venus-scarthgap-x86_64-arm-cortexa8hf-neon-toolchain-v3.79.target.manifest)
+also ships 3.12.13. Local development and CI use `.python-version` / Python
+3.12.13. Package metadata accepts 3.12 patch updates and rejects other minor
+versions until they have been validated. Use the firmware's system interpreter
+and its matching D-Bus/GI libraries on the device; do not replace the OS Python.
 
 ## Overview
 
@@ -144,8 +153,8 @@ Once installed and running, the virtual battery will appear in:
 
 ## Dependencies
 
-- Venus OS 2.8 or later
-- Python 3.11+
+- Venus OS with the system Python 3.12 interpreter
+- Python 3.12.x
 - velib_python (included with Venus OS)
 - dbus-python
 - Either the separately installed `dbus_shared` package or the compatible `dbus_mqtt_battery` package already used by existing Venus installations. The helper must be importable; this repository does not bundle it. Errors inside an installed helper remain visible instead of being silently replaced.

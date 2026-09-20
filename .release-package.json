@@ -9,6 +9,8 @@
     "requirements.txt",
     "pyproject.toml",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    ".python-version",
+    "uv.lock"
   ]
 }
