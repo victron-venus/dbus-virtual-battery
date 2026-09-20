@@ -5,13 +5,14 @@
 [project]
 name = "dbus-virtual-battery"
 version = "2.7.7"
-requires-python = ">=3.11"
+requires-python = ">=3.12,<3.13"
 
 [project.optional-dependencies]
 dev = []
 test = ["pytest>=9.1.1", "pytest-cov>=7.1.0"]
 
 [tool.ruff]
+target-version = "py312"
 extend-exclude = []
 
 [tool.coverage.run]
