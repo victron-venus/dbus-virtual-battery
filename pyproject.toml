@@ -20,6 +20,7 @@ extend-exclude = []
 # and native packaging coverage, including scripts/package_release.py, here.
 omit = [
     "tests/*",
+    "scripts/change_scope.py",
     "scripts/release.py",
     "scripts/release_control.py",
     "scripts/prepare_version.py",
