@@ -10,6 +10,9 @@ import pytest
 spec = importlib.util.spec_from_file_location(
     "bandit_sarif", Path(__file__).parents[1] / "scripts" / "bandit_sarif.py"
 )
+if spec is None or spec.loader is None:
+    MODULE_LOAD_ERROR = "Cannot load the Bandit SARIF converter test module"
+    raise RuntimeError(MODULE_LOAD_ERROR)
 converter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(converter)
 
@@ -62,7 +65,23 @@ def test_rejects_scan_errors_even_with_findings():
         converter.convert(report, "1.9.4")
 
 
-@pytest.mark.parametrize("path", ["/tmp/example.py", "../example.py", "src/../example.py"])
+@pytest.mark.parametrize("report", [None, []])
+def test_rejects_non_object_report(report):
+    with pytest.raises(TypeError, match="must be an object"):
+        converter.convert(report, "1.9.4")
+
+
+@pytest.mark.parametrize("line", [0, -1, True, "3"])
+def test_rejects_invalid_finding_line(line):
+    report = complete_report()
+    report["results"][0]["line_number"] = line
+    with pytest.raises(ValueError, match="positive line number"):
+        converter.convert(report, "1.9.4")
+
+
+@pytest.mark.parametrize(
+    "path", ["/tmp/example.py", "../example.py", "src/../example.py"]
+)
 def test_rejects_paths_outside_repository(path):
     report = complete_report()
     report["results"][0]["filename"] = path
@@ -77,10 +96,14 @@ def test_accepts_complete_clean_scan():
 
 
 def test_failed_rerun_removes_stale_report(monkeypatch, tmp_path):
-    monkeypatch.setattr(converter, "__file__", str(tmp_path / "scripts" / "bandit_sarif.py"))
+    monkeypatch.setattr(
+        converter, "__file__", str(tmp_path / "scripts" / "bandit_sarif.py")
+    )
     monkeypatch.setattr("sys.argv", ["bandit_sarif.py"])
     monkeypatch.setattr(converter, "version", lambda name: "1.9.4")
-    (tmp_path / "bandit-results.json").write_text(json.dumps({"errors": ["scan failed"]}))
+    (tmp_path / "bandit-results.json").write_text(
+        json.dumps({"errors": ["scan failed"]})
+    )
     output = tmp_path / "bandit-results.sarif"
     output.write_text("stale scan")
     with pytest.raises(ValueError, match="incomplete"):
