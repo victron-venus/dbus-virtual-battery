@@ -96,7 +96,8 @@ VERSION = "2.7.7"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-# Data timeout (seconds) - if no update for this long, consider source offline
+# Shared timing constant (seconds), retained for compatibility with runtime tests.
+# Source eligibility uses Connected == 1 and finite voltage/current, not update age.
 DATA_TIMEOUT = 30.0
 
 # Default battery capacity per chain (Ah) - used for SoC calculation
