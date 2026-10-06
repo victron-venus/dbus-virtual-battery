@@ -102,7 +102,11 @@ def make_service(runtime, monkeypatch, discovered=None, **options):
     """Replace the transport reader, retaining the actual service implementation."""
     reader = Mock()
     reader.list_battery_services.return_value = discovered or []
+    reader.get_product_name.side_effect = lambda suffix: (
+        "SmartShunt" if suffix.startswith("ttyUSB") else "JBD BMS"
+    )
     reader.get_value.return_value = None
+    reader.get_snapshot.return_value = None
     reader.service_exists.return_value = False
     monkeypatch.setattr(runtime, "DbusReader", Mock(return_value=reader))
     return runtime.VirtualBatteryService(**options), reader
@@ -129,8 +133,8 @@ def test_service_registration_and_explicit_sources(runtime, monkeypatch):
     "discovered, index, expected",
     [
         (["mqtt_chain1", "ttyUSB0", "ttyUSB1"], 1, "ttyUSB1"),
-        (["mqtt_chain1", "ttyUSB0"], 9, "ttyUSB0"),
-        (["custom_battery"], 0, "custom_battery"),
+        (["mqtt_chain1", "ttyUSB0"], 9, None),
+        (["custom_battery"], 0, None),
         ([], 0, None),
     ],
 )
@@ -141,7 +145,7 @@ def test_service_auto_discovery(runtime, monkeypatch, discovered, index, expecte
     )
     assert service.smartshunt_suffix == expected
     assert [chain.service for chain in service.chains] == [
-        f"com.victronenergy.battery.{name}" for name in discovered if name != expected
+        f"com.victronenergy.battery.{name}" for name in runtime.DEFAULT_CHAIN_SUFFIXES
     ]
 
 
@@ -153,7 +157,7 @@ def test_source_timeout_and_power_fallback(runtime, monkeypatch):
         runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["chain"]
     )
     source = service.smartshunt
-    reader.get_value.side_effect = [1, 50, -2, 80, None]
+    reader.get_value.side_effect = [1, 50, -2, 80, None, None, None, None]
     assert service._read_source(source)
     assert source.power == -100
     assert source.online
@@ -306,13 +310,13 @@ def test_explicit_disconnect_retained_readings_and_recovery(
     paths = service._dbusservice
     assert paths["/Info/DataComplete"] == 1
     source = service.smartshunt if disconnected == "ss" else service.chains[0]
-    last_seen = source.last_seen
+    last_read = source.last_read
     values[disconnected]["/Connected"] = 0
     for elapsed in (1, runtime.DATA_TIMEOUT + 1):
         clock[0] = 1000.0 + elapsed
         service.update()
         assert not source.online
-        assert source.last_seen == last_seen
+        assert source.last_read == last_read
         assert paths["/System/NrOfModulesOffline"] == 1
         assert paths["/Info/DataComplete"] == 0
         if disconnected == "ss":
@@ -325,7 +329,7 @@ def test_explicit_disconnect_retained_readings_and_recovery(
     clock[0] += 1
     service.update()
     assert source.online
-    assert source.last_seen == clock[0]
+    assert source.last_read == clock[0]
     assert paths["/Info/DataComplete"] == 1
     assert paths["/System/NrOfModulesOffline"] == 0
     assert paths["/Dc/0/Current"] == 9

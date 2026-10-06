@@ -33,25 +33,33 @@ and its matching D-Bus/GI libraries on the device; do not replace the OS Python.
 
 The dbus-virtual-battery service creates a virtual battery by calculating values from a SmartShunt minus other battery chains on the D-Bus. This is used for battery chains without a physical BMS (Battery Management System) where you want to estimate their combined state by subtracting measured chains from the total system measurement.
 
+## Black-start recovery update (2.7.9)
+
+The service starts unavailable, waits for every configured input, and automatically
+discovers a delayed SmartShunt. A missing chain never becomes additional virtual
+current or a fabricated zero. MQTT inputs require the updated driver's coherent
+snapshot and measurement-age metadata; deploy that driver before this update.
+Configure `chains` before upgrading if the installation does not use the default
+`mqtt_chain1 mqtt_chain2`. This telemetry update does not replace a physical BMS
+or independent power for the GX device.
+
 ## Auto-Discovery Features
 
 ### SmartShunt Auto-Discovery
-- Automatically discovers all SmartShunt services on D-Bus matching patterns (`ttyUSB*`, `ttyACM*`, `ve_bus`, `ve.can`, `smartshunt`, `shunt`)
+- Discovers SmartShunts by a `/ProductName` containing `shunt`; a serial port name alone is not sufficient
 - Uses the first discovered SmartShunt by default (index 0)
 - `--smartshunt-index 1` selects the second discovered SmartShunt when starting the service directly; SetupHelper passes `smartshuntIndex` through the same option. An explicit `--smartshunt` suffix takes precedence.
 - Configure which SmartShunt to use via `setupOptions/smartshuntIndex` (zero-based index)
 
-### Chain Auto-Discovery
-- Automatically discovers ALL battery services on D-Bus
-- Excludes:
-  - `virtual_chain` (the virtual battery service itself)
-  - The selected SmartShunt service
-- All remaining battery services are treated as chains to subtract from the SmartShunt
+### Required Chains
+- Requires `mqtt_chain1` and `mqtt_chain2` by default, even when absent at startup
+- Uses only the configured chain list; other battery services are never added automatically
+- Waits for every required source before publishing derived measurements, and recovers automatically when delayed sources appear
 
 ### Manual Override
 SmartShunt selection is configurable through SetupHelper; explicit source lists are available through the runtime CLI:
 - `setupOptions/smartshuntIndex`: Select which SmartShunt to use (if multiple found)
-- `--chains mqtt_chain1 mqtt_chain2`: Specify exact chain suffixes in a custom runtime launcher. The bundled SetupHelper script does not read a `setupOptions/chains` file; reinstalling regenerates its default launcher.
+- `--chains mqtt_chain1 mqtt_chain2`: Declare every required chain, including sources currently offline. These are also the defaults. SetupHelper reads a whitespace-separated list from `/data/setupOptions/dbus-virtual-battery/chains` and preserves it when regenerating the launcher.
 
 ## Configuration Options
 
@@ -60,6 +68,7 @@ The service is configured via SetupHelper using files in `/data/setupOptions/dbu
 | Option File | Default | Description |
 |-------------|---------|-------------|
 | `smartshuntIndex` | `0` | Index of SmartShunt to use when multiple are found (0 = first) |
+| `chains` | `mqtt_chain1 mqtt_chain2` | Whitespace-separated service suffixes of every required measured chain |
 | `enableVirtual` | `true` | Enable virtual battery (should remain true for this package) |
 | `chainCapacity` | `280` | Chain capacity in Ah (used for Ah calculated properties) |
 | `instance` | `514` | D-Bus device instance |
@@ -70,7 +79,7 @@ The service is configured via SetupHelper using files in `/data/setupOptions/dbu
 ### Default Configuration (Recommended)
 ```bash
 # Auto-discover first SmartShunt
-# Auto-discover all chains (excluding virtual_chain and SmartShunt)
+# Require mqtt_chain1 and mqtt_chain2, including when they start later
 # Uses instance 514, capacity 280Ah, product name "Virtual Battery Chain 3"
 ```
 
@@ -81,7 +90,7 @@ echo "1" > /data/setupOptions/dbus-virtual-battery/smartshuntIndex
 ```
 
 ### Manual Chain Specification
-For a separately maintained runtime launcher, add `--chains mqtt_chain1 mqtt_chain2` to its Python command. The arguments are space-separated service suffixes. Do not start a second process alongside the supervised service. The bundled SetupHelper configuration retains automatic chain discovery.
+Set `/data/setupOptions/dbus-virtual-battery/chains` to the space-separated service suffixes for your installation before reinstalling. A custom launcher can pass the same list with `--chains`. Do not start a second process alongside the supervised service. Chain membership never follows the subset of services visible during boot.
 
 ### Custom Capacity
 ```bash
@@ -140,7 +149,8 @@ PackageManager discovers packages by scanning `/data/` for directories containin
 ## Configuration Notes
 
 - **SmartShunt Selection**: When multiple SmartShunts are present, use `smartshuntIndex` to select which one to use (0-based indexing)
-- **Chain Selection**: By default, all discovered battery chains (excluding virtual_chain and SmartShunt) are used. An explicit list requires the runtime `--chains` arguments in a custom launcher; SetupHelper does not consume `setupOptions/chains`.
+- **Chain Selection**: The default required inputs are `mqtt_chain1 mqtt_chain2`. Installations using different names or counts must set SetupHelper `chains` or CLI `--chains` before upgrading. No other battery service is added automatically. A missing source keeps derived measurements unavailable. SmartShunt discovery retries when it starts late, never substitutes a random battery, and retains the selected identity through temporary outages.
+- **Freshness**: `mqtt_chain*` sources require `/Info/LastMeasurementMonotonic`, `/Info/DataTimeout`, and `/Info/DataComplete` from the updated MQTT driver and are read as one D-Bus `GetItems` snapshot. Install the MQTT driver update first. Frozen publishers expire even if D-Bus still responds. Native SmartShunt services retain their own `/Connected` contract; local reads are not described as new physical samples. Virtual `/Io/AllowToCharge` and `/Io/AllowToDischarge` remain unknown because derived measurements do not establish physical BMS permission.
 - **Capacity Setting**: The `chainCapacity` option sets the amp-hour capacity used for calculating Ah-related properties. Set this to match your actual battery bank capacity.
 - **Service Management**: After installation, use Venus OS daemontools: `svc -d /service/dbus-virtual-chain` to stop, `svc -u /service/dbus-virtual-chain` to start, and `svc -t /service/dbus-virtual-chain` to restart the process
 
@@ -217,9 +227,9 @@ file-copy helper; running it from `/data/dbus-virtual-battery` is supported,
 but SetupHelper still performs service registration. Logs use native `multilog`
 with four rotated 25 KB files plus the current file.
 
-Version 2.7.5 completes SetupHelper's installed-version bookkeeping. Start it
-after the intended SmartShunt and MQTT chains are available: default source
-discovery occurs at startup, so installation order must preserve that topology.
+Version 2.7.5 completes SetupHelper's installed-version bookkeeping. The current
+service retries delayed SmartShunt discovery and retains the required chain
+list through source outages; it no longer requires sources to start first.
 
 Calculator tests load the actual production function; no copied implementation
 is used as the test subject. Separate source-loss regressions exercise the
@@ -229,5 +239,6 @@ Version 2.7.6 uses monotonic time for the reader's one-second cache and
 five-second reconnect interval, and clears cached values when the connection
 changes. Wall-clock corrections therefore cannot extend cached source validity
 or suppress transport recovery. These reader safeguards do not replace an
-upstream service's own freshness reporting: `/Connected=1` with finite retained
-values is indistinguishable from a new physical measurement on this interface.
+upstream service's own freshness reporting. The current service additionally
+checks MQTT measurement timestamps; native devices still own their `/Connected`
+contract.

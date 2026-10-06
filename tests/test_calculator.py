@@ -42,7 +42,7 @@ class TestCalculateVirtualBattery:
         # Voltage falls back to None when no chain provides voltage
         result = calculate_virtual_battery(51.2, 10.0, [], 280.0)
         assert result["voltage"] is None  # No chains with voltage
-        assert result["current"] == 10.0
+        assert result["current"] is None
         assert result["power"] is None
 
     def test_one_chain_current_subtracted(self):
@@ -218,8 +218,8 @@ class TestCalculateVirtualBattery:
             ],
             280.0,
         )
-        assert result["current"] == pytest.approx(15.0)
-        assert result["soc"] == pytest.approx(80.0)
+        assert result["current"] is None
+        assert result["soc"] is None
 
     def test_voltage_zero_chain_skipped(self):
         result = calculate_virtual_battery(
@@ -231,7 +231,7 @@ class TestCalculateVirtualBattery:
             ],
             280.0,
         )
-        assert result["voltage"] == pytest.approx(51.2)
+        assert result["voltage"] is None
 
     def test_status_ok_when_smartshunt_present(self):
         result = calculate_virtual_battery(

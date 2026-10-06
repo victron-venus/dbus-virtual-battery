@@ -90,15 +90,17 @@ except ModuleNotFoundError as error:
 from vedbus import VeDbusService
 
 # This service reports its own release, independently of shared helper versions.
-VERSION = "2.7.8"
+VERSION = "2.7.9"
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-# Shared timing constant (seconds), retained for compatibility with runtime tests.
-# Source eligibility uses Connected == 1 and finite voltage/current, not update age.
+# Native sources own their Connected contract. MQTT sources additionally publish
+# host-monotonic measurement timestamps: polling D-Bus never renews those samples.
 DATA_TIMEOUT = 30.0
+DEFAULT_CHAIN_SUFFIXES = ("mqtt_chain1", "mqtt_chain2")
+DISCOVERY_INTERVAL = 5.0
 
 # Default battery capacity per chain (Ah) - used for SoC calculation
 DEFAULT_CHAIN_CAPACITY = 280.0  # 4x 70Ah batteries in series
@@ -119,7 +121,22 @@ def calculate_virtual_battery(
 
     Each chain dict: {voltage: float|None, current: float|None, soc: float|None}.
     """
-    if smartshunt_voltage is None or smartshunt_current is None:
+    shunt_valid = (
+        smartshunt_voltage is not None
+        and math.isfinite(smartshunt_voltage)
+        and smartshunt_voltage > 0
+        and smartshunt_current is not None
+        and math.isfinite(smartshunt_current)
+    )
+    chains_valid = bool(chains) and all(
+        chain.get("voltage") is not None
+        and math.isfinite(chain["voltage"])
+        and chain["voltage"] > 0
+        and chain.get("current") is not None
+        and math.isfinite(chain["current"])
+        for chain in chains
+    )
+    if not shunt_valid or not chains_valid:
         return {
             "voltage": None,
             "current": None,
@@ -130,7 +147,7 @@ def calculate_virtual_battery(
             "consumed_ah": None,
             "remaining_capacity": None,
             "time_to_go": None,
-            "status": "SmartShunt missing",
+            "status": "SmartShunt missing" if not shunt_valid else "Chain data missing",
         }
 
     chain_current_total = 0.0
@@ -147,7 +164,7 @@ def calculate_virtual_battery(
         if voltage is not None and voltage > 0:
             chain_voltage_sum += voltage
             chains_with_voltage += 1
-        if soc is not None and soc >= 0:
+        if soc is not None and math.isfinite(soc) and 0 <= soc <= 100:
             chain_soc_values.append(soc)
 
     virtual_current = smartshunt_current - chain_current_total
@@ -165,7 +182,9 @@ def calculate_virtual_battery(
         else None
     )
     virtual_soc = (
-        sum(chain_soc_values) / len(chain_soc_values) if chain_soc_values else None
+        sum(chain_soc_values) / len(chain_soc_values)
+        if chains and len(chain_soc_values) == len(chains)
+        else None
     )
 
     if virtual_soc is not None:
@@ -218,7 +237,8 @@ class SourceStatus:
         self.name = name
         self.service = service
         self.online = False
-        self.last_seen = 0.0
+        self.last_read = 0.0
+        self.sample_age: float | None = None
         self.voltage: float | None = None
         self.current: float | None = None
         self.soc: float | None = None
@@ -331,6 +351,55 @@ class DbusReader:
         except dbus.exceptions.DBusException:
             return False
 
+    def get_snapshot(self, service: str) -> dict[str, float | None] | None:
+        """Read one coherent BusItem snapshot, without the individual-path cache."""
+        if not self._ensure_connected():
+            return None
+        try:
+            items = self.bus.get_object(service, "/").GetItems()
+            if not isinstance(items, dict):
+                return None
+            values = {}
+            for path, item in items.items():
+                raw = item.get("Value") if isinstance(item, dict) else None
+                try:
+                    number = float(raw)
+                    values[str(path)] = number if math.isfinite(number) else None
+                except (TypeError, ValueError, OverflowError):
+                    values[str(path)] = None
+            return values
+        except dbus.exceptions.DBusException as exc:
+            if any(
+                marker in str(exc)
+                for marker in (
+                    "Connection refused",
+                    "org.freedesktop.DBus.Error.Disconnected",
+                )
+            ):
+                self.bus = None
+                self._cache.clear()
+                self._cache_time.clear()
+            return None
+
+    def get_product_name(self, suffix: str) -> str | None:
+        """Identify hardware by its product, not a changeable USB port name."""
+        if not self._ensure_connected():
+            return None
+        try:
+            value = self.bus.get_object(
+                f"com.victronenergy.battery.{suffix}", "/ProductName"
+            ).GetValue()
+            return str(value) if isinstance(value, str) else None
+        except dbus.exceptions.DBusException:
+            return None
+
+    def invalidate_source(self, service: str) -> None:
+        """Do not mix prior poll values with a newly connected source."""
+        for key in list(self._cache):
+            if key.startswith(service + "/"):
+                self._cache.pop(key, None)
+                self._cache_time.pop(key, None)
+
     def list_battery_services(
         self, pattern: str = "mqtt_chain", exclude_self: str | None = None
     ) -> list[str]:
@@ -375,31 +444,27 @@ class VirtualBatteryService:
         self.device_instance = device_instance
         self.product_name = product_name
         self.chain_capacity = chain_capacity
+        self._smartshunt_index = smartshunt_index
+        self._last_discovery = None
 
         # Auto-discover SmartShunt if not provided
         if smartshunt_suffix is None:
             smartshunt_suffix = self._discover_smartshunt(smartshunt_index)
             if smartshunt_suffix is None:
-                logger.warning(
-                    "No SmartShunt found on D-Bus - will run in fallback mode (no chains subtracted)"
-                )
+                logger.warning("No SmartShunt found on D-Bus - waiting for the source")
             else:
                 logger.info("Auto-discovered SmartShunt: %s", smartshunt_suffix)
 
-        # Allow chain_suffixes=None to mean "auto-discover", but ignore empty list
-        if chain_suffixes is None or len(chain_suffixes) == 0:
-            # Auto-discover ALL battery services on D-Bus, excluding this virtual_chain service and the SmartShunt
-            discovered = self.dbus_reader.list_battery_services(
-                pattern="", exclude_self="virtual_chain"
-            )
-            # Also exclude smartshunt_suffix since it's handled separately
-            if smartshunt_suffix:
-                chain_suffixes = [s for s in discovered if s != smartshunt_suffix]
-            else:
-                chain_suffixes = discovered
-            logger.info("Auto-discovered chain services: %s", chain_suffixes)
-        else:
-            logger.info("Using provided chain suffixes: %s", chain_suffixes)
+        # Membership is configuration, not the subset that won the boot race.
+        # Never subtract an aggregate BMS service or silently omit a late chain.
+        if chain_suffixes is None:
+            chain_suffixes = list(DEFAULT_CHAIN_SUFFIXES)
+        if not chain_suffixes or len(set(chain_suffixes)) != len(chain_suffixes):
+            raise ValueError("Specify a nonempty list of distinct chain suffixes")
+        if "virtual_chain" in chain_suffixes or smartshunt_suffix in chain_suffixes:
+            raise ValueError("A chain cannot be the SmartShunt or this virtual battery")
+        self._chain_suffixes = tuple(chain_suffixes)
+        logger.info("Required chain services: %s", chain_suffixes)
 
         # Track data sources
         self.smartshunt = SourceStatus(
@@ -432,45 +497,40 @@ class VirtualBatteryService:
         logger.info("Chain sources to subtract: %s", [c.service for c in self.chains])
 
     def _discover_smartshunt(self, index: int = 0) -> str | None:
-        """Auto-discover SmartShunt services on D-Bus.
-        Looks for services that are likely SmartShunts (ttyUSB*, ttyACM*, ve_bus, etc.)
-        Returns the suffix at the given index, or None if not found.
-        """
-        # Common SmartShunt/service patterns
-        smartshunt_patterns = [
-            "ttyUSB",
-            "ttyACM",
-            "ve_bus",
-            "ve.can",
-            "smartshunt",
-            "shunt",
-        ]
+        """Select a positively identified shunt; a serial BMS is not a shunt."""
         all_services = self.dbus_reader.list_battery_services(
             pattern="", exclude_self="virtual_chain"
         )
 
-        # Filter for likely SmartShunt services
         candidates = [
             s
             for s in all_services
-            if any(p.lower() in s.lower() for p in smartshunt_patterns)
+            if "shunt" in (self.dbus_reader.get_product_name(s) or "").lower()
         ]
 
-        # If no candidates match patterns, fall back to all services (already excludes virtual_chain)
-        if not candidates:
-            candidates = all_services
-
-        if not candidates:
+        candidates = [
+            s for s in candidates if s not in getattr(self, "_chain_suffixes", ())
+        ]
+        if not candidates or index < 0 or index >= len(candidates):
             return None
+        return candidates[index]
 
-        if index < len(candidates):
-            return candidates[index]
-        logger.warning(
-            "SmartShunt index %d out of range (found %d), using first",
-            index,
-            len(candidates),
-        )
-        return candidates[0]
+    def _rediscover_missing_smartshunt(self) -> None:
+        """Retry initial discovery; retain a selected identity through outages."""
+        if self.smartshunt.service:
+            return
+        now = monotonic()
+        if (
+            self._last_discovery is not None
+            and now - self._last_discovery < DISCOVERY_INTERVAL
+        ):
+            return
+        self._last_discovery = now
+        suffix = self._discover_smartshunt(self._smartshunt_index)
+        if suffix is not None:
+            self.smartshunt_suffix = suffix
+            self.smartshunt.service = f"com.victronenergy.battery.{suffix}"
+            logger.info("Discovered delayed SmartShunt: %s", suffix)
 
     def _setup_paths(self):
         """Setup D-Bus paths for Victron GUI v2 compatibility"""
@@ -486,13 +546,16 @@ class VirtualBatteryService:
             hardware_version="Virtual BMS",
             product_id=0xB035,
         )
+        # Older installed helpers default this path to 1. Override before the
+        # service name becomes visible, not after the first polling interval.
+        self._dbusservice[PATH_CONNECTED] = 0
 
         # DC measurements (without formatting for simplicity)
         setup_dbus_paths_dc(self._dbusservice, include_formats=False)
 
         # Capacity and state
         self._dbusservice.add_path("/Soc", None)
-        self._dbusservice.add_path("/Capacity", self.chain_capacity)
+        self._dbusservice.add_path("/Capacity", None)
         self._dbusservice.add_path("/InstalledCapacity", self.chain_capacity)
         self._dbusservice.add_path("/ConsumedAmphours", None)
         self._dbusservice.add_path("/TimeToGo", None, writeable=True)
@@ -533,8 +596,8 @@ class VirtualBatteryService:
         self._dbusservice.add_path("/Info/MissingSources", "")
 
         # Charge/discharge status (depends on source availability)
-        self._dbusservice.add_path("/Io/AllowToCharge", 1)
-        self._dbusservice.add_path("/Io/AllowToDischarge", 1)
+        self._dbusservice.add_path("/Io/AllowToCharge", None)
+        self._dbusservice.add_path("/Io/AllowToDischarge", None)
 
         # Alarms
         self._dbusservice.add_path("/Alarms/LowVoltage", 0)
@@ -547,31 +610,67 @@ class VirtualBatteryService:
 
     def _read_source(self, source: SourceStatus) -> bool:
         """Read data from a source and update its status. Returns True if data is valid."""
-        connected = self.dbus_reader.get_value(source.service, "/Connected")
-        voltage = self.dbus_reader.get_value(source.service, PATH_DC_VOLTAGE)
-        current = self.dbus_reader.get_value(source.service, PATH_DC_CURRENT)
-        soc = self.dbus_reader.get_value(source.service, "/Soc")
-        power = self.dbus_reader.get_value(source.service, PATH_DC_POWER)
+        if not source.service:
+            return False
+        self.dbus_reader.invalidate_source(source.service)
+        snapshot = self.dbus_reader.get_snapshot(source.service)
+        mqtt_chain = source.service.rsplit(".", 1)[-1].startswith("mqtt_chain")
+        if snapshot is not None:
+            get_value = snapshot.get
+        elif mqtt_chain:
+            # Do not assemble an atomic MQTT frame from separate D-Bus replies.
+            get_value = {}.get
+        else:
+            # Native Venus services may expose only individual BusItems.
+            get_value = lambda path: self.dbus_reader.get_value(source.service, path)
+        connected = get_value("/Connected")
+        voltage = get_value(PATH_DC_VOLTAGE)
+        current = get_value(PATH_DC_CURRENT)
+        soc = get_value("/Soc")
+        power = get_value(PATH_DC_POWER)
+        complete = get_value("/Info/DataComplete")
+        sampled = get_value("/Info/LastMeasurementMonotonic")
+        timeout = get_value("/Info/DataTimeout")
+        source.sample_age = None
+        metadata_present = any(
+            value is not None for value in (complete, sampled, timeout)
+        )
+        fresh = not metadata_present and not mqtt_chain
+        if (
+            complete == 1
+            and sampled is not None
+            and timeout is not None
+            and timeout > 0
+        ):
+            source.sample_age = monotonic() - sampled
+            fresh = 0 <= source.sample_age < timeout
 
         # A registered service can retain old values while reporting offline.
         # Missing/invalid data must not remain eligible for subtraction.
         if (
             connected == 1
+            and fresh
             and voltage is not None
+            and voltage > 0
             and current is not None
             and math.isfinite(voltage)
             and math.isfinite(current)
         ):
             source.voltage = voltage
             source.current = current
-            source.soc = soc if soc is not None and math.isfinite(soc) else None
+            source.soc = (
+                soc
+                if soc is not None and math.isfinite(soc) and 0 <= soc <= 100
+                else None
+            )
             source.power = (
                 power
                 if power is not None and math.isfinite(power)
                 else voltage * current
             )
             source.online = True
-            source.last_seen = time()
+            # This is the time of a local read, never the physical sample time.
+            source.last_read = time()
             return True
         if source.online:
             logger.warning(
@@ -615,6 +714,7 @@ class VirtualBatteryService:
         now = time()
 
         # Read all sources
+        self._rediscover_missing_smartshunt()
         self._read_source(self.smartshunt)
         for chain in self.chains:
             self._read_source(chain)
@@ -635,7 +735,8 @@ class VirtualBatteryService:
         self._dbusservice["/System/NrOfModulesOffline"] = modules_offline
         self._dbusservice["/Info/SourceStatus"] = status_str
         self._dbusservice["/Info/MissingSources"] = missing_str
-        self._dbusservice["/Info/DataComplete"] = 1 if all_online else 0
+        if not all_online:
+            self._dbusservice["/Info/DataComplete"] = 0
 
         # Don't set InternalFailure alarm for missing chains - just show in status
         # Only set alarm if SmartShunt is missing (critical)
@@ -654,6 +755,8 @@ class VirtualBatteryService:
         if not all_online:
             logger.debug("Source unavailable - cannot calculate virtual battery")
             self._dbusservice["/Connected"] = 0
+            self._dbusservice["/Io/AllowToCharge"] = None
+            self._dbusservice["/Io/AllowToDischarge"] = None
             self._dbusservice[PATH_DC_VOLTAGE] = None
             self._dbusservice[PATH_DC_CURRENT] = None
             self._dbusservice[PATH_DC_POWER] = None
@@ -675,8 +778,6 @@ class VirtualBatteryService:
             )
             return
 
-        self._dbusservice["/Connected"] = 1
-
         # Build chain inputs from online sources
         chains = [
             {
@@ -685,7 +786,6 @@ class VirtualBatteryService:
                 "soc": c.soc,
             }
             for c in self.chains
-            if c.online
         ]
 
         # Pure calculator
@@ -741,6 +841,11 @@ class VirtualBatteryService:
             for i in range(1, 17):
                 self._dbusservice[f"/Voltages/Cell{i}"] = round(cell_voltage, 3)
 
+        # Publish readiness last, after the complete derived snapshot is visible.
+        # A subtraction is telemetry, not evidence of physical BMS permission.
+        self._dbusservice["/Info/DataComplete"] = 1
+        self._dbusservice["/Connected"] = 1
+
         # Update CustomName to show status when sources missing
         if not all_online:
             self._dbusservice["/CustomName"] = (
@@ -778,7 +883,7 @@ def main():
         "--chains",
         nargs="*",
         default=None,
-        help="Chain D-Bus service suffixes to subtract (optional; auto-discover if omitted)",
+        help="Required chain suffixes (default: mqtt_chain1 mqtt_chain2; never auto-discovered)",
     )
     parser.add_argument(
         "--instance", type=int, default=514, help="D-Bus device instance (default: 514)"
@@ -804,7 +909,7 @@ def main():
     if args.chains:
         logger.info("Chains to subtract (provided): %s", args.chains)
     else:
-        logger.info("Chains to subtract: auto-discover from D-Bus")
+        logger.info("Required chains: %s", DEFAULT_CHAIN_SUFFIXES)
     logger.info("Chain capacity: %s Ah", args.capacity)
 
     # Setup D-Bus main loop
