@@ -27,6 +27,7 @@ def test_setup_preserves_supervisor_state_and_records_completion(tmp_path):
     for key, value in {
         "smartshuntIndex": "1",
         "chainCapacity": "320",
+        "chains": "mqtt_chain1\nmqtt_chain2",
         "instance": "514",
     }.items():
         (options / key).write_text(value + "\n")
@@ -84,4 +85,5 @@ def test_setup_preserves_supervisor_state_and_records_completion(tmp_path):
         run = (service_root / name / "run").read_text()
         assert "exec 2>&1" in run
         assert "--smartshunt-index 1" in run
+        assert "--chains mqtt_chain1 mqtt_chain2" in run
         assert "s25000 n4" in (service_root / name / "log/run").read_text()
