@@ -622,7 +622,9 @@ class VirtualBatteryService:
             get_value = {}.get
         else:
             # Native Venus services may expose only individual BusItems.
-            get_value = lambda path: self.dbus_reader.get_value(source.service, path)
+            def get_value(path):
+                return self.dbus_reader.get_value(source.service, path)
+
         connected = get_value("/Connected")
         voltage = get_value(PATH_DC_VOLTAGE)
         current = get_value(PATH_DC_CURRENT)

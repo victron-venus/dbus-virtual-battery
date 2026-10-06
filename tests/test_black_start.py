@@ -207,6 +207,44 @@ def test_mqtt_requires_atomic_snapshot_and_measurement_metadata(runtime, monkeyp
     assert service._dbusservice["/Dc/0/Current"] is None
 
 
+@pytest.mark.parametrize(
+    "metadata,expected",
+    [
+        ({}, True),
+        ({"/Info/DataComplete": 0}, False),
+        ({"/Info/DataComplete": 1}, False),
+        ({"/Info/LastMeasurementMonotonic": 100.0}, False),
+        (
+            {
+                "/Info/DataComplete": 1,
+                "/Info/LastMeasurementMonotonic": 100.0,
+                "/Info/DataTimeout": 60,
+            },
+            True,
+        ),
+        (
+            {
+                "/Info/DataComplete": 1,
+                "/Info/LastMeasurementMonotonic": 40.0,
+                "/Info/DataTimeout": 60,
+            },
+            False,
+        ),
+    ],
+)
+def test_native_source_cannot_bypass_its_own_freshness_metadata(
+    runtime, monkeypatch, metadata, expected
+):
+    monkeypatch.setattr(runtime, "monotonic", lambda: 100.0)
+    service, reader = make_service(
+        runtime, monkeypatch, smartshunt_suffix="ss", chain_suffixes=["mqtt_chain1"]
+    )
+    attach(reader, {"ss": reading(10, **metadata), "mqtt_chain1": mqtt_reading(3)})
+    service.update()
+    assert bool(service._dbusservice["/Connected"]) is expected
+    assert service._dbusservice["/Dc/0/Current"] == (7 if expected else None)
+
+
 def test_reader_snapshot_is_one_uncached_reply(runtime):
     bus = runtime.get_bus.return_value
     bus.get_object.return_value.GetItems.side_effect = [
