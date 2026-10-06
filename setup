@@ -13,9 +13,28 @@ defaultEnableVirtual="true"         # Enable virtual battery (always true for th
 defaultChainCapacity="280"          # Chain capacity in Ah (4x 70Ah batteries)
 defaultInstance="514"               # D-Bus device instance
 defaultProductName="Virtual Battery Chain 3"  # Product name in GUI
+defaultChains="mqtt_chain1 mqtt_chain2"  # Fixed physical inputs, including offline chains
 
 # Read configuration from setupOptions
 readConfig() {
+    if [ -f "$setupOptionsDir/chains" ]; then
+        chains=$(cat "$setupOptionsDir/chains")
+    else
+        chains="$defaultChains"
+    fi
+    # These values become service-name arguments, never shell expressions.
+    if [ -z "${chains//[[:space:]]/}" ]; then
+        echo "chains must name every expected source" >&2
+        exit 1
+    fi
+    local normalizedChains=""
+    for chain in $chains; do
+        case "$chain" in
+            *[!a-zA-Z0-9_.-]*) echo "Invalid chain suffix: $chain" >&2; exit 1 ;;
+        esac
+        normalizedChains="$normalizedChains $chain"
+    done
+    chains="${normalizedChains# }"
     # SmartShunt index (for selecting which SmartShunt if multiple found)
     if [ -f "$setupOptionsDir/smartshuntIndex" ]; then
         smartshuntIndex=$(cat "$setupOptionsDir/smartshuntIndex")
@@ -64,7 +83,7 @@ createVirtualBatteryService() {
     mkdir -p $serviceDir/log /var/log/$serviceName
 
     # Build command line arguments
-    local cmdArgs=""
+    local cmdArgs="--chains $chains"
 
     # Only add smartshunt-index if it's not the default (0) to keep command cleaner
     if [ "$smartshuntIndex" != "0" ]; then
