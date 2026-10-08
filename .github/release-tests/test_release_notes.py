@@ -127,6 +127,33 @@ class ReleaseNotesTests(unittest.TestCase):
             )
         github.api.assert_not_called()
 
+    def test_invalid_source_notes_abort_real_publication_before_mutation(self):
+        for text in (
+            NOTES.replace("[1.2.3]", "[2.0.0]"),
+            NOTES + "\n## [1.2.3]\nDuplicate version.\n",
+            NOTES.replace("### Upgrade", "### Other"),
+            NOTES.replace("### Security", "### Other"),
+        ):
+            github = Mock()
+            github.api.return_value = contents(text)
+            with (
+                self.subTest(text=text),
+                tempfile.TemporaryDirectory() as directory,
+                patch.object(
+                    release,
+                    "source_policy_snapshot",
+                    return_value={"data": {"release_notes": "CHANGELOG.md"}},
+                ),
+                self.assertRaises(release.ReleaseError),
+            ):
+                release.publish(
+                    github, "v1.2.3", SOURCE, Path(directory), False, "provenance"
+                )
+            # Exercise the real parser and publish boundary: the only API call
+            # is the immutable source read, never a tag or release write.
+            github.api.assert_called_once_with(f"contents/CHANGELOG.md?ref={SOURCE}")
+            github.upload.assert_not_called()
+
     def test_api_requires_commit_pinned_source(self):
         import re
 
