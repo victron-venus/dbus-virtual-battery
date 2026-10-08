@@ -6,6 +6,7 @@ python_bin="${CI_PYTHON:-$PWD/.venv-ci/bin/python}"
 if [[ "${1:-}" == --install ]]; then
   uv venv .venv-ci --python 3.12.13
   uv pip install --python "$python_bin" ruff mypy pytest pytest-cov bandit==1.9.4
+  uv pip install --python "$python_bin" --require-hashes --only-binary=:all: -r .github/requirements-workflow-contracts.txt
   exit 0
 fi
 if [[ ! -x "$python_bin" ]]; then
@@ -20,4 +21,4 @@ if [[ "${1:-}" == security ]]; then
 fi
 "$python_bin" -m ruff check .
 "$python_bin" -m ruff format --check .
-"$python_bin" -m pytest tests/ --cov=. --cov-report=term-missing --cov-fail-under=80
+"$python_bin" -m pytest tests/ .github/workflow-tests/ --cov=. --cov-report=term-missing --cov-fail-under=80
