@@ -1,7 +1,9 @@
 """Check the actual release archive with explicitly mocked external prerequisites."""
 
 import hashlib
-import subprocess
+
+# Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
+import subprocess  # nosec B404
 import sys
 import tarfile
 from pathlib import Path
@@ -33,7 +35,8 @@ def test_archive_contains_the_versioned_runtime(tmp_path):
         package.extractall(tmp_path / "extracted", filter="data")
     root = tmp_path / "extracted/dbus-virtual-battery"
     assert (root / "version").read_text().strip() == TAG
-    subprocess.run(["bash", "-n", str(root / "setup")], check=True)
+    # Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
+    subprocess.run(["bash", "-n", str(root / "setup")], check=True)  # nosec B603, B607
     # The separately installed dbus_shared and device drivers are explicit
     # prerequisites, mocked only at their boundary. The calculator and CLI
     # come from the downloaded-layout entrypoint, outside this checkout.
@@ -56,7 +59,8 @@ sys.argv = ["dbus-virtual-battery.py", "--smartshunt-index", "1"]
 main()
 assert factory.call_args.kwargs["smartshunt_index"] == 1
 """
-    subprocess.run(
+    # Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
+    subprocess.run(  # nosec B603
         [
             sys.executable,
             "-I",

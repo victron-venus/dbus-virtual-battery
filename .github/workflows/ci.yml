@@ -14,4 +14,4 @@ jobs:
       python-version: '3.12.13'
       run-type-check: false  # Disable type checking as the original didn't have it
       coverage-threshold: 80
-      test-args: tests/
+      test-args: tests/ .github/workflow-tests/

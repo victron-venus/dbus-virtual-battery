@@ -5,7 +5,8 @@ cd "$(dirname "$0")/.."
 python_bin="${CI_PYTHON:-$PWD/.venv-ci/bin/python}"
 if [[ "${1:-}" == --install ]]; then
   uv venv .venv-ci --python 3.12.13
-  uv pip install --python "$python_bin" ruff mypy pytest pytest-cov bandit==1.9.2
+  uv pip install --python "$python_bin" ruff mypy pytest pytest-cov bandit==1.9.4
+  uv pip install --python "$python_bin" --require-hashes --only-binary=:all: -r .github/requirements-workflow-contracts.txt
   exit 0
 fi
 if [[ ! -x "$python_bin" ]]; then
@@ -13,11 +14,11 @@ if [[ ! -x "$python_bin" ]]; then
   exit 1
 fi
 if [[ "${1:-}" == security ]]; then
-  "$python_bin" -m bandit -r . -lll -x .git,.venv,.venv-ci,tests,release-dist,dist,build
+  "$python_bin" scripts/run_bandit.py
   command -v trivy >/dev/null || { echo 'Install Trivy to run the same release dependency/secret scan locally.' >&2; exit 1; }
   trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --exit-code 1 --skip-dirs .git,.venv,.venv-ci,release-dist,dist,build .
   exit 0
 fi
 "$python_bin" -m ruff check .
 "$python_bin" -m ruff format --check .
-"$python_bin" -m pytest tests/ --cov=. --cov-report=term-missing --cov-fail-under=80
+"$python_bin" -m pytest tests/ .github/workflow-tests/ --cov=. --cov-report=term-missing --cov-fail-under=80
