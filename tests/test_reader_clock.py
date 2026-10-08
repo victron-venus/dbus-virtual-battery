@@ -73,3 +73,12 @@ def test_replaced_connection_cannot_reuse_cached_values(runtime, monkeypatch):
     runtime.get_bus.return_value = new
     assert reader._connect()
     assert reader.get_value("battery", "/Connected") == 0
+
+
+def test_source_invalidation_preserves_other_cached_sources(runtime):
+    reader = runtime.DbusReader()
+    reader._cache.update({"battery/a": 1, "battery/b": 2, "other/a": 3})
+    reader._cache_time.update({"battery/a": 10, "battery/b": 20, "other/a": 30})
+    reader.invalidate_source("battery")
+    assert reader._cache == {"other/a": 3}
+    assert reader._cache_time == {"other/a": 30}
