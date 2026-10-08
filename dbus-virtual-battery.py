@@ -111,6 +111,62 @@ TIME_TO_GO_CAP_SECONDS = 7 * 24 * 3600
 CHARGE_DISCHARGE_THRESHOLD_A = 0.5
 
 
+def _chain_totals(chains):
+    """Accumulate valid chain measurements in their original iteration order."""
+    chain_current_total = 0.0
+    chain_voltage_sum = 0.0
+    chains_with_voltage = 0
+    chain_soc_values: list[float] = []
+
+    for chain in chains:
+        current = chain.get("current")
+        voltage = chain.get("voltage")
+        soc = chain.get("soc")
+        if current is not None:
+            chain_current_total += current
+        if voltage is not None and voltage > 0:
+            chain_voltage_sum += voltage
+            chains_with_voltage += 1
+        if soc is not None and math.isfinite(soc) and 0 <= soc <= 100:
+            chain_soc_values.append(soc)
+    return chain_current_total, chain_voltage_sum, chains_with_voltage, chain_soc_values
+
+
+def _calculate_time_to_go(virtual_current, remaining_capacity, chain_capacity):
+    """Apply the existing charge/discharge thresholds and duration cap."""
+    if (
+        virtual_current is not None
+        and remaining_capacity is not None
+        and virtual_current < -CHARGE_DISCHARGE_THRESHOLD_A
+        and remaining_capacity > 0
+    ):
+        hours = remaining_capacity / abs(virtual_current)
+        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+    elif (
+        virtual_current is not None
+        and remaining_capacity is not None
+        and virtual_current > CHARGE_DISCHARGE_THRESHOLD_A
+        and chain_capacity > remaining_capacity
+    ):
+        hours = (chain_capacity - remaining_capacity) / virtual_current
+        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+    else:
+        time_to_go = None
+    return time_to_go
+
+
+def _chains_have_measurements(chains):
+    """Require finite voltage and current from every configured chain."""
+    return bool(chains) and all(
+        chain.get("voltage") is not None
+        and math.isfinite(chain["voltage"])
+        and chain["voltage"] > 0
+        and chain.get("current") is not None
+        and math.isfinite(chain["current"])
+        for chain in chains
+    )
+
+
 def calculate_virtual_battery(
     smartshunt_voltage: float | None,
     smartshunt_current: float | None,
@@ -128,14 +184,7 @@ def calculate_virtual_battery(
         and smartshunt_current is not None
         and math.isfinite(smartshunt_current)
     )
-    chains_valid = bool(chains) and all(
-        chain.get("voltage") is not None
-        and math.isfinite(chain["voltage"])
-        and chain["voltage"] > 0
-        and chain.get("current") is not None
-        and math.isfinite(chain["current"])
-        for chain in chains
-    )
+    chains_valid = _chains_have_measurements(chains)
     if not shunt_valid or not chains_valid:
         return {
             "voltage": None,
@@ -150,22 +199,9 @@ def calculate_virtual_battery(
             "status": "SmartShunt missing" if not shunt_valid else "Chain data missing",
         }
 
-    chain_current_total = 0.0
-    chain_voltage_sum = 0.0
-    chains_with_voltage = 0
-    chain_soc_values: list[float] = []
-
-    for chain in chains:
-        current = chain.get("current")
-        voltage = chain.get("voltage")
-        soc = chain.get("soc")
-        if current is not None:
-            chain_current_total += current
-        if voltage is not None and voltage > 0:
-            chain_voltage_sum += voltage
-            chains_with_voltage += 1
-        if soc is not None and math.isfinite(soc) and 0 <= soc <= 100:
-            chain_soc_values.append(soc)
+    chain_current_total, chain_voltage_sum, chains_with_voltage, chain_soc_values = (
+        _chain_totals(chains)
+    )
 
     virtual_current = smartshunt_current - chain_current_total
     virtual_voltage = (
@@ -194,24 +230,9 @@ def calculate_virtual_battery(
         consumed_ah = None
         remaining_capacity = None
 
-    if (
-        virtual_current is not None
-        and remaining_capacity is not None
-        and virtual_current < -CHARGE_DISCHARGE_THRESHOLD_A
-        and remaining_capacity > 0
-    ):
-        hours = remaining_capacity / abs(virtual_current)
-        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
-    elif (
-        virtual_current is not None
-        and remaining_capacity is not None
-        and virtual_current > CHARGE_DISCHARGE_THRESHOLD_A
-        and chain_capacity > remaining_capacity
-    ):
-        hours = (chain_capacity - remaining_capacity) / virtual_current
-        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
-    else:
-        time_to_go = None
+    time_to_go = _calculate_time_to_go(
+        virtual_current, remaining_capacity, chain_capacity
+    )
 
     return {
         "voltage": virtual_voltage,
@@ -228,6 +249,15 @@ def calculate_virtual_battery(
 
 
 PATH_CONNECTED = "/Connected"
+PATH_CAPACITY = "/Capacity"
+PATH_DATA_COMPLETE = "/Info/DataComplete"
+PATH_CONSUMED_AMPHOURS = "/ConsumedAmphours"
+PATH_TIME_TO_GO = "/TimeToGo"
+PATH_MIN_CELL_VOLTAGE = "/System/MinCellVoltage"
+PATH_MAX_CELL_VOLTAGE = "/System/MaxCellVoltage"
+PATH_VOLTAGE_SUM = "/Voltages/Sum"
+PATH_VOLTAGE_DIFF = "/Voltages/Diff"
+PATH_CUSTOM_NAME = "/CustomName"
 
 
 class SourceStatus:
@@ -285,6 +315,23 @@ class DbusReader:
 
         return self._connect()
 
+    def _handle_read_error(self, service, path, e):
+        """Invalidate a lost connection while leaving missing objects nonfatal."""
+        error_str = str(e)
+        if "UnknownObject" not in error_str and "NameHasNoOwner" not in error_str:
+            # Connection might be broken
+            conn_lost_markers = (
+                "Connection refused",
+                "org.freedesktop.DBus.Error.Disconnected",
+            )
+            if any(m in error_str for m in conn_lost_markers):
+                logger.warning("D-Bus connection lost, will reconnect")
+                self.bus = None
+                self._cache.clear()
+                self._cache_time.clear()
+            else:
+                logger.debug("D-Bus error reading %s%s: %s", service, path, e)
+
     def get_value(self, service: str, path: str) -> float | None:
         """Get a value from D-Bus service"""
         if not self._ensure_connected():
@@ -325,20 +372,7 @@ class DbusReader:
             return value
 
         except dbus.exceptions.DBusException as e:
-            error_str = str(e)
-            if "UnknownObject" not in error_str and "NameHasNoOwner" not in error_str:
-                # Connection might be broken
-                conn_lost_markers = (
-                    "Connection refused",
-                    "org.freedesktop.DBus.Error.Disconnected",
-                )
-                if any(m in error_str for m in conn_lost_markers):
-                    logger.warning("D-Bus connection lost, will reconnect")
-                    self.bus = None
-                    self._cache.clear()
-                    self._cache_time.clear()
-                else:
-                    logger.debug("D-Bus error reading %s%s: %s", service, path, e)
+            self._handle_read_error(service, path, e)
             return None
 
     def service_exists(self, service: str) -> bool:
@@ -395,6 +429,7 @@ class DbusReader:
 
     def invalidate_source(self, service: str) -> None:
         """Do not mix prior poll values with a newly connected source."""
+        # Snapshot keys before removing entries from this same dictionary.
         for key in list(self._cache):
             if key.startswith(service + "/"):
                 self._cache.pop(key, None)
@@ -555,10 +590,10 @@ class VirtualBatteryService:
 
         # Capacity and state
         self._dbusservice.add_path("/Soc", None)
-        self._dbusservice.add_path("/Capacity", None)
+        self._dbusservice.add_path(PATH_CAPACITY, None)
         self._dbusservice.add_path("/InstalledCapacity", self.chain_capacity)
-        self._dbusservice.add_path("/ConsumedAmphours", None)
-        self._dbusservice.add_path("/TimeToGo", None, writeable=True)
+        self._dbusservice.add_path(PATH_CONSUMED_AMPHOURS, None)
+        self._dbusservice.add_path(PATH_TIME_TO_GO, None, writeable=True)
 
         # System info - shows source availability
         # Battery system configuration for GUI v2
@@ -579,20 +614,20 @@ class VirtualBatteryService:
 
         # Cell voltage (estimated from total voltage / 16 cells)
         # Virtual battery cannot provide per-cell voltages, only estimated average
-        self._dbusservice.add_path("/System/MinCellVoltage", None)
-        self._dbusservice.add_path("/System/MaxCellVoltage", None)
+        self._dbusservice.add_path(PATH_MIN_CELL_VOLTAGE, None)
+        self._dbusservice.add_path(PATH_MAX_CELL_VOLTAGE, None)
         self._dbusservice.add_path("/System/MinVoltageCellId", "N/A (Virtual)")
         self._dbusservice.add_path("/System/MaxVoltageCellId", "N/A (Virtual)")
 
         # Estimated cell voltages (dbus-serialbattery format: /Voltages/Cell1..Cell16)
         for i in range(1, 17):
             self._dbusservice.add_path(f"/Voltages/Cell{i}", None)
-        self._dbusservice.add_path("/Voltages/Sum", None)
-        self._dbusservice.add_path("/Voltages/Diff", None)
+        self._dbusservice.add_path(PATH_VOLTAGE_SUM, None)
+        self._dbusservice.add_path(PATH_VOLTAGE_DIFF, None)
 
         # Custom status info - shows which sources are online/offline
         self._dbusservice.add_path("/Info/SourceStatus", "Initializing...")
-        self._dbusservice.add_path("/Info/DataComplete", 0)
+        self._dbusservice.add_path(PATH_DATA_COMPLETE, 0)
         self._dbusservice.add_path("/Info/MissingSources", "")
 
         # Charge/discharge status (depends on source availability)
@@ -607,6 +642,23 @@ class VirtualBatteryService:
         self._dbusservice.add_path("/Alarms/LowTemperature", 0)
         # Use InternalFailure to indicate missing data sources
         self._dbusservice.add_path("/Alarms/InternalFailure", 0)
+
+    def _source_freshness(self, source, complete, sampled, timeout, mqtt_chain):
+        """Keep source sample age separate from the time of this local read."""
+        source.sample_age = None
+        metadata_present = any(
+            value is not None for value in (complete, sampled, timeout)
+        )
+        fresh = not metadata_present and not mqtt_chain
+        if (
+            complete == 1
+            and sampled is not None
+            and timeout is not None
+            and timeout > 0
+        ):
+            source.sample_age = monotonic() - sampled
+            fresh = 0 <= source.sample_age < timeout
+        return fresh
 
     def _read_source(self, source: SourceStatus) -> bool:
         """Read data from a source and update its status. Returns True if data is valid."""
@@ -625,27 +677,15 @@ class VirtualBatteryService:
             def get_value(path):
                 return self.dbus_reader.get_value(source.service, path)
 
-        connected = get_value("/Connected")
+        connected = get_value(PATH_CONNECTED)
         voltage = get_value(PATH_DC_VOLTAGE)
         current = get_value(PATH_DC_CURRENT)
         soc = get_value("/Soc")
         power = get_value(PATH_DC_POWER)
-        complete = get_value("/Info/DataComplete")
+        complete = get_value(PATH_DATA_COMPLETE)
         sampled = get_value("/Info/LastMeasurementMonotonic")
         timeout = get_value("/Info/DataTimeout")
-        source.sample_age = None
-        metadata_present = any(
-            value is not None for value in (complete, sampled, timeout)
-        )
-        fresh = not metadata_present and not mqtt_chain
-        if (
-            complete == 1
-            and sampled is not None
-            and timeout is not None
-            and timeout > 0
-        ):
-            source.sample_age = monotonic() - sampled
-            fresh = 0 <= source.sample_age < timeout
+        fresh = self._source_freshness(source, complete, sampled, timeout, mqtt_chain)
 
         # A registered service can retain old values while reporting offline.
         # Missing/invalid data must not remain eligible for subtraction.
@@ -711,6 +751,86 @@ class VirtualBatteryService:
 
         return status, missing, all_online
 
+    def _clear_missing_source_values(self, missing_str):
+        """Invalidate derived values when any required current source is unavailable."""
+        logger.debug("Source unavailable - cannot calculate virtual battery")
+        self._dbusservice[PATH_CONNECTED] = 0
+        self._dbusservice["/Io/AllowToCharge"] = None
+        self._dbusservice["/Io/AllowToDischarge"] = None
+        self._dbusservice[PATH_DC_VOLTAGE] = None
+        self._dbusservice[PATH_DC_CURRENT] = None
+        self._dbusservice[PATH_DC_POWER] = None
+        self._dbusservice["/Soc"] = None
+        for path in (
+            PATH_CAPACITY,
+            PATH_CONSUMED_AMPHOURS,
+            PATH_TIME_TO_GO,
+            PATH_MIN_CELL_VOLTAGE,
+            PATH_MAX_CELL_VOLTAGE,
+            PATH_VOLTAGE_SUM,
+            PATH_VOLTAGE_DIFF,
+        ):
+            self._dbusservice[path] = None
+        for index in range(1, CELLS_PER_CHAIN + 1):
+            self._dbusservice[f"/Voltages/Cell{index}"] = None
+        self._dbusservice[PATH_CUSTOM_NAME] = (
+            f"{self.product_name} [Missing: {missing_str}]"
+        )
+
+    def _publish_calculation(self, calc):
+        """Publish the complete derived snapshot before marking its data ready."""
+        virtual_voltage = calc["voltage"]
+        virtual_current = calc["current"]
+        virtual_power = calc["power"]
+        virtual_soc = calc["soc"]
+        cell_voltage = calc["cell_voltage"]
+        self.consumed_ah = calc["consumed_ah"]
+        remaining_capacity = calc["remaining_capacity"]
+        time_to_go = calc["time_to_go"]
+        self.last_update = time()
+
+        # Update D-Bus paths
+        self._dbusservice[PATH_DC_VOLTAGE] = (
+            round(virtual_voltage, 2) if virtual_voltage is not None else None
+        )
+        self._dbusservice[PATH_DC_CURRENT] = (
+            round(virtual_current, 2) if virtual_current is not None else None
+        )
+        self._dbusservice[PATH_DC_POWER] = (
+            round(virtual_power, 1) if virtual_power is not None else None
+        )
+        self._dbusservice["/Soc"] = (
+            round(virtual_soc, 1) if virtual_soc is not None else None
+        )
+        self._dbusservice[PATH_CAPACITY] = (
+            round(remaining_capacity, 1) if remaining_capacity is not None else None
+        )
+        self._dbusservice[PATH_CONSUMED_AMPHOURS] = (
+            round(self.consumed_ah, 1) if self.consumed_ah is not None else None
+        )
+
+        # TimeToGo computed by calculate_virtual_battery()
+        self._dbusservice[PATH_TIME_TO_GO] = time_to_go
+
+        if cell_voltage:
+            self._dbusservice[PATH_MIN_CELL_VOLTAGE] = round(cell_voltage, 3)
+            self._dbusservice[PATH_MAX_CELL_VOLTAGE] = round(cell_voltage, 3)
+            self._dbusservice[PATH_VOLTAGE_SUM] = (
+                round(virtual_voltage, 2) if virtual_voltage is not None else None
+            )
+            self._dbusservice[PATH_VOLTAGE_DIFF] = (
+                0.0  # Virtual battery has no cell difference
+            )
+            # Set all 16 cells to estimated average voltage (dbus-serialbattery format)
+            for i in range(1, 17):
+                self._dbusservice[f"/Voltages/Cell{i}"] = round(cell_voltage, 3)
+
+        # Publish readiness last, after the complete derived snapshot is visible.
+        # A subtraction is telemetry, not evidence of physical BMS permission.
+        self._dbusservice[PATH_DATA_COMPLETE] = 1
+        self._dbusservice[PATH_CONNECTED] = 1
+        return virtual_voltage, virtual_current, virtual_soc
+
     def update(self):
         """Update virtual battery values"""
         now = time()
@@ -738,7 +858,7 @@ class VirtualBatteryService:
         self._dbusservice["/Info/SourceStatus"] = status_str
         self._dbusservice["/Info/MissingSources"] = missing_str
         if not all_online:
-            self._dbusservice["/Info/DataComplete"] = 0
+            self._dbusservice[PATH_DATA_COMPLETE] = 0
 
         # Don't set InternalFailure alarm for missing chains - just show in status
         # Only set alarm if SmartShunt is missing (critical)
@@ -755,29 +875,7 @@ class VirtualBatteryService:
         # Every current source is required: omitting one attributes its current
         # to the virtual chain and produces a false remaining capacity estimate.
         if not all_online:
-            logger.debug("Source unavailable - cannot calculate virtual battery")
-            self._dbusservice["/Connected"] = 0
-            self._dbusservice["/Io/AllowToCharge"] = None
-            self._dbusservice["/Io/AllowToDischarge"] = None
-            self._dbusservice[PATH_DC_VOLTAGE] = None
-            self._dbusservice[PATH_DC_CURRENT] = None
-            self._dbusservice[PATH_DC_POWER] = None
-            self._dbusservice["/Soc"] = None
-            for path in (
-                "/Capacity",
-                "/ConsumedAmphours",
-                "/TimeToGo",
-                "/System/MinCellVoltage",
-                "/System/MaxCellVoltage",
-                "/Voltages/Sum",
-                "/Voltages/Diff",
-            ):
-                self._dbusservice[path] = None
-            for index in range(1, CELLS_PER_CHAIN + 1):
-                self._dbusservice[f"/Voltages/Cell{index}"] = None
-            self._dbusservice["/CustomName"] = (
-                f"{self.product_name} [Missing: {missing_str}]"
-            )
+            self._clear_missing_source_values(missing_str)
             return
 
         # Build chain inputs from online sources
@@ -797,64 +895,15 @@ class VirtualBatteryService:
             chains,
             self.chain_capacity,
         )
-        virtual_voltage = calc["voltage"]
-        virtual_current = calc["current"]
-        virtual_power = calc["power"]
-        virtual_soc = calc["soc"]
-        cell_voltage = calc["cell_voltage"]
-        self.consumed_ah = calc["consumed_ah"]
-        remaining_capacity = calc["remaining_capacity"]
-        time_to_go = calc["time_to_go"]
-        self.last_update = time()
-
-        # Update D-Bus paths
-        self._dbusservice[PATH_DC_VOLTAGE] = (
-            round(virtual_voltage, 2) if virtual_voltage is not None else None
-        )
-        self._dbusservice[PATH_DC_CURRENT] = (
-            round(virtual_current, 2) if virtual_current is not None else None
-        )
-        self._dbusservice[PATH_DC_POWER] = (
-            round(virtual_power, 1) if virtual_power is not None else None
-        )
-        self._dbusservice["/Soc"] = (
-            round(virtual_soc, 1) if virtual_soc is not None else None
-        )
-        self._dbusservice["/Capacity"] = (
-            round(remaining_capacity, 1) if remaining_capacity is not None else None
-        )
-        self._dbusservice["/ConsumedAmphours"] = (
-            round(self.consumed_ah, 1) if self.consumed_ah is not None else None
-        )
-
-        # TimeToGo computed by calculate_virtual_battery()
-        self._dbusservice["/TimeToGo"] = time_to_go
-
-        if cell_voltage:
-            self._dbusservice["/System/MinCellVoltage"] = round(cell_voltage, 3)
-            self._dbusservice["/System/MaxCellVoltage"] = round(cell_voltage, 3)
-            self._dbusservice["/Voltages/Sum"] = (
-                round(virtual_voltage, 2) if virtual_voltage is not None else None
-            )
-            self._dbusservice["/Voltages/Diff"] = (
-                0.0  # Virtual battery has no cell difference
-            )
-            # Set all 16 cells to estimated average voltage (dbus-serialbattery format)
-            for i in range(1, 17):
-                self._dbusservice[f"/Voltages/Cell{i}"] = round(cell_voltage, 3)
-
-        # Publish readiness last, after the complete derived snapshot is visible.
-        # A subtraction is telemetry, not evidence of physical BMS permission.
-        self._dbusservice["/Info/DataComplete"] = 1
-        self._dbusservice["/Connected"] = 1
+        virtual_voltage, virtual_current, virtual_soc = self._publish_calculation(calc)
 
         # Update CustomName to show status when sources missing
         if not all_online:
-            self._dbusservice["/CustomName"] = (
+            self._dbusservice[PATH_CUSTOM_NAME] = (
                 f"{self.product_name} [Missing: {missing_str}]"
             )
         else:
-            self._dbusservice["/CustomName"] = self.product_name
+            self._dbusservice[PATH_CUSTOM_NAME] = self.product_name
 
         # Log debug info
         v_v_str = f"{virtual_voltage:.2f}" if virtual_voltage is not None else "None"
