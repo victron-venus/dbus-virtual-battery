@@ -11,13 +11,16 @@ import unittest
 from pathlib import Path
 
 
-@unittest.skipUnless(importlib.util.find_spec("bandit"), "run in the Bandit gate environment")
+@unittest.skipUnless(
+    importlib.util.find_spec("bandit"), "run in the Bandit gate environment"
+)
 class BanditDiscoveryTests(unittest.TestCase):
     """The gate must cover CI helpers in both clones and Git worktrees."""
 
     def test_directory_exclusions_preserve_ci_and_source_prefixes(self):
         """Real findings in .github survive Git directory and Git file metadata."""
         repository = Path(__file__).resolve().parents[1]
+        original_path = sys.path.copy()
         sys.path.insert(0, str(repository / "scripts"))
         try:
             spec = importlib.util.spec_from_file_location(
@@ -28,9 +31,12 @@ class BanditDiscoveryTests(unittest.TestCase):
             run_bandit = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(run_bandit)
         finally:
-            sys.path.pop(0)
+            sys.path[:] = original_path
         for git_is_file in (False, True):
-            with self.subTest(git_is_file=git_is_file), tempfile.TemporaryDirectory() as temporary:
+            with (
+                self.subTest(git_is_file=git_is_file),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
                 root = Path(temporary)
                 for name in [
                     ".github/release-tests/probe.py",
@@ -43,10 +49,14 @@ class BanditDiscoveryTests(unittest.TestCase):
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_text("eval(input())\n", encoding="utf-8")
                 if git_is_file:
-                    (root / ".git").write_text("gitdir: unused-fixture\n", encoding="utf-8")
+                    (root / ".git").write_text(
+                        "gitdir: unused-fixture\n", encoding="utf-8"
+                    )
                 else:
                     (root / ".git").mkdir()
-                    (root / ".git" / "ignored.py").write_text("eval(input())\n", encoding="utf-8")
+                    (root / ".git" / "ignored.py").write_text(
+                        "eval(input())\n", encoding="utf-8"
+                    )
                 (root / ".github" / "bandit.yml").write_bytes(
                     (repository / ".github" / "bandit.yml").read_bytes()
                 )
@@ -68,7 +78,9 @@ class BanditDiscoveryTests(unittest.TestCase):
                     "./dist_helpers.py",
                 }
                 self.assertEqual(set(report["metrics"]) - {"_totals"}, expected)
-                self.assertEqual({item["filename"] for item in report["results"]}, expected)
+                self.assertEqual(
+                    {item["filename"] for item in report["results"]}, expected
+                )
                 self.assertEqual(report["errors"], [])
 
 
