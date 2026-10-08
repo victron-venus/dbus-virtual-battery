@@ -64,8 +64,9 @@ def test_rejects_scan_errors_even_with_findings():
 
 # Malicious absolute-path fixture verifies rejection; no file is created.
 @pytest.mark.parametrize(
-    "path", ["/tmp/example.py", "../example.py", "src/../example.py"]
-)  # nosec B108
+    "path",
+    ["/tmp/example.py", "../example.py", "src/../example.py"],  # nosec B108
+)
 def test_rejects_paths_outside_repository(path):
     report = complete_report()
     report["results"][0]["filename"] = path
