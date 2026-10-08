@@ -12,7 +12,9 @@ import pytest
 def gate(monkeypatch, tmp_path):
     scripts = Path(__file__).resolve().parents[1] / "scripts"
     monkeypatch.syspath_prepend(str(scripts))
-    spec = importlib.util.spec_from_file_location("security_gate", scripts / "run_bandit.py")
+    spec = importlib.util.spec_from_file_location(
+        "security_gate", scripts / "run_bandit.py"
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     monkeypatch.setattr(module, "__file__", str(tmp_path / "scripts" / "run_bandit.py"))
@@ -22,7 +24,9 @@ def gate(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("severity", ["LOW", "MEDIUM", "HIGH"])
-def test_every_severity_blocks_but_preserves_sarif(gate, monkeypatch, tmp_path, severity):
+def test_every_severity_blocks_but_preserves_sarif(
+    gate, monkeypatch, tmp_path, severity
+):
     def scan(command, **kwargs):
         assert command[1:3] == ["-m", "bandit"]
         assert "-lll" not in command
