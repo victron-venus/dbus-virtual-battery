@@ -2,7 +2,9 @@
 
 import hashlib
 import json
-import subprocess
+
+# Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
+import subprocess  # nosec B404
 import tarfile
 from pathlib import Path
 
@@ -27,8 +29,10 @@ def fixture_package_source(tmp_path: Path) -> Path:
         json.dumps({"name": "fixture", "include": ["runtime.py", "setup", "version"]}),
         encoding="utf-8",
     )
-    subprocess.run(["git", "init", "-q"], cwd=root, check=True)
-    subprocess.run(["git", "add", "."], cwd=root, check=True)
+    # Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True)  # nosec B603, B607
+    # Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
+    subprocess.run(["git", "add", "."], cwd=root, check=True)  # nosec B603, B607
     (root / "local_config.py").write_text("DEVICE_LOCAL = True\n", encoding="utf-8")
     return root
 

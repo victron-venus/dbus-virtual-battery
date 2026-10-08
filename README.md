@@ -242,3 +242,9 @@ or suppress transport recovery. These reader safeguards do not replace an
 upstream service's own freshness reporting. The current service additionally
 checks MQTT measurement timestamps; native devices still own their `/Connected`
 contract.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for reports, development checks and pull requests,
+[SECURITY.md](SECURITY.md) for private vulnerability reporting and deployment trust boundaries,
+and the [OpenSSF evidence index](docs/openssf-evidence.md) for assessment references and remaining verification.
