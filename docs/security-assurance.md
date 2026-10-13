@@ -20,9 +20,21 @@ The application has no password database or custom cryptographic algorithm. Loca
 
 Maintained application and tooling source is Python and shell. No first-party C/C++ source is compiled by this repository. Python, dbus-python, PyGObject/GLib and host libraries contain native code: their memory safety is not established by Python coverage. Keep those dependencies and Venus OS patched, consult their security advisories and use their upstream dynamic-analysis evidence where applicable. Reassess memory-safety tooling before introducing generated or maintained C/C++ code. Do not claim project ASan coverage from a Python test run.
 
+[Runtime hardening](runtime-hardening.md) records a read-only inspection of the
+actual Venus OS process: enabled ASLR, non-executable stack and RELRO, together
+with the non-PIE launcher, partial RELRO and W+X limitations. Those measured
+platform protections are separate from application memory safety and privilege.
+
 ## Remaining evidence
 
-No physical-device acceptance test was performed for this change. See [quality evidence](quality-and-build.md) for measured statement coverage and limitations. Continuity/recovery and verified release signing remain explicit [roadmap](../ROADMAP.md) items until their real evidence is published. Revisit this argument after changes to input trust, freshness, permissions, setup or delivery.
+The original implementation review did not perform physical-device acceptance.
+Subsequent acceptance of the exact v2.7.9 RC2 and its unchanged signed stable
+publication is recorded in [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91#issuecomment-6137363898)
+and [the stable release](https://github.com/victron-venus/dbus-virtual-battery/releases/tag/v2.7.9).
+See [quality evidence](quality-and-build.md) for measured statement coverage and
+limitations. Continuity/recovery remains an explicit [roadmap](../ROADMAP.md)
+item. Revisit this argument after changes to input trust, freshness, permissions,
+setup or delivery.
 
 ## Implemented release signing
 

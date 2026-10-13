@@ -152,6 +152,20 @@ for interface boundaries and reporting barriers.
 2. **Install**
    - PackageManager → dbus-virtual-battery → Install
 
+For keyboard-only administration, the same SetupHelper installation action can
+be invoked from a terminal after the signed runtime archive has been
+[verified](docs/release-signatures.md), extracted into
+`/data/dbus-virtual-battery/`, and configured as above. SetupHelper and the
+shared-helper dependency must already be installed:
+
+```bash
+scriptAction=INSTALL /data/dbus-virtual-battery/setup
+```
+
+This is an installation command that changes the active service; use the
+ordinary maintenance and backup procedure. To read options without starting
+another service, use `python3 -B /data/dbus-virtual-battery/dbus-virtual-battery.py --help`.
+
 ### How PackageManager Works
 
 PackageManager discovers packages by scanning `/data/` for directories containing both a `version` file and a `setup` script. The `setup` script (sourced from this repo) is executed with the `INSTALL` action by SetupHelper, which:
@@ -264,4 +278,4 @@ and the [OpenSSF evidence index](docs/openssf-evidence.md) for assessment refere
 
 ## Project maintenance and assurance
 
-See [contributing and local checks](CONTRIBUTING.md), [governance and continuity](GOVERNANCE.md), [code of conduct](CODE_OF_CONDUCT.md), [maintenance roadmap](ROADMAP.md), [security reporting](SECURITY.md), [security assurance](docs/security-assurance.md), and [quality/build evidence](docs/quality-and-build.md). The [OpenSSF evidence index](docs/openssf-evidence.md) distinguishes verified evidence from remaining requirements.
+See [contributing and local checks](CONTRIBUTING.md), [governance and continuity](GOVERNANCE.md), [code of conduct](CODE_OF_CONDUCT.md), [maintenance roadmap](ROADMAP.md), [security reporting](SECURITY.md), [security assurance](docs/security-assurance.md), [runtime hardening](docs/runtime-hardening.md), and [quality/build evidence](docs/quality-and-build.md). The [OpenSSF evidence index](docs/openssf-evidence.md) distinguishes verified evidence from remaining requirements.

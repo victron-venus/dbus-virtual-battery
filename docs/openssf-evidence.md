@@ -5,7 +5,7 @@ following the October 2026 review. Its [Silver assessment](https://www.bestpract
 is published with outstanding requirements. The live assessment is authoritative
 for the current badge level; this evidence index is not a security guarantee.
 
-The initial completed implementation review is [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91),
+The initial completed implementation review is [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91#issuecomment-6137363898),
 merged as `c853cd3c34253df32701c70c6b723dc8daa3ee0d`. Later changes must be checked against their own source revision
 and CI results rather than inheriting a claim from that review.
 
@@ -48,6 +48,9 @@ workflow and release tooling. Python warnings fail the test suite.
   that period moves; a test count alone does not establish regression coverage.
 - [Security assurance case](security-assurance.md) identifies assets, trust
   boundaries, attacks, implementation defences and the evidence for each claim.
+- [Runtime hardening](runtime-hardening.md) records measured platform exploit
+  mitigations and their limits, without treating Python memory safety or least
+  privilege as substitutes.
 - [GitHub Actions](https://github.com/victron-venus/dbus-virtual-battery/actions) records hosted
   checks. Review actual logs and open findings, including dependency and code
   scanning results; a successful workflow name alone is insufficient evidence.
@@ -77,10 +80,13 @@ At this update:
 - No verified succession or emergency-access arrangement exists. A real mechanism
   must allow issues, changes and releases to continue within one week if the
   primary maintainer becomes unavailable.
-- The currently advertised stable release is unsigned. Publishing and verifying
-  signed preview candidates does not retroactively sign that distribution.
+- [Stable v2.7.9](https://github.com/victron-venus/dbus-virtual-battery/releases/tag/v2.7.9)
+  was promoted from the accepted, signed RC2 assets. Acceptance is recorded in
+  [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91#issuecomment-6137363898); recipients
+  should still perform the documented signature and inventory verification.
 
 The live Silver form also records suggested practices that remain incomplete,
-including accessibility review, internationalization and signed version tags.
+including internationalization and signed version tags. The completed scoped
+[accessibility review](accessibility.md) records what was and was not tested.
 The repository's `.bestpractices.json` is an importable Passing evidence snapshot;
 it neither updates the website automatically nor establishes future compliance.
