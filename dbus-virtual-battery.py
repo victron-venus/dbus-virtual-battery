@@ -183,6 +183,24 @@ def _invalid_calculation(status):
     }
 
 
+def _electrical_values(chain_voltage_sum, chains_with_voltage, virtual_current):
+    """Derive voltage, power and per-cell voltage from the same chain totals."""
+    virtual_voltage = (
+        chain_voltage_sum / chains_with_voltage if chains_with_voltage > 0 else None
+    )
+    virtual_power = (
+        virtual_voltage * virtual_current
+        if virtual_voltage is not None and virtual_current is not None
+        else None
+    )
+    cell_voltage = (
+        virtual_voltage / CELLS_PER_CHAIN
+        if virtual_voltage is not None and virtual_voltage > 0
+        else None
+    )
+    return virtual_voltage, virtual_power, cell_voltage
+
+
 def calculate_virtual_battery(
     smartshunt_voltage: float | None,
     smartshunt_current: float | None,
@@ -213,18 +231,8 @@ def calculate_virtual_battery(
     )
 
     virtual_current = smartshunt_current - chain_current_total
-    virtual_voltage = (
-        chain_voltage_sum / chains_with_voltage if chains_with_voltage > 0 else None
-    )
-    virtual_power = (
-        virtual_voltage * virtual_current
-        if virtual_voltage is not None and virtual_current is not None
-        else None
-    )
-    cell_voltage = (
-        virtual_voltage / CELLS_PER_CHAIN
-        if virtual_voltage is not None and virtual_voltage > 0
-        else None
+    virtual_voltage, virtual_power, cell_voltage = _electrical_values(
+        chain_voltage_sum, chains_with_voltage, virtual_current
     )
     virtual_soc = (
         sum(chain_soc_values) / len(chain_soc_values)

@@ -46,7 +46,7 @@ with atheris.instrument_imports():
     spec.loader.exec_module(runtime)
 
 
-def test_one_input(data: bytes) -> None:
+def fuzz_one_input(data: bytes) -> None:
     if len(data) < 48:
         return
     voltage, current, chain_voltage, chain_current, soc, capacity = struct.unpack(
@@ -77,5 +77,5 @@ def test_one_input(data: bytes) -> None:
 
 
 if __name__ == "__main__":
-    atheris.Setup(sys.argv, atheris.instrument_func(test_one_input))
+    atheris.Setup(sys.argv, atheris.instrument_func(fuzz_one_input))
     atheris.Fuzz()
