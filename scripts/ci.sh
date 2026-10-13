@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 python_bin="${CI_PYTHON:-$PWD/.venv-ci/bin/python}"
 if [[ "${1:-}" == --install ]]; then
-  UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --locked --extra test --python 3.12.13
+  UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --locked --no-build --extra test --python 3.12.13
   uv pip install --python "$python_bin" --require-hashes --only-binary=:all: -r .github/requirements-bandit.txt
   exit 0
 fi

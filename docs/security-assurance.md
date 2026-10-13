@@ -23,3 +23,7 @@ Maintained application and tooling source is Python and shell. No first-party C/
 ## Remaining evidence
 
 No physical-device acceptance test was performed for this change. See [quality evidence](quality-and-build.md) for measured statement coverage and limitations. Continuity/recovery and verified release signing remain explicit [roadmap](../ROADMAP.md) items until their real evidence is published. Revisit this argument after changes to input trust, freshness, permissions, setup or delivery.
+
+## Implemented release signing
+
+The opted-in release workflow delegates signing to pinned Cosign 3.1.3. Its default [ECDSA P-256 generation uses Go crypto/rand](https://github.com/sigstore/cosign/blob/v3.1.3/pkg/cosign/keys.go). The project uses standard SHA-256 digests and does not implement its own cryptography. [Recipient verification](release-signatures.md) binds the signature to the expected repository, workflow, branch and reviewed source commit before inspecting every payload. Ephemeral signing keys are not a claim about forward secrecy of every deployment transport. A real signed publication must still be verified before marking the Silver release-signature requirement complete.

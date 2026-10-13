@@ -30,3 +30,6 @@ omit = [
 # Unimported scripts outside packages must contribute uncovered statements.
 include_namespace_packages = true
 omit = ["tests/*", ".github/workflow-tests/*", ".github/release-tests/*", ".venv/*", ".venv-ci/*"]
+
+[tool.pytest.ini_options]
+filterwarnings = ["error"]

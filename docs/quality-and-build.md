@@ -30,3 +30,7 @@ The payload is placed under `stage-root/data/dbus-virtual-battery`. This mode do
 ## Review policy and limits
 
 Contributions must resolve new warnings, preserve enforced checks, test important success and failure paths, and explain untested behavior. Keep bug-regression evidence current for the preceding six months. No local result here is a physical-device acceptance test or a security certification. See [CONTRIBUTING.md](../CONTRIBUTING.md) for review requirements and [the assurance case](security-assurance.md) for security-specific evidence.
+
+## Warning policy
+
+Python warnings are errors during the entire pytest suite (`filterwarnings = ["error"]`), including release and workflow contracts. Ruff lint and formatting checks fail CI. Do not add a blanket warning ignore: fix a warning, or document a narrowly matched upstream exception with its rationale. This chooses the useful warning mechanisms for Python rather than enabling mutually conflicting style rules.

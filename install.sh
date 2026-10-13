@@ -8,7 +8,7 @@
 
 set -e
 
-if [ -n "${DESTDIR:-}" ]; then
+if [[ -n "${DESTDIR:-}" ]]; then
     exec python3 "$(dirname "$0")/install.py" install
 fi
 

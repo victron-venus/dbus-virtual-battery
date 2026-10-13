@@ -1,15 +1,15 @@
 {
-  "measured_on": "2026-10-13T01:44:17.740400+00:00",
-  "source_base_commit": "9fab38d83fadd88e9fb9c31bee3e304c9b5c9f2f",
+  "measured_on": "2026-10-13T01:50:46.778491+00:00",
+  "source_base_commit": "a165d4b59e92bfb1b2fa608000b7c24526948b44",
   "source_state": "PR working tree; exact production source content is bound by per-file SHA-256 hashes below. Review/merge commit is supplied by the PR.",
   "command": "bash scripts/ci.sh --install && bash scripts/ci.sh",
   "interpreter": "Python 3.12.13",
   "host": "macOS-26.7-arm64-arm-64bit-Mach-O",
-  "covered_statements": 3414,
-  "statements": 4028,
-  "statement_percent": 84.7567,
+  "covered_statements": 4135,
+  "statements": 4636,
+  "statement_percent": 89.1933,
   "threshold_percent": 80,
-  "test_result": "487 passed in 31.21s",
+  "test_result": "637 passed in 59.87s",
   "limitations": [
     "Python statements only, not branch coverage.",
     "Excluded tests, virtual environments and generated build/distribution output; native dependencies and shell are not Python statement coverage.",
@@ -50,7 +50,7 @@
       "path": "scripts/change_scope.py",
       "sha256": "174e460603f2efe87cf6e5cde1b8682f0a0f2d35c4c129aafe3cde8801299be8",
       "statements": 160,
-      "covered_statements": 0
+      "covered_statements": 118
     },
     {
       "path": "scripts/package_release.py",
@@ -60,15 +60,15 @@
     },
     {
       "path": "scripts/prepare_version.py",
-      "sha256": "f16f0d3239e361ef57804989603d1979cb7c2b188f2d6ca85ed41508a613dae5",
-      "statements": 211,
-      "covered_statements": 179
+      "sha256": "6e9c4a9c2fe4e3c7e4954d9725ed02fb2f179c5771ef843a653ef4f065fae0e2",
+      "statements": 213,
+      "covered_statements": 182
     },
     {
       "path": "scripts/release.py",
       "sha256": "2584b05d01ef82b48f2ef75dc5d8e649de09df591fc6121097b2388f65a7b4eb",
       "statements": 187,
-      "covered_statements": 42
+      "covered_statements": 138
     },
     {
       "path": "scripts/release_container_labels.py",
@@ -78,27 +78,39 @@
     },
     {
       "path": "scripts/release_control.py",
-      "sha256": "cfd93890e87d058404b5b246327e17e2660869e1259df9611452d0dcaf11bb51",
-      "statements": 841,
-      "covered_statements": 779
+      "sha256": "1700427ea38864763ca223bca4f3074456ad80d52cc1bf3e63ed6929ff29a7ff",
+      "statements": 922,
+      "covered_statements": 859
+    },
+    {
+      "path": "scripts/release_signing.py",
+      "sha256": "29a4cb3d1e6deb913d501965292664b2b3a7b44a3f6fe297b121c87eb73f0d4b",
+      "statements": 111,
+      "covered_statements": 98
     },
     {
       "path": "scripts/release_state.py",
-      "sha256": "f1d5620f287568c592e1cbe5b4f886d37469fbadf6c17f802f6c17e360dfe996",
-      "statements": 108,
-      "covered_statements": 108
+      "sha256": "7c9717ce50dd10695dbc74f4fa876a5143c83f49e4f9a6bca77190916fef3641",
+      "statements": 120,
+      "covered_statements": 120
+    },
+    {
+      "path": "scripts/release_validation.py",
+      "sha256": "d87f110445cd6618aff991ff126218de47154afc7a878aa9ba37621b800ece42",
+      "statements": 75,
+      "covered_statements": 53
     },
     {
       "path": "scripts/release_version_adapter.py",
-      "sha256": "b96934d425f215a51a3f9f4dc1aea595d2b00f7844012ba56fc2ced5a623595b",
+      "sha256": "2a520b4333d681cfda32437c8f5f00050839dabdcdd29527d1b1346f43fd5792",
       "statements": 48,
       "covered_statements": 36
     },
     {
       "path": "scripts/release_versioned.py",
-      "sha256": "5c9cc418056be75e76a97c9a3a55bc35fda06b9bcc00241f098b9582678102ae",
-      "statements": 279,
-      "covered_statements": 255
+      "sha256": "9461377600faf2010804eaa943b6283674457b0d5c9a55db6b2f11d0156acb75",
+      "statements": 295,
+      "covered_statements": 273
     },
     {
       "path": "scripts/run_bandit.py",
@@ -107,28 +119,34 @@
       "covered_statements": 31
     },
     {
+      "path": "scripts/runner_preflight.py",
+      "sha256": "c0460d162e83d2fa515615452c59567186d05f3ef26dddaa68735352bbcedf80",
+      "statements": 197,
+      "covered_statements": 195
+    },
+    {
       "path": "scripts/stage_release_assets.py",
-      "sha256": "0fbf5045cf0b0f65ef917b23abbb7e2ee6ad99adeaf94aa2eb22c65a2f39eade",
-      "statements": 105,
-      "covered_statements": 94
+      "sha256": "ec308cd5346b5e55860336dba0352e426284b674d9f6f4ae7f5bd80e11dd9003",
+      "statements": 106,
+      "covered_statements": 95
     },
     {
       "path": "scripts/version_plan.py",
-      "sha256": "f485c73904952f30ad4b00e032e10bd743bf6c03c47be873fe3d094f9f7c58e6",
+      "sha256": "5ab44b0750a135f291417825b18536e0256938d8b36f87918ab5e35ce1b49a39",
       "statements": 954,
       "covered_statements": 930
     },
     {
       "path": "scripts/version_receipt.py",
-      "sha256": "79cab92882eb494b814d530aeb749abee9021030891db9265da6dc1981b7011b",
-      "statements": 191,
-      "covered_statements": 174
+      "sha256": "da2d97f686d8d41ae73715fdbfbcbafc31f23389152006cc2519fb9d56902169",
+      "statements": 192,
+      "covered_statements": 175
     },
     {
       "path": "scripts/workflow_contracts.py",
-      "sha256": "e281553719d1f014ed299b148812d6305e34522a25e6043cafa240a8a77becd2",
-      "statements": 104,
-      "covered_statements": 87
+      "sha256": "5332b472b01df64077e7a474b7e5171ba48d8cfa2ae1b0b4d7572024effd248d",
+      "statements": 216,
+      "covered_statements": 133
     },
     {
       "path": "scripts/write_binary_build_metadata.py",
