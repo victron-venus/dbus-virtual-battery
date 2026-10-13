@@ -141,7 +141,7 @@ def _calculate_time_to_go(virtual_current, remaining_capacity, chain_capacity):
         and remaining_capacity > 0
     ):
         hours = remaining_capacity / abs(virtual_current)
-        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+        time_to_go = int(min(hours, TIME_TO_GO_CAP_SECONDS / 3600) * 3600)
     elif (
         virtual_current is not None
         and remaining_capacity is not None
@@ -149,7 +149,7 @@ def _calculate_time_to_go(virtual_current, remaining_capacity, chain_capacity):
         and chain_capacity > remaining_capacity
     ):
         hours = (chain_capacity - remaining_capacity) / virtual_current
-        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+        time_to_go = int(min(hours, TIME_TO_GO_CAP_SECONDS / 3600) * 3600)
     else:
         time_to_go = None
     return time_to_go
@@ -165,6 +165,22 @@ def _chains_have_measurements(chains):
         and math.isfinite(chain["current"])
         for chain in chains
     )
+
+
+def _invalid_calculation(status):
+    """Never publish nonfinite derived values as a valid battery sample."""
+    return {
+        "voltage": None,
+        "current": None,
+        "power": None,
+        "soc": None,
+        "soc_valid": False,
+        "cell_voltage": None,
+        "consumed_ah": None,
+        "remaining_capacity": None,
+        "time_to_go": None,
+        "status": status,
+    }
 
 
 def calculate_virtual_battery(
@@ -186,18 +202,11 @@ def calculate_virtual_battery(
     )
     chains_valid = _chains_have_measurements(chains)
     if not shunt_valid or not chains_valid:
-        return {
-            "voltage": None,
-            "current": None,
-            "power": None,
-            "soc": None,
-            "soc_valid": False,
-            "cell_voltage": None,
-            "consumed_ah": None,
-            "remaining_capacity": None,
-            "time_to_go": None,
-            "status": "SmartShunt missing" if not shunt_valid else "Chain data missing",
-        }
+        return _invalid_calculation(
+            "SmartShunt missing" if not shunt_valid else "Chain data missing"
+        )
+    if not math.isfinite(chain_capacity) or chain_capacity <= 0:
+        return _invalid_calculation("Invalid chain capacity")
 
     chain_current_total, chain_voltage_sum, chains_with_voltage, chain_soc_values = (
         _chain_totals(chains)
@@ -229,6 +238,18 @@ def calculate_virtual_battery(
     else:
         consumed_ah = None
         remaining_capacity = None
+
+    derived = (
+        virtual_current,
+        virtual_voltage,
+        virtual_power,
+        cell_voltage,
+        virtual_soc,
+        consumed_ah,
+        remaining_capacity,
+    )
+    if any(value is not None and not math.isfinite(value) for value in derived):
+        return _invalid_calculation("Calculation overflow")
 
     time_to_go = _calculate_time_to_go(
         virtual_current, remaining_capacity, chain_capacity
