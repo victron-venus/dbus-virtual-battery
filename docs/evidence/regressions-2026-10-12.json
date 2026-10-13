@@ -1,0 +1,2158 @@
+{
+  "schema_version": 1,
+  "project": "victron-venus/dbus-virtual-battery",
+  "reviewed_on": "2026-10-12",
+  "window_start": "2026-04-12",
+  "window_end_commit": "9fab38d83fadd88e9fb9c31bee3e304c9b5c9f2f",
+  "criterion": "regression_tests_added50",
+  "criterion_status": "unverified",
+  "method": "Review public non-merge history for six months, including runtime, installer, packaging and CI defects. Candidate selection uses fix/repair/security-related subjects plus manual additions after reading the complete subject history. Ordinary dependency updates without an identified project defect are not bugs. Individual commits can bundle multiple defects; the provisional group counts below are not the criterion denominator. Later regression evidence is allowed when dated accurately. Missing links mean unverified, not proof of absent tests.",
+  "summary": {
+    "reviewed_non_merge_commits": 122,
+    "candidate_change_groups": 40,
+    "groups_with_new_or_extended_regression_evidence": 11,
+    "groups_with_partial_evidence": 1,
+    "groups_requiring_regression_review": 26,
+    "excluded_non_defect_or_upstream_dependency_groups": 2,
+    "badge_ratio_claimed": false
+  },
+  "fix_groups": [
+    {
+      "sha": "e3d15d307ee977ea00e8c478206dcb8ade41bdc9",
+      "date": "2026-10-12T14:40:54-07:00",
+      "title": "fix: use authoritative HTTP statuses in release automation (#90)",
+      "files": [
+        ".github/release-tests/test_github_missing_status.py",
+        ".github/release-tests/test_release_control.py",
+        ".github/release-tests/test_release_state_http.py",
+        ".github/release-tests/test_versioned_release.py",
+        "scripts/release_control.py",
+        "scripts/release_state.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_error_body_and_cli_message_cannot_authorize_absence(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_real_http_404_is_optional_regardless_of_error_prose(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_missing_headers_never_fall_back_to_error_prose(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_status_and_exit_code_must_agree(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_failed_post_is_not_replayed_and_raw_upload_never_means_missing(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_binary_and_empty_response_bytes_are_preserved(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_pagination_has_exact_json_boundaries_and_discards_partial_result(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_truncated_or_injected_page_boundaries_fail_closed(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_local_http_status_wins_over_gh_error_rendering(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_github_missing_status.py",
+          "function": "def test_paginated_cli_normalizes_json_and_rejects_injected_page_headers(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_github_missing_status.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_state_http.py",
+          "function": "def test_only_two_real_404_reads_initialize_an_absent_ledger(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_release_state_http.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_state_http.py",
+          "function": "def test_errors_cannot_initialize_or_replay_a_ledger_read(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_release_state_http.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_state_http.py",
+          "function": "def test_absent_headers_do_not_initialize_a_ledger(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_release_state_http.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_state_http.py",
+          "function": "def test_existing_branch_with_missing_file_is_not_reset(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_release_state_http.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_state_http.py",
+          "function": "def test_failed_cas_write_is_never_replayed(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_release_state_http.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_state_http.py",
+          "function": "def test_successful_cas_write_strips_headers(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/e3d15d307ee977ea00e8c478206dcb8ade41bdc9/.github/release-tests/test_release_state_http.py",
+          "added_at": "2026-10-12T14:40:54-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/e3d15d307ee977ea00e8c478206dcb8ade41bdc9"
+    },
+    {
+      "sha": "859b743b6ba7887b49daae7a484d2a660c09f5c5",
+      "date": "2026-10-08T04:21:55-07:00",
+      "title": "Enforce complete security scans and source-bound release notes (#82)",
+      "files": [
+        ".github/bandit.yml",
+        ".github/release-tests/test_asset_streaming.py",
+        ".github/release-tests/test_consumer_versioning.py",
+        ".github/release-tests/test_prepare_version.py",
+        ".github/release-tests/test_release_control.py",
+        ".github/release-tests/test_release_notes.py",
+        ".github/release-tests/test_version_plan.py",
+        ".github/release-tests/test_version_receipt.py",
+        ".github/release-tests/test_versioned_release.py",
+        ".github/workflow-tests/test_action_pins.py",
+        ".github/workflows/ci.yml",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/python-security.yml",
+        ".github/workflows/quality-gate.yml",
+        ".github/workflows/release-security.yml",
+        ".release-policy.json",
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+        "README.md",
+        "SECURITY.md",
+        "docs/openssf-evidence.md",
+        "pyproject.toml",
+        "scripts/bandit_sarif.py",
+        "scripts/change_scope.py",
+        "scripts/ci.sh",
+        "scripts/package_release.py",
+        "scripts/prepare_version.py",
+        "scripts/release.py",
+        "scripts/release_container_labels.py",
+        "scripts/release_control.py",
+        "scripts/release_state.py",
+        "scripts/release_version_adapter.py",
+        "scripts/release_versioned.py",
+        "scripts/run_bandit.py",
+        "scripts/stage_release_assets.py",
+        "scripts/version_plan.py",
+        "scripts/version_receipt.py",
+        "scripts/workflow_contracts.py",
+        "tests/test_bandit_discovery.py",
+        "tests/test_bandit_sarif.py",
+        "tests/test_candidate_package.py",
+        "tests/test_deploy_overlay.py",
+        "tests/test_release_package.py",
+        "tests/test_security_gate.py",
+        "tests/test_setup_installation.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": ".github/release-tests/test_consumer_versioning.py",
+          "function": "def test_base_rejects_non_ascii_digits_and_noncanonical_versions(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_consumer_versioning.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_consumer_versioning.py",
+          "function": "def test_staging_rejects_ambiguous_or_unsafe_payloads_before_output(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_consumer_versioning.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_consumer_versioning.py",
+          "function": "def test_invalid_archive_does_not_leave_staging_and_can_be_retried(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_consumer_versioning.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_consumer_versioning.py",
+          "function": "def test_partial_copy_failure_preserves_existing_sibling(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_consumer_versioning.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_consumer_versioning.py",
+          "function": "def test_failed_receipt_writer_cleans_output_and_allows_retry(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_consumer_versioning.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_consumer_versioning.py",
+          "function": "def test_staging_failure_never_removes_preexisting_target(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_consumer_versioning.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_control.py",
+          "function": "def test_invalid_candidate_notes_preserve_existing_evidence(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_control.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_closing_hashes_select_version_and_required_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_closing_hashes_do_not_hide_duplicate_version_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_literal_and_escaped_hashes_are_not_guidance_titles(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_empty_higher_level_atx_headings_end_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_higher_level_appendix_cannot_supply_version_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_valid_notes_stop_before_higher_level_appendix(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_higher_level_headings_end_raw_and_visible_guidance_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_higher_level_heading_does_not_hide_later_version_selection(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_literal_and_commented_higher_level_headings_do_not_end_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_fenced_guidance_cannot_satisfy_real_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_fenced_version_headings_do_not_select_or_split_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_fence_closes_only_with_matching_marker_and_sufficient_length(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_longer_matching_fences_restore_heading_recognition(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_unclosed_fences_keep_following_headings_inside_example(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_real_guidance_can_contain_fenced_commands_verbatim(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_invalid_backtick_info_and_inline_markers_do_not_start_fences(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_unicode_line_separator_does_not_introduce_a_heading(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_fenced_only_notes_fail_before_any_remote_mutation(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_exact_base_and_provenance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_crlf_notes_preserve_source_byte_verification(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_missing_or_incomplete_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_rejects_invalid_source_content(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_policy_is_opt_in(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_missing_notes_abort_before_mutation(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_api_requires_commit_pinned_source(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_invalid_source_notes_abort_real_publication_before_mutation(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_comment_only_guidance_is_rejected(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_commented_headings_do_not_select_or_split_sections(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_comments_started_on_headings_keep_following_content_hidden(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_visible_text_survives_inline_multiline_and_unclosed_comments(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_comments_do_not_open_fences_or_hide_literal_code(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_empty_fences_are_not_visible_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_many_inline_comments_keep_linear_scanning_and_offsets(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_comment_only_notes_fail_before_any_remote_mutation(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_indented_version_and_guidance_headings_are_supported(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_comments_between_text_and_setext_underlines_do_not_hide_ambiguity(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_setext_appendices_cannot_supply_release_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_setext_heading_inside_guidance_is_rejected(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_thematic_breaks_and_literal_setext_examples_remain_supported(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_setext_outside_selected_release_does_not_change_body(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_separator_or_subheading_alone_is_not_release_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_guidance_after_separator_and_subheading_is_preserved(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_literal_markers_in_code_remain_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_empty_markdown_containers_are_not_release_guidance(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_markdown_containers_preserve_actual_guidance_and_literals(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_notes.py",
+          "function": "def test_tabbed_containers_preserve_literal_code(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_release_notes.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_toml_table_delimiters_inside_quoted_keys_are_literal(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_toml_quoted_assignment_keys_preserve_delimiters_and_escapes(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_toml_unrelated_quoted_assignment_keys_do_not_block_version_sync(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_toml_long_quoted_assignment_key_preserves_layout(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_toml_long_whitespace_and_header_comment_preserve_layout(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_receipt.py",
+          "function": "def test_invalid_package_name_fails_before_toolchain_or_receipt_write(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_receipt.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_receipt.py",
+          "function": "def test_publisher_rejects_mutated_receipt_identity_and_coverage(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_version_receipt.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_candidate_notes_fail_before_evidence_or_publication_floor(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_final_build_notes_fail_before_replacing_rc_evidence(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_byte_promotion_notes_fail_before_advancing_rc_floor(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/workflow-tests/test_action_pins.py",
+          "function": "def test_actual_workflows_pass_without_optional_manifest(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/workflow-tests/test_action_pins.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/workflow-tests/test_action_pins.py",
+          "function": "def test_mutable_step_action_is_rejected_without_manifest(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/workflow-tests/test_action_pins.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/workflow-tests/test_action_pins.py",
+          "function": "def test_mutable_reusable_workflow_is_rejected_without_manifest(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/workflow-tests/test_action_pins.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/workflow-tests/test_action_pins.py",
+          "function": "def test_docker_action_requires_content_digest(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/workflow-tests/test_action_pins.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/workflow-tests/test_action_pins.py",
+          "function": "def test_generator_marker_is_required_without_manifest(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/workflow-tests/test_action_pins.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": ".github/workflow-tests/test_action_pins.py",
+          "function": "def test_manifest_mismatch_remains_rejected(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/.github/workflow-tests/test_action_pins.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": "tests/test_bandit_discovery.py",
+          "function": "def test_directory_exclusions_preserve_ci_and_source_prefixes(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/tests/test_bandit_discovery.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": "tests/test_bandit_discovery.py",
+          "function": "def test_repository_ini_cannot_suppress_findings(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/tests/test_bandit_discovery.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": "tests/test_bandit_sarif.py",
+          "function": "def test_rejects_empty_or_invalid_scan_coverage(lines):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/tests/test_bandit_sarif.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": "tests/test_security_gate.py",
+          "function": "def test_every_severity_blocks_but_preserves_sarif(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/tests/test_security_gate.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": "tests/test_security_gate.py",
+          "function": "def test_parser_error_removes_previous_success(gate, monkeypatch, tmp_path):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/tests/test_security_gate.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        },
+        {
+          "file": "tests/test_security_gate.py",
+          "function": "def test_failed_scanner_cannot_publish_a_clean_report(gate, monkeypatch, tmp_path):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/859b743b6ba7887b49daae7a484d2a660c09f5c5/tests/test_security_gate.py",
+          "added_at": "2026-10-08T04:21:55-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/859b743b6ba7887b49daae7a484d2a660c09f5c5"
+    },
+    {
+      "sha": "9bbb637f797d0c888f58bcdfacaddc030e8b14a7",
+      "date": "2026-10-06T21:08:47-07:00",
+      "title": "fix: synchronize package lock version with 2.7.9 (#78)",
+      "files": [
+        "uv.lock"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "Corrected inconsistent version metadata in uv.lock; retain as a real build defect.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/9bbb637f797d0c888f58bcdfacaddc030e8b14a7"
+    },
+    {
+      "sha": "9abb342c5fa7b7db9130f6978277fd4be4cedfc3",
+      "date": "2026-10-06T12:42:47-07:00",
+      "title": "Fix virtual battery readiness after cold start (#77)",
+      "files": [
+        "README.md",
+        "dbus-virtual-battery.py",
+        "pyproject.toml",
+        "setup",
+        "tests/test_black_start.py",
+        "tests/test_calculator.py",
+        "tests/test_runtime.py",
+        "tests/test_setup_installation.py",
+        "version"
+      ],
+      "added_test_functions": [
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_legacy_helper_cannot_register_connected_without_samples(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_delayed_sources_recover_without_partial_subtraction_or_wrong_shunt(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_selected_shunt_does_not_switch_to_another_when_disconnected(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_frozen_upstream_timestamp_expires_even_when_dbus_responds(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_invalid_membership_rejected(runtime, monkeypatch, suffixes):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_partial_soc_does_not_publish_an_average_of_remaining_chain(runtime):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_reader_identifies_product_not_serial_port(runtime):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_auto_discovery_rejects_a_serial_bms(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_mqtt_requires_atomic_snapshot_and_measurement_metadata(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_native_source_cannot_bypass_its_own_freshness_metadata(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_reader_snapshot_is_one_uncached_reply(runtime):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        },
+        {
+          "file": "tests/test_black_start.py",
+          "function": "def test_reader_snapshot_unavailable(runtime):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9abb342c5fa7b7db9130f6978277fd4be4cedfc3/tests/test_black_start.py",
+          "added_at": "2026-10-06T12:42:47-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/9abb342c5fa7b7db9130f6978277fd4be4cedfc3"
+    },
+    {
+      "sha": "9877114e1733ef70291ae6d3787870125c3e407a",
+      "date": "2026-10-03T03:55:52-07:00",
+      "title": "fix: prepare next release cycle and skip closed beta packaging (#72)",
+      "files": [
+        ".github/release-tests/test_release_control.py",
+        ".github/release-tests/test_version_plan.py",
+        ".github/release-tests/test_versioned_release.py",
+        ".github/workflows/release-pipeline.yml",
+        "dbus-virtual-battery.py",
+        "docs/VERSIONING.md",
+        "pyproject.toml",
+        "scripts/release_control.py",
+        "scripts/release_versioned.py",
+        "scripts/version_plan.py",
+        "version"
+      ],
+      "added_test_functions": [
+        {
+          "file": ".github/release-tests/test_release_control.py",
+          "function": "def test_existing_stable_tag_closes_only_push_cycle(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_release_control.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_control.py",
+          "function": "def test_missing_tag_continues_but_api_errors_cannot_authorize_skip(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_release_control.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_release_control.py",
+          "function": "def test_malformed_or_wrong_tag_response_fails_closed(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_release_control.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_python_version_updates_preserve_single_and_double_quotes(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_closed_push_cycle_stops_before_plan_allocation(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_closed_push_cycle_does_not_bypass_source_or_version_checks(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_explicit_beta_keeps_existing_stable_tag_error(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/9877114e1733ef70291ae6d3787870125c3e407a/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-03T03:55:52-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/9877114e1733ef70291ae6d3787870125c3e407a"
+    },
+    {
+      "sha": "adf0975ff576f9098b55e4cada72b1decac1f57d",
+      "date": "2026-10-02T05:18:00-07:00",
+      "title": "fix(release): preserve RC eligibility during scheduled nightlies (#65)",
+      "files": [
+        ".github/release-tests/test_release_control.py",
+        ".github/release-tests/test_versioned_release.py",
+        ".github/workflows/release-pipeline.yml",
+        ".release-policy.json",
+        "RELEASING.md",
+        "docs/VERSIONING.md",
+        "docs/release-workflow.md",
+        "scripts/release_control.py",
+        "scripts/release_versioned.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": ".github/release-tests/test_release_control.py",
+          "function": "def test_upload_parse_failure_keeps_draft_and_reports_safe_asset_context(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_release_control.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_scheduled_rc_reuse_preserves_floor_and_promotion_after_full_build(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_scheduled_beta_reuses_retained_qualified_package(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_promoted_stable_can_reuse_original_rc_evidence(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_final_build_stable_is_a_qualified_publication(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_release_mutation_during_verification_does_not_skip_publication(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_unqualified_or_changed_release_never_skips_publication(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_unqualified_nightly_is_not_a_reuse_baseline(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_manual_nightly_always_publishes_despite_qualified_rc(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_new_source_always_publishes_despite_previous_rc(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_default_branch_movement_during_reuse_prevents_skip(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_failed_current_gate_cannot_reuse_previous_rc(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_versioned_release.py",
+          "function": "def test_invalid_current_build_receipt_cannot_reuse_previous_rc(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/adf0975ff576f9098b55e4cada72b1decac1f57d/.github/release-tests/test_versioned_release.py",
+          "added_at": "2026-10-02T05:18:00-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/adf0975ff576f9098b55e4cada72b1decac1f57d"
+    },
+    {
+      "sha": "000007a2f06a1ddd93fe01f1776bfcb9ee72d60c",
+      "date": "2026-09-19T20:38:05-07:00",
+      "title": "fix: pin native service dependencies to Python 3.12 (#51)",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/quality-gate.yml",
+        ".github/workflows/release-build.yml",
+        ".github/workflows/release-security.yml",
+        ".gitignore",
+        ".python-version",
+        ".release-package.json",
+        "README.md",
+        "pyproject.toml",
+        "scripts/ci.sh",
+        "uv.lock"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "Native dependency/interpreter compatibility change; no new direct regression evidence established.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/000007a2f06a1ddd93fe01f1776bfcb9ee72d60c"
+    },
+    {
+      "sha": "aa86536ba7acb6297a83fcf82d95cfd481c247ac",
+      "date": "2026-09-19T18:59:33-07:00",
+      "title": "fix: scope release secrets and bound nightly Python versions (#50)",
+      "files": [
+        ".github/release-tests/test_version_plan.py",
+        ".github/workflows/release-pipeline.yml",
+        "docs/VERSIONING.md",
+        "scripts/version_plan.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_real_nightly_run_fits_uv_numeric_limit(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/aa86536ba7acb6297a83fcf82d95cfd481c247ac/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-09-19T18:59:33-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_nightly_runs_and_attempts_cannot_collide_or_overflow(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/aa86536ba7acb6297a83fcf82d95cfd481c247ac/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-09-19T18:59:33-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/aa86536ba7acb6297a83fcf82d95cfd481c247ac"
+    },
+    {
+      "sha": "b3c410640a6ce73dec49eb0db87f31dae0017e7f",
+      "date": "2026-09-13T20:26:09-07:00",
+      "title": "fix: update release artifact validation",
+      "files": [
+        ".github/release-tests/test_version_plan.py",
+        ".release-policy.json",
+        "scripts/version_plan.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_git_source_binding_accepts_declared_checkout_eol_conversion(self):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/b3c410640a6ce73dec49eb0db87f31dae0017e7f/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-09-13T20:26:09-07:00"
+        },
+        {
+          "file": ".github/release-tests/test_version_plan.py",
+          "function": "def test_oci_buildkit_artifact_attestation_checks_subject_and_empty_config(  # pylint: disable=too-many-locals",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/b3c410640a6ce73dec49eb0db87f31dae0017e7f/.github/release-tests/test_version_plan.py",
+          "added_at": "2026-09-13T20:26:09-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/b3c410640a6ce73dec49eb0db87f31dae0017e7f"
+    },
+    {
+      "sha": "0c51c621b112f1cf4e15649a2176011ea5e4208b",
+      "date": "2026-09-13T16:58:49-07:00",
+      "title": "test(release): update isolated lifecycle fixture imports",
+      "files": [
+        ".github/release-tests/test_versioned_release.py",
+        ".release-policy.json"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/0c51c621b112f1cf4e15649a2176011ea5e4208b"
+    },
+    {
+      "sha": "1affc6487758cda86064da16ae3c9e229a7a5880",
+      "date": "2026-09-13T15:57:34-07:00",
+      "title": "Keep application coverage scoped separately from vendored release contracts",
+      "files": [
+        "pyproject.toml"
+      ],
+      "added_test_functions": [],
+      "status": "not_a_defect",
+      "reason": "Coverage scoping policy change, not a corrected implementation defect; superseded by combined measurement.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/1affc6487758cda86064da16ae3c9e229a7a5880"
+    },
+    {
+      "sha": "5a26f324f0d26f26e70736de1837a608a2754cfe",
+      "date": "2026-09-12T15:38:47-07:00",
+      "title": "fix: keep virtual battery reader timing monotonic",
+      "files": [
+        "CHANGELOG.md",
+        "README.md",
+        "dbus-virtual-battery.py",
+        "tests/test_reader_clock.py",
+        "tests/test_runtime.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": "tests/test_reader_clock.py",
+          "function": "def test_clock_rollback_cannot_keep_disconnected_chain_online(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5a26f324f0d26f26e70736de1837a608a2754cfe/tests/test_reader_clock.py",
+          "added_at": "2026-09-12T15:38:47-07:00"
+        },
+        {
+          "file": "tests/test_reader_clock.py",
+          "function": "def test_clock_rollback_does_not_delay_reconnect(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5a26f324f0d26f26e70736de1837a608a2754cfe/tests/test_reader_clock.py",
+          "added_at": "2026-09-12T15:38:47-07:00"
+        },
+        {
+          "file": "tests/test_reader_clock.py",
+          "function": "def test_replaced_connection_cannot_reuse_cached_values(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5a26f324f0d26f26e70736de1837a608a2754cfe/tests/test_reader_clock.py",
+          "added_at": "2026-09-12T15:38:47-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/5a26f324f0d26f26e70736de1837a608a2754cfe"
+    },
+    {
+      "sha": "5c63e6e0958fe1764620f2565b0466f175be57e9",
+      "date": "2026-09-12T12:32:17-07:00",
+      "title": "fix: support deployed helpers and prepare v2.7.5",
+      "files": [
+        "CHANGELOG.md",
+        "README.md",
+        "dbus-virtual-battery.py",
+        "deploy.sh",
+        "pyproject.toml",
+        "setup",
+        "tests/test_deploy_overlay.py",
+        "tests/test_helper_compatibility.py",
+        "tests/test_setup_installation.py",
+        "version"
+      ],
+      "added_test_functions": [
+        {
+          "file": "tests/test_deploy_overlay.py",
+          "function": "def test_source_overlay_preserves_local_configuration_and_supervisors(tmp_path):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5c63e6e0958fe1764620f2565b0466f175be57e9/tests/test_deploy_overlay.py",
+          "added_at": "2026-09-12T12:32:17-07:00"
+        },
+        {
+          "file": "tests/test_helper_compatibility.py",
+          "function": "def test_existing_mqtt_helper_supports_standalone_runtime(monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5c63e6e0958fe1764620f2565b0466f175be57e9/tests/test_helper_compatibility.py",
+          "added_at": "2026-09-12T12:32:17-07:00"
+        },
+        {
+          "file": "tests/test_helper_compatibility.py",
+          "function": "def test_broken_installed_helper_is_not_silently_replaced(monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5c63e6e0958fe1764620f2565b0466f175be57e9/tests/test_helper_compatibility.py",
+          "added_at": "2026-09-12T12:32:17-07:00"
+        },
+        {
+          "file": "tests/test_setup_installation.py",
+          "function": "def test_setup_preserves_supervisor_state_and_records_completion(tmp_path):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/5c63e6e0958fe1764620f2565b0466f175be57e9/tests/test_setup_installation.py",
+          "added_at": "2026-09-12T12:32:17-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/5c63e6e0958fe1764620f2565b0466f175be57e9"
+    },
+    {
+      "sha": "939d50d3317fb5e6f0281f1294e86ca00b7b8ca3",
+      "date": "2026-09-12T09:26:31-07:00",
+      "title": "fix: harden Venus OS service validity and installation",
+      "files": [
+        "README.md",
+        "dbus-virtual-battery.py",
+        "install.sh",
+        "setup",
+        "tests/test_runtime.py"
+      ],
+      "added_test_functions": [],
+      "status": "partial_regression_evidence",
+      "reason": "Existing runtime tests added assertions that invalid/missing sources immediately clear dependent measurements; installer portion has no contemporaneous test.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/939d50d3317fb5e6f0281f1294e86ca00b7b8ca3",
+      "extended_test_evidence": [
+        {
+          "file": "tests/test_runtime.py",
+          "functions": [
+            "test_source_timeout_and_power_fallback",
+            "test_update_publishes_calculator_values_and_marks_missing_sources",
+            "test_update_without_chains_has_partial_status"
+          ],
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/939d50d3317fb5e6f0281f1294e86ca00b7b8ca3",
+          "added_at": "2026-09-12T09:26:31-07:00"
+        }
+      ]
+    },
+    {
+      "sha": "8379b2201d83358411b4e617fc3cfaacd50f5d05",
+      "date": "2026-09-12T07:18:38-07:00",
+      "title": "fix: respect disconnected battery sources (#39)",
+      "files": [
+        "README.md",
+        "dbus-virtual-battery.py",
+        "tests/test_runtime.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_explicit_disconnect_retained_readings_and_recovery(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/8379b2201d83358411b4e617fc3cfaacd50f5d05/tests/test_runtime.py",
+          "added_at": "2026-09-12T07:18:38-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/8379b2201d83358411b4e617fc3cfaacd50f5d05"
+    },
+    {
+      "sha": "a477001a12d77f3f1ba7836b6ff5a8d9d202cd88",
+      "date": "2026-09-11T22:19:31-07:00",
+      "title": "ci: refresh dismissed approvals for the current PR head (#38)",
+      "files": [
+        ".github/workflows/auto-approve.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/a477001a12d77f3f1ba7836b6ff5a8d9d202cd88"
+    },
+    {
+      "sha": "283b34fd9a5bd0b1fe83693be2254dff7a6293b9",
+      "date": "2026-09-11T21:49:21-07:00",
+      "title": "ci: use corrected check ordering for auto-merge (#37)",
+      "files": [
+        ".github/workflows/auto-merge.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/283b34fd9a5bd0b1fe83693be2254dff7a6293b9"
+    },
+    {
+      "sha": "d7dc4bfa44941f3a7cb45033604f9f511d7dd41b",
+      "date": "2026-09-11T17:36:57-07:00",
+      "title": "ci: use supported exact metadata exclusion for Sonar (#35)",
+      "files": [
+        ".sonarcloud.properties"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/d7dc4bfa44941f3a7cb45033604f9f511d7dd41b"
+    },
+    {
+      "sha": "24a07330f5bfcd1fba4de9afb711e7787a4cec40",
+      "date": "2026-09-11T17:26:05-07:00",
+      "title": "ci: scope lockfile rule to platform-managed runtime (#33)",
+      "files": [
+        ".sonarcloud.properties"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/24a07330f5bfcd1fba4de9afb711e7787a4cec40"
+    },
+    {
+      "sha": "0ad5144ddde075e54cf728b20c946aaf7b0f1703",
+      "date": "2026-09-11T17:20:48-07:00",
+      "title": "fix: test production battery runtime and honor SmartShunt index (#32)",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        "README.md",
+        "dbus-virtual-battery.py",
+        "pyproject.toml",
+        "tests/calculator.py",
+        "tests/conftest.py",
+        "tests/fake_dbus.py",
+        "tests/runtime_loader.py",
+        "tests/test_calculator.py",
+        "tests/test_runtime.py"
+      ],
+      "added_test_functions": [
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_reader_connect_failure_and_reconnect_throttle(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_reader_values(runtime, value, expected):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_reader_cache_expires(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_reader_handles_transport_errors(runtime, message, disconnected):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_reader_discovers_only_matching_external_batteries(runtime):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_service_registration_and_explicit_sources(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_service_auto_discovery(runtime, monkeypatch, discovered, index, expected):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_source_timeout_and_power_fallback(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_update_publishes_calculator_values_and_marks_missing_sources(",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_update_without_chains_has_partial_status(runtime, monkeypatch):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        },
+        {
+          "file": "tests/test_runtime.py",
+          "function": "def test_main_wires_options_and_polling(runtime, monkeypatch, arguments):",
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/0ad5144ddde075e54cf728b20c946aaf7b0f1703/tests/test_runtime.py",
+          "added_at": "2026-09-11T17:20:48-07:00"
+        }
+      ],
+      "status": "regression_evidence",
+      "reason": "The fix commit adds automated regression cases; exact added test names and paths are recorded below. Review bundled changes individually before counting distinct bugs.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/0ad5144ddde075e54cf728b20c946aaf7b0f1703"
+    },
+    {
+      "sha": "46d20480e4fbeff9974b2acd4293f06748b02b73",
+      "date": "2026-09-02T09:29:13-07:00",
+      "title": "fix: remove scorecard workflow (gcr.io billing required) (#29)",
+      "files": [
+        ".github/workflows/scorecard.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "Removes failing hosted scan; operational defect/workaround retained in review scope.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/46d20480e4fbeff9974b2acd4293f06748b02b73"
+    },
+    {
+      "sha": "07888b88f0433fbebc4b6ad607d2021ed30eb62e",
+      "date": "2026-08-26T15:04:22-07:00",
+      "title": "fix: exclude SmartShunt from virtual battery voltage and SOC calculations",
+      "files": [
+        "dbus-virtual-battery.py"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/07888b88f0433fbebc4b6ad607d2021ed30eb62e"
+    },
+    {
+      "sha": "8bd877f1c9ecf401f3d0f264cf4211e5dfc5c0c0",
+      "date": "2026-08-25T10:11:42-07:00",
+      "title": "ci: fix auto-merge never firing - label mismatch + 30s retry window (#17)",
+      "files": [
+        ".github/workflows/auto-merge.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/8bd877f1c9ecf401f3d0f264cf4211e5dfc5c0c0"
+    },
+    {
+      "sha": "24bc36c9b4806a0e6550736855aae1cb053456d1",
+      "date": "2026-08-25T08:10:05-07:00",
+      "title": "fix: stop/start the log pair with the service in deploy.sh (#16)",
+      "files": [
+        "deploy.sh"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/24bc36c9b4806a0e6550736855aae1cb053456d1"
+    },
+    {
+      "sha": "563ad0526aab28b5dc29163b610fcb2a8382b65b",
+      "date": "2026-08-25T08:03:58-07:00",
+      "title": "fix: deployment for SetupHelper on Venus OS (#15)",
+      "files": [
+        "deploy.sh",
+        "gitHubInfo",
+        "install.sh",
+        "register-package.sh",
+        "setup"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/563ad0526aab28b5dc29163b610fcb2a8382b65b"
+    },
+    {
+      "sha": "ad1c70b195a80a898694d9cec1f22ac533547f32",
+      "date": "2026-08-22T15:59:40-07:00",
+      "title": "fix(ci): repair mangled workflow ref in auto-approve.yml",
+      "files": [
+        ".github/workflows/auto-approve.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/ad1c70b195a80a898694d9cec1f22ac533547f32"
+    },
+    {
+      "sha": "20013f1ed583a86f2ced50577e4c93d6c765df9e",
+      "date": "2026-08-22T13:25:37-07:00",
+      "title": "ci: bump venus-os-ci-toolkit pins to description-key fix (#9)",
+      "files": [
+        ".github/workflows/auto-approve.yml",
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/20013f1ed583a86f2ced50577e4c93d6c765df9e"
+    },
+    {
+      "sha": "7cd93862adde13f16d96ea6fe054b7071d8e221f",
+      "date": "2026-08-22T07:46:11-07:00",
+      "title": "fix(ci): pass bot token as GITHUB_TOKEN env to automerge-action",
+      "files": [
+        ".github/workflows/auto-merge.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/7cd93862adde13f16d96ea6fe054b7071d8e221f"
+    },
+    {
+      "sha": "709384cf19f3ac2e93235b7ed5abeab40433802b",
+      "date": "2026-08-21T22:03:00-07:00",
+      "title": "fix: sonar finding",
+      "files": [
+        "dbus-virtual-battery.py"
+      ],
+      "added_test_functions": [],
+      "status": "not_a_defect",
+      "reason": "Formatting and equivalent connection-marker refactoring; no changed failure behavior established.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/709384cf19f3ac2e93235b7ed5abeab40433802b"
+    },
+    {
+      "sha": "93967ddc1efa65039c1b74c758401fa11a350c75",
+      "date": "2026-08-21T09:46:23-07:00",
+      "title": "fix: remove vedbus from requirements (Venus OS velib_python module, not on PyPI)",
+      "files": [
+        "requirements.txt"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "Removed nonexistent PyPI dependency; concrete installation defect retained in scope.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/93967ddc1efa65039c1b74c758401fa11a350c75"
+    },
+    {
+      "sha": "3e93a7f7eb52c8a6e04e743f30ab8433c220b617",
+      "date": "2026-08-21T09:43:28-07:00",
+      "title": "ci: pin python-ci workflow to toolkit SHA with girepository-2.0 fix",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/3e93a7f7eb52c8a6e04e743f30ab8433c220b617"
+    },
+    {
+      "sha": "f01b1c69a48e597054d44021ccbc8fbf5219a65f",
+      "date": "2026-08-20T15:52:46-07:00",
+      "title": "fix: update venus-os-ci-toolkit to latest version with cairo and girepository dependencies",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/f01b1c69a48e597054d44021ccbc8fbf5219a65f"
+    },
+    {
+      "sha": "6787d746d2051755eaf7e90b8a20a5aad74623a2",
+      "date": "2026-08-20T15:44:11-07:00",
+      "title": "fix: update venus-os-ci-toolkit SHA to include glib-2.0 dependency for dbus-python compilation",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/6787d746d2051755eaf7e90b8a20a5aad74623a2"
+    },
+    {
+      "sha": "be771288f9e94ca1caee8694c71ee5d8ca2d8d11",
+      "date": "2026-08-20T15:16:21-07:00",
+      "title": "fix: update venus-os-ci-toolkit SHA to latest fix for dbus-python installation",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/be771288f9e94ca1caee8694c71ee5d8ca2d8d11"
+    },
+    {
+      "sha": "781078efacc84d48f8bb2830c0f7f62fc7f0fad2",
+      "date": "2026-08-20T15:09:52-07:00",
+      "title": "fix: update venus-os-ci-toolkit SHA to get latest CI fixes for dbus-python compilation issues",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/781078efacc84d48f8bb2830c0f7f62fc7f0fad2"
+    },
+    {
+      "sha": "620efeeaf47c096e990b0319e147508ae0be6407",
+      "date": "2026-08-20T14:54:26-07:00",
+      "title": "fix: make dbus-python version flexible to allow wheel usage",
+      "files": [
+        "requirements.txt"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/620efeeaf47c096e990b0319e147508ae0be6407"
+    },
+    {
+      "sha": "779600b90fbe7f964ae47d6ec173ce27e63bbcd1",
+      "date": "2026-08-20T14:50:46-07:00",
+      "title": "fix: add requirements.txt for CI caching",
+      "files": [
+        "requirements.txt"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/779600b90fbe7f964ae47d6ec173ce27e63bbcd1"
+    },
+    {
+      "sha": "68f9e24919db2825eaff76751396971f73bb1425",
+      "date": "2026-08-20T14:08:23-07:00",
+      "title": "fix: apply SonarCloud code quality fixes to shell scripts",
+      "files": [
+        "commit.sh",
+        "deploy.sh",
+        "install.sh",
+        "register-package.sh",
+        "release.sh"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "Includes changed shell error reporting and SSH-host validation as well as style; kept as a candidate, not dismissed as lint.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/68f9e24919db2825eaff76751396971f73bb1425"
+    },
+    {
+      "sha": "a290828461dc7d142cf35fbc3f4d787371d926ee",
+      "date": "2026-08-19T10:54:04-07:00",
+      "title": "fix: disable all optional CI steps since no configurations",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/a290828461dc7d142cf35fbc3f4d787371d926ee"
+    },
+    {
+      "sha": "a15b7572151352f9cdfebb3a7644b68bc3845359",
+      "date": "2026-08-19T10:52:42-07:00",
+      "title": "fix: disable dependency installation in CI workflow since no dependencies",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "added_test_functions": [],
+      "status": "regression_unverified",
+      "reason": "No newly added regression function was identified in this fix commit. This does not prove no tests exist; find an extended or later test and record its actual date before claiming coverage.",
+      "url": "https://github.com/victron-venus/dbus-virtual-battery/commit/a15b7572151352f9cdfebb3a7644b68bc3845359"
+    }
+  ],
+  "reviewed_commit_inventory": [
+    {
+      "sha": "9fab38d83fadd88e9fb9c31bee3e304c9b5c9f2f",
+      "authored_at": "2026-10-12T16:24:02-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#89)"
+    },
+    {
+      "sha": "e3d15d307ee977ea00e8c478206dcb8ade41bdc9",
+      "authored_at": "2026-10-12T14:40:54-07:00",
+      "title": "fix: use authoritative HTTP statuses in release automation (#90)"
+    },
+    {
+      "sha": "77f5f8cc0a7fef955bf356612fb1082a2351fe0b",
+      "authored_at": "2026-10-11T13:57:21-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#88)"
+    },
+    {
+      "sha": "764a66b43780c34a2ef094618075a2fc97640339",
+      "authored_at": "2026-10-10T08:57:21-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#87)"
+    },
+    {
+      "sha": "26537f97e9c3e8a70d2445ab674a7d1d58f4ea99",
+      "authored_at": "2026-10-09T11:58:46-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#86)"
+    },
+    {
+      "sha": "79ba9863b9ae1e555281e0946ceee3a7f962c06b",
+      "authored_at": "2026-10-08T10:13:54-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#85)"
+    },
+    {
+      "sha": "64144807ba0bb6b72c7892387a7bbabdbecba16b",
+      "authored_at": "2026-10-08T07:08:05-07:00",
+      "title": "refactor: separate battery calculations and publication phases (#84)"
+    },
+    {
+      "sha": "0be05a152f07ab52e5279024fc513e8660f8a132",
+      "authored_at": "2026-10-08T06:20:33-07:00",
+      "title": "Use locked shared Python CI and clearer release validation tests (#83)"
+    },
+    {
+      "sha": "859b743b6ba7887b49daae7a484d2a660c09f5c5",
+      "authored_at": "2026-10-08T04:21:55-07:00",
+      "title": "Enforce complete security scans and source-bound release notes (#82)"
+    },
+    {
+      "sha": "0c7824aa286a41547b36ef4a37410a255817bdcc",
+      "authored_at": "2026-10-07T17:18:25-07:00",
+      "title": "ci: request CodeRabbit autofix after completed reviews (#81)"
+    },
+    {
+      "sha": "f337ccb33c53748f61890ec3e7648562671cdf4c",
+      "authored_at": "2026-10-07T16:04:22-07:00",
+      "title": "[StepSecurity] ci: Harden GitHub Actions (#80)"
+    },
+    {
+      "sha": "9111ec40354cc406f27e7c75be10b88d4d374f53",
+      "authored_at": "2026-10-07T10:12:21-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#79)"
+    },
+    {
+      "sha": "9bbb637f797d0c888f58bcdfacaddc030e8b14a7",
+      "authored_at": "2026-10-06T21:08:47-07:00",
+      "title": "fix: synchronize package lock version with 2.7.9 (#78)"
+    },
+    {
+      "sha": "82be4f0943550bb27e28feed642a7e157adf7bbb",
+      "authored_at": "2026-10-06T16:39:31-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#75)"
+    },
+    {
+      "sha": "9abb342c5fa7b7db9130f6978277fd4be4cedfc3",
+      "authored_at": "2026-10-06T12:42:47-07:00",
+      "title": "Fix virtual battery readiness after cold start (#77)"
+    },
+    {
+      "sha": "19c7858a696663a2e84cf7bcf8f54c73094149c1",
+      "authored_at": "2026-10-05T17:34:32-07:00",
+      "title": "ci: prepare opt-in runner reserve while keeping GitHub defaults (#76)"
+    },
+    {
+      "sha": "9b18aec9f25e5eb0404796f806df399d8cbcf04b",
+      "authored_at": "2026-10-04T09:52:43-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#74)"
+    },
+    {
+      "sha": "8d2d605f1b1360580cb164444a5da6c04cd2aee2",
+      "authored_at": "2026-10-03T14:03:10-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#73)"
+    },
+    {
+      "sha": "51fb3a9a73f6ee838f8165f1dedaa1f54e7623a5",
+      "authored_at": "2026-10-03T13:50:10-07:00",
+      "title": "security: harden code-scanning workflows and CI permissions (#71)"
+    },
+    {
+      "sha": "9877114e1733ef70291ae6d3787870125c3e407a",
+      "authored_at": "2026-10-03T03:55:52-07:00",
+      "title": "fix: prepare next release cycle and skip closed beta packaging (#72)"
+    },
+    {
+      "sha": "34400cfe40551aafaf5fe9e3cb3f628bb16b8627",
+      "authored_at": "2026-10-03T03:10:36-07:00",
+      "title": "chore(deps): update github actions and reusable workflows (#70)"
+    },
+    {
+      "sha": "262719fc350b1544d34c7f1e1ae05d78d46dbcc2",
+      "authored_at": "2026-10-03T02:46:26-07:00",
+      "title": "deps: update dbus-python requirement from >=1.4.0 to >=1.5.0 (#69)"
+    },
+    {
+      "sha": "ef36c08734f4a14eb39132fcb1e69406675ce2cb",
+      "authored_at": "2026-10-03T01:21:44-07:00",
+      "title": "ci: group workflow dependency updates with Renovate (#68)"
+    },
+    {
+      "sha": "3bd4a17226be6a9a763e7849e76ee2affddb92e3",
+      "authored_at": "2026-10-02T16:24:09-07:00",
+      "title": "ci: request advisory CodeRabbit reviews on new PRs (#67)"
+    },
+    {
+      "sha": "7d7078235d368c0d4e0b2f393af82c1d9e196c9a",
+      "authored_at": "2026-10-02T13:46:52-07:00",
+      "title": "docs: clarify connected-source eligibility"
+    },
+    {
+      "sha": "adf0975ff576f9098b55e4cada72b1decac1f57d",
+      "authored_at": "2026-10-02T05:18:00-07:00",
+      "title": "fix(release): preserve RC eligibility during scheduled nightlies (#65)"
+    },
+    {
+      "sha": "184012162f29ed21fcb02a442a329e2210ede6d0",
+      "authored_at": "2026-09-30T07:10:44-07:00",
+      "title": "ci: adopt canonical release lifecycle tooling (#64)"
+    },
+    {
+      "sha": "da6da3d5808c41d4bdfa83b345e733e53e33c3ed",
+      "authored_at": "2026-09-28T20:16:38-07:00",
+      "title": "ci: bump victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml (#63)"
+    },
+    {
+      "sha": "680c4d9a3f6b93bbd2b3e210389dce893fecc320",
+      "authored_at": "2026-09-28T20:05:49-07:00",
+      "title": "ci: bump victron-venus/venus-os-ci-toolkit/.github/workflows/auto-merge.yml (#62)"
+    },
+    {
+      "sha": "fd06bc346e73103546703fe4bd06382c87545cd3",
+      "authored_at": "2026-09-28T19:44:03-07:00",
+      "title": "ci: bump the codeql group with 2 updates (#61)"
+    },
+    {
+      "sha": "e1705be0aeb1b3671fc48bc4937426cf93e55c82",
+      "authored_at": "2026-09-22T12:24:03-07:00",
+      "title": "ci: bump victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml (#59)"
+    },
+    {
+      "sha": "69335c64df8e84e87292960cf80830b6aee1ad05",
+      "authored_at": "2026-09-22T09:29:22-07:00",
+      "title": "ci: consolidate required validation and use protected native auto-merge (#58)"
+    },
+    {
+      "sha": "70b4d26f91117874f3f45971006517f0fd54f438",
+      "authored_at": "2026-09-22T08:22:26-07:00",
+      "title": "ci: approve Dependabot PRs with GITHUB_TOKEN (#57)"
+    },
+    {
+      "sha": "dbf547b193f206e5b3bb9211618600259dbb3ae9",
+      "authored_at": "2026-09-22T07:14:33-07:00",
+      "title": "ci: bump github/codeql-action/analyze from 4.38.0 to 4.38.1 (#53)"
+    },
+    {
+      "sha": "8c5a3574383c9568219c96a88d9bde3d83c07c3b",
+      "authored_at": "2026-09-22T07:14:26-07:00",
+      "title": "ci: bump victron-venus/venus-os-ci-toolkit/.github/workflows/python-ci.yml (#54)"
+    },
+    {
+      "sha": "b6ae1e19a8209d7b08d4fa67eee97087d3eb345e",
+      "authored_at": "2026-09-22T07:14:17-07:00",
+      "title": "ci: bump github/codeql-action/init from 4.38.0 to 4.38.1 (#55)"
+    },
+    {
+      "sha": "c50252214118e5179140274b140d195b1adaa3d9",
+      "authored_at": "2026-09-22T05:54:01-07:00",
+      "title": "ci: bump victron-venus/venus-os-ci-toolkit/.github/workflows/auto-merge.yml (#52)"
+    },
+    {
+      "sha": "325f7ccbdc3ff80e35f6fd9971b30a8de2bbe9fa",
+      "authored_at": "2026-09-22T05:28:31-07:00",
+      "title": "ci: bump victron-venus/venus-os-ci-toolkit/.github/workflows/auto-approve-reusable.yml (#56)"
+    },
+    {
+      "sha": "000007a2f06a1ddd93fe01f1776bfcb9ee72d60c",
+      "authored_at": "2026-09-19T20:38:05-07:00",
+      "title": "fix: pin native service dependencies to Python 3.12 (#51)"
+    },
+    {
+      "sha": "aa86536ba7acb6297a83fcf82d95cfd481c247ac",
+      "authored_at": "2026-09-19T18:59:33-07:00",
+      "title": "fix: scope release secrets and bound nightly Python versions (#50)"
+    },
+    {
+      "sha": "bec61d3a7217d8499e64b3de3dd094ee829d0a3d",
+      "authored_at": "2026-09-15T19:45:09-07:00",
+      "title": "ci: bump github/codeql-action/analyze from 4.37.9 to 4.38.0 (#48)"
+    },
+    {
+      "sha": "17b80053c190fc20b58237306723dc0c7a2ad98d",
+      "authored_at": "2026-09-15T19:45:02-07:00",
+      "title": "ci: bump github/codeql-action/init from 4.37.9 to 4.38.0 (#49)"
+    },
+    {
+      "sha": "b3c410640a6ce73dec49eb0db87f31dae0017e7f",
+      "authored_at": "2026-09-13T20:26:09-07:00",
+      "title": "fix: update release artifact validation"
+    },
+    {
+      "sha": "0c51c621b112f1cf4e15649a2176011ea5e4208b",
+      "authored_at": "2026-09-13T16:58:49-07:00",
+      "title": "test(release): update isolated lifecycle fixture imports"
+    },
+    {
+      "sha": "1affc6487758cda86064da16ae3c9e229a7a5880",
+      "authored_at": "2026-09-13T15:57:34-07:00",
+      "title": "Keep application coverage scoped separately from vendored release contracts"
+    },
+    {
+      "sha": "0956beb6451a4f25ae50a47f203f8c732b14e7bd",
+      "authored_at": "2026-09-13T15:50:32-07:00",
+      "title": "Adopt frozen release versions and verified artifact receipts"
+    },
+    {
+      "sha": "e8bb08b70daada8b3912c19c7756022fdae0e6dd",
+      "authored_at": "2026-09-12T21:55:24-07:00",
+      "title": "Approve trusted PRs without requiring automerge (#45)"
+    },
+    {
+      "sha": "df1c0b0ae907a519f62ec42f892c01d9448ed06f",
+      "authored_at": "2026-09-12T20:37:37-07:00",
+      "title": "chore: prepare 2.7.7 release version (#44)"
+    },
+    {
+      "sha": "10b23494028fa8b96666350b335bcd468c2f5047",
+      "authored_at": "2026-09-12T17:48:53-07:00",
+      "title": "ci: add gated release channels and release strategy (#42)"
+    },
+    {
+      "sha": "304f95779e86f992a41d3a92a8f14c17224e1085",
+      "authored_at": "2026-09-12T15:43:29-07:00",
+      "title": "chore: prepare virtual battery v2.7.6"
+    },
+    {
+      "sha": "5a26f324f0d26f26e70736de1837a608a2754cfe",
+      "authored_at": "2026-09-12T15:38:47-07:00",
+      "title": "fix: keep virtual battery reader timing monotonic"
+    },
+    {
+      "sha": "5c63e6e0958fe1764620f2565b0466f175be57e9",
+      "authored_at": "2026-09-12T12:32:17-07:00",
+      "title": "fix: support deployed helpers and prepare v2.7.5"
+    },
+    {
+      "sha": "939d50d3317fb5e6f0281f1294e86ca00b7b8ca3",
+      "authored_at": "2026-09-12T09:26:31-07:00",
+      "title": "fix: harden Venus OS service validity and installation"
+    },
+    {
+      "sha": "ae678b9749591aa9812cc07e75296a338b7d24a9",
+      "authored_at": "2026-09-12T07:26:53-07:00",
+      "title": "release: prepare virtual battery v2.7.4 (#40)"
+    },
+    {
+      "sha": "8379b2201d83358411b4e617fc3cfaacd50f5d05",
+      "authored_at": "2026-09-12T07:18:38-07:00",
+      "title": "fix: respect disconnected battery sources (#39)"
+    },
+    {
+      "sha": "a477001a12d77f3f1ba7836b6ff5a8d9d202cd88",
+      "authored_at": "2026-09-11T22:19:31-07:00",
+      "title": "ci: refresh dismissed approvals for the current PR head (#38)"
+    },
+    {
+      "sha": "283b34fd9a5bd0b1fe83693be2254dff7a6293b9",
+      "authored_at": "2026-09-11T21:49:21-07:00",
+      "title": "ci: use corrected check ordering for auto-merge (#37)"
+    },
+    {
+      "sha": "3b6be4ae3705289a3c60288d5de2cc03dad56a68",
+      "authored_at": "2026-09-11T18:58:22-07:00",
+      "title": "ci: automate trusted PR approval and native merge (#36)"
+    },
+    {
+      "sha": "d7dc4bfa44941f3a7cb45033604f9f511d7dd41b",
+      "authored_at": "2026-09-11T17:36:57-07:00",
+      "title": "ci: use supported exact metadata exclusion for Sonar (#35)"
+    },
+    {
+      "sha": "bebf00326358ea24387cb962f8ced280d33d0f31",
+      "authored_at": "2026-09-11T17:31:23-07:00",
+      "title": "Package virtual battery v2.7.3 with verified release assets (#34)"
+    },
+    {
+      "sha": "24a07330f5bfcd1fba4de9afb711e7787a4cec40",
+      "authored_at": "2026-09-11T17:26:05-07:00",
+      "title": "ci: scope lockfile rule to platform-managed runtime (#33)"
+    },
+    {
+      "sha": "0ad5144ddde075e54cf728b20c946aaf7b0f1703",
+      "authored_at": "2026-09-11T17:20:48-07:00",
+      "title": "fix: test production battery runtime and honor SmartShunt index (#32)"
+    },
+    {
+      "sha": "90a30a26664d5253bde27d629d9c4baacc198633",
+      "authored_at": "2026-09-07T11:39:13-07:00",
+      "title": "ci: bump softprops/action-gh-release from 3.0.2 to 3.0.3 (#30)"
+    },
+    {
+      "sha": "0e16da7cfc034068154d999284e1a5a12f70bb55",
+      "authored_at": "2026-09-07T11:39:07-07:00",
+      "title": "ci: bump step-security/harden-runner from 2.21.0 to 2.21.1 (#31)"
+    },
+    {
+      "sha": "46d20480e4fbeff9974b2acd4293f06748b02b73",
+      "authored_at": "2026-09-02T09:29:13-07:00",
+      "title": "fix: remove scorecard workflow (gcr.io billing required) (#29)"
+    },
+    {
+      "sha": "5fed2b11a3a9c60faf9164ae1deb1f238396c95a",
+      "authored_at": "2026-09-01T18:33:51-07:00",
+      "title": "Update ci.yml"
+    },
+    {
+      "sha": "6e85e182ee80179be3ec76402744b1bc7b2a1703",
+      "authored_at": "2026-08-31T11:13:51-07:00",
+      "title": "deps: update pytest requirement from >=7.0 to >=9.1.1 (#24)"
+    },
+    {
+      "sha": "a8eae4c86db9376cb83549095ac064c11f0578b5",
+      "authored_at": "2026-08-31T11:04:57-07:00",
+      "title": "deps: update pytest-cov requirement from >=4.0 to >=7.1.0 (#25)"
+    },
+    {
+      "sha": "0854b06b2f7ffac97629f93e4cdfaccba43f0699",
+      "authored_at": "2026-08-31T11:04:47-07:00",
+      "title": "ci: bump github/codeql-action/analyze from 4.37.8 to 4.37.9 (#26)"
+    },
+    {
+      "sha": "13588e28ea7bad6e7d5386817662640c16a592a8",
+      "authored_at": "2026-08-31T11:04:39-07:00",
+      "title": "ci: bump github/codeql-action/upload-sarif from 4.37.1 to 4.37.9 (#27)"
+    },
+    {
+      "sha": "45082d21edc3cc725df6b94bc2a7d884dd01306a",
+      "authored_at": "2026-08-31T11:04:31-07:00",
+      "title": "ci: bump github/codeql-action/init from 4.37.8 to 4.37.9 (#28)"
+    },
+    {
+      "sha": "cb4cb5f750c09ecc90debdf2b938ea2573634d42",
+      "authored_at": "2026-08-30T09:48:43-07:00",
+      "title": "tests: add calculator unit tests + enable pytest in CI (#23)"
+    },
+    {
+      "sha": "5db364351516a9a76786c255a3118647b5ee904c",
+      "authored_at": "2026-08-29T17:53:33-07:00",
+      "title": "Remove dead dbus_mqtt_battery vendor dirs (#22)"
+    },
+    {
+      "sha": "e09e194f059dc732132bebaf6e38acb6c386d700",
+      "authored_at": "2026-08-29T16:40:52-07:00",
+      "title": "chore: bump codeql-action to v4.37.8 (SHA db488dde) (#21)"
+    },
+    {
+      "sha": "6872e2515fe6b9eefe95aef57ce0815062311ffa",
+      "authored_at": "2026-08-29T16:05:50-07:00",
+      "title": "ci: add pyproject.toml with ruff exclude for dbus_mqtt_battery.local (#20)"
+    },
+    {
+      "sha": "13fae0dbbbbb63c54fc7e83e0b2d29798b478466",
+      "authored_at": "2026-08-29T15:48:06-07:00",
+      "title": "ci: skip wait-for-status-checks for dependabot PRs (#19)"
+    },
+    {
+      "sha": "60c0c211d2208f19ffbd1f8e0c97c4157261f16c",
+      "authored_at": "2026-08-26T15:36:04-07:00",
+      "title": "ruff format"
+    },
+    {
+      "sha": "07888b88f0433fbebc4b6ad607d2021ed30eb62e",
+      "authored_at": "2026-08-26T15:04:22-07:00",
+      "title": "fix: exclude SmartShunt from virtual battery voltage and SOC calculations"
+    },
+    {
+      "sha": "8bd877f1c9ecf401f3d0f264cf4211e5dfc5c0c0",
+      "authored_at": "2026-08-25T10:11:42-07:00",
+      "title": "ci: fix auto-merge never firing - label mismatch + 30s retry window (#17)"
+    },
+    {
+      "sha": "24bc36c9b4806a0e6550736855aae1cb053456d1",
+      "authored_at": "2026-08-25T08:10:05-07:00",
+      "title": "fix: stop/start the log pair with the service in deploy.sh (#16)"
+    },
+    {
+      "sha": "563ad0526aab28b5dc29163b610fcb2a8382b65b",
+      "authored_at": "2026-08-25T08:03:58-07:00",
+      "title": "fix: deployment for SetupHelper on Venus OS (#15)"
+    },
+    {
+      "sha": "e150ff87732ad1324997e39b5fdef94cd0d44bb6",
+      "authored_at": "2026-08-23T14:24:56-07:00",
+      "title": "docs: remove stars/forks badges from README"
+    },
+    {
+      "sha": "ad1c70b195a80a898694d9cec1f22ac533547f32",
+      "authored_at": "2026-08-22T15:59:40-07:00",
+      "title": "fix(ci): repair mangled workflow ref in auto-approve.yml"
+    },
+    {
+      "sha": "bcaf1d29bf847c1a922f36ba32bcc57ca86c23e5",
+      "authored_at": "2026-08-22T15:56:29-07:00",
+      "title": "chore(ci): bump auto-approve reusable workflow pin to 23d5d85"
+    },
+    {
+      "sha": "20013f1ed583a86f2ced50577e4c93d6c765df9e",
+      "authored_at": "2026-08-22T13:25:37-07:00",
+      "title": "ci: bump venus-os-ci-toolkit pins to description-key fix (#9)"
+    },
+    {
+      "sha": "7cd93862adde13f16d96ea6fe054b7071d8e221f",
+      "authored_at": "2026-08-22T07:46:11-07:00",
+      "title": "fix(ci): pass bot token as GITHUB_TOKEN env to automerge-action"
+    },
+    {
+      "sha": "1349baceca2c732812de5c4febc3a5a9d7e2e5a0",
+      "authored_at": "2026-08-22T00:34:11-07:00",
+      "title": "ci: bump github/codeql-action init+analyze to v4.37.7 together"
+    },
+    {
+      "sha": "2450ef517b987e42ca4fd0485d20d35c9cc9f997",
+      "authored_at": "2026-08-22T00:26:51-07:00",
+      "title": "ci: bump actions/dependency-review-action from 4.9.0 to 5.0.0 (#6)"
+    },
+    {
+      "sha": "d78f34f1fdcf36e0e686f88dac76c44e62cedb7a",
+      "authored_at": "2026-08-22T00:26:47-07:00",
+      "title": "deps: update dbus-python requirement from >=1.2.0 to >=1.4.0 (#5)"
+    },
+    {
+      "sha": "b77417c2c026a38eae0da0d3b967312c04f471a2",
+      "authored_at": "2026-08-22T00:26:44-07:00",
+      "title": "ci: bump aquasecurity/trivy-action (#4)"
+    },
+    {
+      "sha": "a9b38c68915c242e13c02fae8d9118884fd9e36f",
+      "authored_at": "2026-08-22T00:26:39-07:00",
+      "title": "ci: bump ossf/scorecard-action from 2.4.3 to 2.4.4 (#3)"
+    },
+    {
+      "sha": "4033b47b117a60d767622400be4b2197b61bc86b",
+      "authored_at": "2026-08-22T00:10:10-07:00",
+      "title": "ci: bump venus-os-ci-toolkit workflow pins to 2f679e8"
+    },
+    {
+      "sha": "b9a435bf90c961974b63a342a30c8b5d7d031cf3",
+      "authored_at": "2026-08-21T22:09:53-07:00",
+      "title": "Update dbus-virtual-battery.py"
+    },
+    {
+      "sha": "709384cf19f3ac2e93235b7ed5abeab40433802b",
+      "authored_at": "2026-08-21T22:03:00-07:00",
+      "title": "fix: sonar finding"
+    },
+    {
+      "sha": "e2f077d41173e36eb911eac2ec28707e9d365e13",
+      "authored_at": "2026-08-21T15:49:17-07:00",
+      "title": "ci: bump auto-approve reusable SHA (default authors incl. 4alvit) (#8)"
+    },
+    {
+      "sha": "f886f534792ced6dc1e1fcad7d579c36c1667986",
+      "authored_at": "2026-08-21T14:24:34-07:00",
+      "title": "ci: bump auto-approve reusable workflow to bots-only revision"
+    },
+    {
+      "sha": "582475f12f48599e385efcbdc93d4a44bdf1ec28",
+      "authored_at": "2026-08-21T11:21:40-07:00",
+      "title": "ci: bump auto-approve reusable workflow SHA (fromJSON author filter)"
+    },
+    {
+      "sha": "05f47183f007b82a64fbd785b38c0c2f915e6c66",
+      "authored_at": "2026-08-21T11:00:28-07:00",
+      "title": "ci: bump auto-approve reusable workflow SHA, drop unused inputs"
+    },
+    {
+      "sha": "c5d8f3a199dd60c3410ea618d414ccd7786fe3b7",
+      "authored_at": "2026-08-21T10:48:00-07:00",
+      "title": "ci: bump auto-approve reusable workflow SHA (valid workflow, optional BOT_PAT)"
+    },
+    {
+      "sha": "82604daf1c52dc56ac03a1547b55640054f96a3e",
+      "authored_at": "2026-08-21T10:38:53-07:00",
+      "title": "ci: bump auto-approve reusable workflow SHA (optional BOT_PAT)"
+    },
+    {
+      "sha": "ff80b178ff41abe293ea1352f1050fac690cab48",
+      "authored_at": "2026-08-21T09:55:50-07:00",
+      "title": "ci: disable coverage gate (service code needs Venus OS dbus runtime, no mocked tests yet)"
+    },
+    {
+      "sha": "d006aaf34710f4ba35d913fe8993234bbe3bbea0",
+      "authored_at": "2026-08-21T09:52:27-07:00",
+      "title": "style: fix ruff lint and format violations"
+    },
+    {
+      "sha": "93967ddc1efa65039c1b74c758401fa11a350c75",
+      "authored_at": "2026-08-21T09:46:23-07:00",
+      "title": "fix: remove vedbus from requirements (Venus OS velib_python module, not on PyPI)"
+    },
+    {
+      "sha": "3e93a7f7eb52c8a6e04e743f30ab8433c220b617",
+      "authored_at": "2026-08-21T09:43:28-07:00",
+      "title": "ci: pin python-ci workflow to toolkit SHA with girepository-2.0 fix"
+    },
+    {
+      "sha": "ee33bdc3cf09cb494fd0122ed4f081aa2ab249f1",
+      "authored_at": "2026-08-20T16:04:18-07:00",
+      "title": "Update ci.yml"
+    },
+    {
+      "sha": "f01b1c69a48e597054d44021ccbc8fbf5219a65f",
+      "authored_at": "2026-08-20T15:52:46-07:00",
+      "title": "fix: update venus-os-ci-toolkit to latest version with cairo and girepository dependencies"
+    },
+    {
+      "sha": "6787d746d2051755eaf7e90b8a20a5aad74623a2",
+      "authored_at": "2026-08-20T15:44:11-07:00",
+      "title": "fix: update venus-os-ci-toolkit SHA to include glib-2.0 dependency for dbus-python compilation"
+    },
+    {
+      "sha": "be771288f9e94ca1caee8694c71ee5d8ca2d8d11",
+      "authored_at": "2026-08-20T15:16:21-07:00",
+      "title": "fix: update venus-os-ci-toolkit SHA to latest fix for dbus-python installation"
+    },
+    {
+      "sha": "781078efacc84d48f8bb2830c0f7f62fc7f0fad2",
+      "authored_at": "2026-08-20T15:09:52-07:00",
+      "title": "fix: update venus-os-ci-toolkit SHA to get latest CI fixes for dbus-python compilation issues"
+    },
+    {
+      "sha": "620efeeaf47c096e990b0319e147508ae0be6407",
+      "authored_at": "2026-08-20T14:54:26-07:00",
+      "title": "fix: make dbus-python version flexible to allow wheel usage"
+    },
+    {
+      "sha": "779600b90fbe7f964ae47d6ec173ce27e63bbcd1",
+      "authored_at": "2026-08-20T14:50:46-07:00",
+      "title": "fix: add requirements.txt for CI caching"
+    },
+    {
+      "sha": "68f9e24919db2825eaff76751396971f73bb1425",
+      "authored_at": "2026-08-20T14:08:23-07:00",
+      "title": "fix: apply SonarCloud code quality fixes to shell scripts"
+    },
+    {
+      "sha": "93b1af26f6801831f30691b639d375b262e1ff92",
+      "authored_at": "2026-08-20T14:02:57-07:00",
+      "title": "docs: replace text diagram with Mermaid format in README.md"
+    },
+    {
+      "sha": "821e2e89cc9312222b02b75dc643fe778032bd30",
+      "authored_at": "2026-08-20T13:56:31-07:00",
+      "title": "chore: set up repository structure for Victron Venus virtual battery project"
+    },
+    {
+      "sha": "7de8dc169e9ed386abab9746c70e1059c6968072",
+      "authored_at": "2026-08-19T13:12:42-07:00",
+      "title": "Create test_syntax.py"
+    },
+    {
+      "sha": "a290828461dc7d142cf35fbc3f4d787371d926ee",
+      "authored_at": "2026-08-19T10:54:04-07:00",
+      "title": "fix: disable all optional CI steps since no configurations"
+    },
+    {
+      "sha": "a15b7572151352f9cdfebb3a7644b68bc3845359",
+      "authored_at": "2026-08-19T10:52:42-07:00",
+      "title": "fix: disable dependency installation in CI workflow since no dependencies"
+    },
+    {
+      "sha": "8ef7b975ba3b0a3838f6221c0d1ce95f91f94082",
+      "authored_at": "2026-08-19T10:50:47-07:00",
+      "title": "docs: add detailed use case example to README.md"
+    },
+    {
+      "sha": "7eca6c203f37d65ca648867d8175b87868c14a70",
+      "authored_at": "2026-08-19T10:42:04-07:00",
+      "title": "Add workflow files and comprehensive README"
+    },
+    {
+      "sha": "7df710b2734152c46734f6d7ef9321c43c2d67c9",
+      "authored_at": "2026-08-19T09:47:10-07:00",
+      "title": "Add README"
+    },
+    {
+      "sha": "f502bd07081ce850a9ea73b5fd4d4468c28f7c9c",
+      "authored_at": "2026-08-19T09:43:09-07:00",
+      "title": "Add virtual battery code"
+    },
+    {
+      "sha": "0a4aadcbc714dc52af91c0dd2af76e27c384bb89",
+      "authored_at": "2026-08-19T09:36:34-07:00",
+      "title": "Initial commit"
+    }
+  ],
+  "next_review": "Resolve unverified groups with meaningful existing/late-added tests (prefer affected-parent-fails/fixed-version-passes), split bundled independent defects, and recompute against the final merged head before marking the 50% criterion met.",
+  "current_change_regressions": [
+    {
+      "defect": "Configured productName shell substitution executed when the generated service starts",
+      "affected_commit": "9fab38d83fadd88e9fb9c31bee3e304c9b5c9f2f",
+      "test": "tests/test_setup_installation.py::test_setup_preserves_supervisor_state_and_records_completion",
+      "added_on": "2026-10-12",
+      "evidence": "The new test fails on original-head setup: expected literal $(touch injected) disappears from the recorded argument. It passes with shell-safe quoting. Runs use only temporary directories and an inert argument recorder."
+    },
+    {
+      "defect": "Unsafe numeric/membership configuration entered generated service arguments",
+      "test": "tests/test_setup_installation.py::test_invalid_configuration_is_rejected_before_service_creation",
+      "added_on": "2026-10-12",
+      "evidence": "Ten parameter cases reject shell syntax, empty index, invalid boolean and non-positive/non-finite capacity before dispatch."
+    }
+  ]
+}

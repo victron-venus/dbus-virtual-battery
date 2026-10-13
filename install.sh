@@ -8,6 +8,10 @@
 
 set -e
 
+if [ -n "${DESTDIR:-}" ]; then
+    exec python3 "$(dirname "$0")/install.py" install
+fi
+
 INSTALL_DIR="/data/dbus-virtual-battery"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SEPARATOR="=============================================="

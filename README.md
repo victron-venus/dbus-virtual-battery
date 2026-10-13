@@ -1,5 +1,8 @@
 # dbus-virtual-battery - Virtual Battery Calculator for Victron Venus OS
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15435/badge)](https://www.bestpractices.dev/projects/15435)
+
+
 [![CI](https://github.com/victron-venus/dbus-virtual-battery/actions/workflows/ci.yml/badge.svg)](https://github.com/victron-venus/dbus-virtual-battery/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Release](https://img.shields.io/github/v/release/victron-venus/dbus-virtual-battery)](https://github.com/victron-venus/dbus-virtual-battery/releases)
@@ -248,3 +251,7 @@ contract.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for reports, development checks and pull requests,
 [SECURITY.md](SECURITY.md) for private vulnerability reporting and deployment trust boundaries,
 and the [OpenSSF evidence index](docs/openssf-evidence.md) for assessment references and remaining verification.
+
+## Project maintenance and assurance
+
+See [contributing and local checks](CONTRIBUTING.md), [governance and continuity](GOVERNANCE.md), [code of conduct](CODE_OF_CONDUCT.md), [maintenance roadmap](ROADMAP.md), [security reporting](SECURITY.md), [security assurance](docs/security-assurance.md), and [quality/build evidence](docs/quality-and-build.md). The [OpenSSF evidence index](docs/openssf-evidence.md) distinguishes verified evidence from remaining requirements.
