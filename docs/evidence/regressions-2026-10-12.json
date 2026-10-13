@@ -2827,10 +2827,13 @@
         "regression": {
           "function": "test_update_publishes_calculator_values_and_marks_missing_sources",
           "file": "tests/test_runtime.py",
-          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/6f40d4404f5dc79a8934d57fb4fbf09ae279d79e/tests/test_runtime.py#L175",
-          "introduced_commit": "0ad5144ddde075e54cf728b20c946aaf7b0f1703",
-          "introduced_on": "2026-09-11T17:20:48-07:00",
-          "timing": "later_added"
+          "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/99cc34a0c01c2f48c45c7b68bd4419bfc2d35a60/tests/test_runtime.py#L175",
+          "introduced_commit": "99cc34a0c01c2f48c45c7b68bd4419bfc2d35a60",
+          "introduced_on": "2026-10-12T18:53:58-07:00",
+          "timing": "later_added",
+          "original_test_introduced_commit": "0ad5144ddde075e54cf728b20c946aaf7b0f1703",
+          "original_test_introduced_on": "2026-09-11T17:20:48-07:00",
+          "strengthening_note": "On 2026-10-12 the existing test was strengthened to use SmartShunt SOC 20 and voltage 40, while expected chain-only output remains SOC 80 and voltage 51.2. The earlier equal-valued fixture was insufficient evidence for exclusion."
         }
       },
       {

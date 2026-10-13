@@ -1,6 +1,6 @@
 {
-  "measured_on": "2026-10-13T01:50:46.778491+00:00",
-  "source_base_commit": "a165d4b59e92bfb1b2fa608000b7c24526948b44",
+  "measured_on": "2026-10-13T01:54:43.834419+00:00",
+  "source_base_commit": "99cc34a0c01c2f48c45c7b68bd4419bfc2d35a60",
   "source_state": "PR working tree; exact production source content is bound by per-file SHA-256 hashes below. Review/merge commit is supplied by the PR.",
   "command": "bash scripts/ci.sh --install && bash scripts/ci.sh",
   "interpreter": "Python 3.12.13",
@@ -9,7 +9,7 @@
   "statements": 4636,
   "statement_percent": 89.1933,
   "threshold_percent": 80,
-  "test_result": "637 passed in 59.87s",
+  "test_result": "637 passed in 56.46s",
   "limitations": [
     "Python statements only, not branch coverage.",
     "Excluded tests, virtual environments and generated build/distribution output; native dependencies and shell are not Python statement coverage.",
