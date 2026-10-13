@@ -39,3 +39,9 @@ appropriate to the circumstances.
 This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org),
 version 2.0, available at
 https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
+
+## Scope and confidential reports
+
+This policy applies to issues, pull requests, reviews and other project spaces. Maintainers are subject to the same expectations. They may remove abusive content, restrict participation or exclude a participant, considering severity and recurrence and explaining decisions where safe.
+
+Contact a repository maintainer through a private contact method they have made available. If none is available, open an issue requesting a confidential contact without naming affected people or posting the allegation. If the complaint concerns the responding maintainer, request review by another organization administrator. An affected participant may request reconsideration with relevant new evidence. Vulnerabilities use the separate process in [SECURITY.md](SECURITY.md).

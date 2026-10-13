@@ -6,6 +6,7 @@
     "gitHubInfo",
     "version",
     "install.sh",
+    "install.py",
     "requirements.txt",
     "pyproject.toml",
     "README.md",

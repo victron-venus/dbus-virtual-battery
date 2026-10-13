@@ -4,6 +4,7 @@ import argparse
 import gzip
 import hashlib
 import io
+import json
 import re
 import tarfile
 from pathlib import Path
@@ -15,10 +16,10 @@ def build_archive(root: Path, tag: str, output: Path) -> Path:
         raise ValueError("Expected a semantic version tag or nightly")
     if tag != "nightly" and (root / "version").read_text().strip() != tag:
         raise ValueError("Release tag must match the committed version file")
-    paths = [
-        root / name
-        for name in ("dbus-virtual-battery.py", "setup", "gitHubInfo", "version")
-    ]
+    names = json.loads((root / ".release-package.json").read_text())["include"]
+    paths = [root / name for name in names]
+    if any(path.is_symlink() or not path.is_file() for path in paths):
+        raise ValueError("Release inputs must be regular files")
     output.mkdir(parents=True, exist_ok=True)
     archive = output / f"dbus-virtual-battery-{tag}.tar.gz"
     with (
@@ -32,7 +33,7 @@ def build_archive(root: Path, tag: str, output: Path) -> Path:
             content = path.read_bytes()
             entry = tarfile.TarInfo(f"dbus-virtual-battery/{path.relative_to(root)}")
             entry.size = len(content)
-            entry.mode = 0o755 if path.name == "setup" else 0o644
+            entry.mode = 0o755 if path.stat().st_mode & 0o111 else 0o644
             package.addfile(entry, io.BytesIO(content))
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
     archive.with_suffix(archive.suffix + ".sha256").write_text(

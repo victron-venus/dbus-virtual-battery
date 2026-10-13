@@ -3,6 +3,13 @@
 # dbus-virtual-battery SetupHelper compatible setup script
 # Virtual Battery Calculator for Victron Venus OS
 
+# Packaging hosts can capture the payload without SetupHelper or live activation.
+if [ -n "${DESTDIR:-}" ]; then
+    action="${1:-${scriptAction:-install}}"
+    case "$action" in INSTALL) action=install ;; UNINSTALL) action=uninstall ;; esac
+    exec python3 "$(dirname "$0")/install.py" "$action"
+fi
+
 #### following line incorporates SetupHelper resources into this script
 source "/data/SetupHelper/HelperResources/IncludeHelpers"
 #### end of lines to include helper resources
@@ -69,6 +76,26 @@ readConfig() {
     else
         productName="$defaultProductName"
     fi
+
+    for integer in "$smartshuntIndex" "$instance"; do
+        case "$integer" in
+            ''|*[!0-9]*) echo "Index and instance must be non-negative integers" >&2; exit 1 ;;
+        esac
+    done
+    case "$enableVirtual" in
+        true|false) ;;
+        *) echo "enableVirtual must be true or false" >&2; exit 1 ;;
+    esac
+    python3 - "$chainCapacity" <<'VALIDATE_CAPACITY' || exit 1
+import math
+import sys
+try:
+    capacity = float(sys.argv[1])
+except ValueError:
+    raise SystemExit("chainCapacity must be a finite positive number") from None
+if not math.isfinite(capacity) or capacity <= 0:
+    raise SystemExit("chainCapacity must be a finite positive number")
+VALIDATE_CAPACITY
 }
 
 # Create the virtual battery service
@@ -91,7 +118,11 @@ createVirtualBatteryService() {
     fi
 
     # Always add instance, product-name, and capacity
-    cmdArgs="$cmdArgs --instance $instance --product-name \"$productName\" --capacity $chainCapacity"
+    # shlex.quote produces one POSIX-shell argument, including quotes and '$()'.
+    local quotedProduct quotedCapacity
+    quotedProduct=$(python3 -c 'import shlex,sys; print(shlex.quote(sys.argv[1]))' "$productName")
+    quotedCapacity=$(python3 -c 'import shlex,sys; print(shlex.quote(sys.argv[1]))' "$chainCapacity")
+    cmdArgs="$cmdArgs --instance $instance --product-name $quotedProduct --capacity $quotedCapacity"
 
     cat > $serviceDir/run << EOF
 #!/bin/sh

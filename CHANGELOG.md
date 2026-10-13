@@ -8,6 +8,13 @@ Computes a virtual battery view on Venus OS for installations without a physical
 
 ### Maintenance
 
+- Add non-activating DESTDIR installation/uninstallation with a validated payload manifest and link checks; retain operator-owned files.
+- Quote product names as literal arguments in generated services and reject invalid numeric/membership setup inputs. Shell metacharacters in a configured name must never execute.
+- Package the staging helper in both supported archive builders and check actual extracted installation/repeatable archive bytes.
+- Measure application, packaging and release-tooling Python coverage together with the unchanged 80% gate.
+- Document governance, remaining continuity requirements, security assurance, build/test boundaries and dated regression evidence.
+
+
 - Include Ruff and the already required PyYAML test dependency in `uv.lock` for reproducible Python checks, preserving the existing locked runtime versions.
 - Publish reviewed release notes from the exact source commit used to build each candidate, preserving build provenance.
 - Document contribution checks, confidential security reporting and the project-specific trust boundaries.

@@ -27,7 +27,7 @@ For the shared Python checks, use uv 0.12.18 and the checked-in lock without res
 uv sync --locked --extra test --python 3.12.13
 .venv/bin/python -m ruff check .
 .venv/bin/python -m ruff format --check .
-.venv/bin/python -m pytest tests/ .github/workflow-tests/ --cov=. --cov-report=term-missing --cov-fail-under=80
+.venv/bin/python -m pytest tests/ .github/workflow-tests/ .github/release-tests/ --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80
 ```
 
 The real Bandit discovery tests also run in the separate security-gate environment, which installs its pinned scanner; the Python test environment alone does not replace that gate.
@@ -40,3 +40,15 @@ Automated tests use mocks or controlled fixtures where available. A passing unit
 - [requirements.txt](requirements.txt)
 
 See [README.md](README.md) for acquisition, configuration and usage, and [the evidence index](docs/openssf-evidence.md) for the public development-process references.
+
+## Test and regression policy
+
+A new or changed feature needs automated tests of its observable behavior. Bugfixes should add a regression test that fails on the affected version and passes with the fix, including relevant rejected input and failure recovery. When a meaningful automated test is infeasible, explain why in the pull request and record the manual validation and remaining risk. Do not add tests that merely assert the implementation's current text.
+
+The maintenance floor is regression evidence for at least half of the bugs fixed in the previous six months; the intended practice is to cover every reproducible defect. Include CI, installer and release defects in that review. Dependency updates without an identified defect are not automatically bugfixes. A test added later may be linked with its actual addition date; never imply that it existed when the fix landed. Keep [the evidence ledger](docs/evidence/regressions-2026-10-12.json) current.
+
+Run the combined suite in this document; application tests alone do not cover the release tooling. Preserve the 80% statement threshold and explain all exclusions. See [quality and build evidence](docs/quality-and-build.md), [governance](GOVERNANCE.md) and the [roadmap](ROADMAP.md).
+
+## Coding standards
+
+Python follows [PEP 8](https://peps.python.org/pep-0008/) as implemented by the checked-in Ruff lint/format configuration. Formatter output is the project convention where it differs from optional PEP 8 layout suggestions. Keep shell changes consistent with the existing interpreter, quote variable expansions, and validate shell syntax; do not introduce Bash syntax into generated POSIX service scripts. Python runtime warnings fail the automated test suite.

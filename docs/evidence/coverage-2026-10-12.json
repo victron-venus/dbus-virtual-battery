@@ -1,0 +1,164 @@
+{
+  "measured_on": "2026-10-13T01:57:33.625942+00:00",
+  "source_base_commit": "9e5815b4c44aad3a0c9e387b8460fe8b1ca58bf3",
+  "source_state": "PR working tree; exact production source content is bound by per-file SHA-256 hashes below. Review/merge commit is supplied by the PR.",
+  "command": "bash scripts/ci.sh --install && bash scripts/ci.sh",
+  "interpreter": "Python 3.12.13",
+  "host": "macOS-26.7-arm64-arm-64bit-Mach-O",
+  "covered_statements": 4135,
+  "statements": 4636,
+  "statement_percent": 89.1933,
+  "threshold_percent": 80,
+  "test_result": "637 passed in 60.66s (0:01:00)",
+  "limitations": [
+    "Python statements only, not branch coverage.",
+    "Excluded tests, virtual environments and generated build/distribution output; native dependencies and shell are not Python statement coverage.",
+    "Local validation is not a hosted CI result; check the PR required checks."
+  ],
+  "files": [
+    {
+      "path": "dbus-virtual-battery.py",
+      "sha256": "4b460a3a83388139feeb885564ac2c93735f0915a4d598154de84d309ede312d",
+      "statements": 472,
+      "covered_statements": 465
+    },
+    {
+      "path": "install.py",
+      "sha256": "02ff9c35ebf1ab6f159c678c9b3b49fab1eb2a5b8e7ae94b19f3be3b483e6fa1",
+      "statements": 59,
+      "covered_statements": 50
+    },
+    {
+      "path": "scripts/__init__.py",
+      "sha256": "3e683adcc8d0df5331d78ade2707438bfd577cf02d40a52f88ab586a3aec3d13",
+      "statements": 0,
+      "covered_statements": 0
+    },
+    {
+      "path": "scripts/bandit_sarif.py",
+      "sha256": "4b8eef29718fdf225bf6063cd96f4539bbc23d270c35b56385956d1b7a6181bd",
+      "statements": 46,
+      "covered_statements": 42
+    },
+    {
+      "path": "scripts/build_release.py",
+      "sha256": "000dfc1cfdefecdc91a1f4c21118c6d67772a4beaac345d4c5f760e30bee10ff",
+      "statements": 35,
+      "covered_statements": 28
+    },
+    {
+      "path": "scripts/change_scope.py",
+      "sha256": "174e460603f2efe87cf6e5cde1b8682f0a0f2d35c4c129aafe3cde8801299be8",
+      "statements": 160,
+      "covered_statements": 118
+    },
+    {
+      "path": "scripts/package_release.py",
+      "sha256": "cd6315eaac7f55a1d2d340523e2a154d08cb7a66e11000e639c8fafd83998ca9",
+      "statements": 115,
+      "covered_statements": 81
+    },
+    {
+      "path": "scripts/prepare_version.py",
+      "sha256": "6e9c4a9c2fe4e3c7e4954d9725ed02fb2f179c5771ef843a653ef4f065fae0e2",
+      "statements": 213,
+      "covered_statements": 182
+    },
+    {
+      "path": "scripts/release.py",
+      "sha256": "2584b05d01ef82b48f2ef75dc5d8e649de09df591fc6121097b2388f65a7b4eb",
+      "statements": 187,
+      "covered_statements": 138
+    },
+    {
+      "path": "scripts/release_container_labels.py",
+      "sha256": "8030cb28474e577a97ff9f406acfe75bf6b1d423dc144173667becc0605bec9f",
+      "statements": 35,
+      "covered_statements": 17
+    },
+    {
+      "path": "scripts/release_control.py",
+      "sha256": "1700427ea38864763ca223bca4f3074456ad80d52cc1bf3e63ed6929ff29a7ff",
+      "statements": 922,
+      "covered_statements": 859
+    },
+    {
+      "path": "scripts/release_signing.py",
+      "sha256": "29a4cb3d1e6deb913d501965292664b2b3a7b44a3f6fe297b121c87eb73f0d4b",
+      "statements": 111,
+      "covered_statements": 98
+    },
+    {
+      "path": "scripts/release_state.py",
+      "sha256": "7c9717ce50dd10695dbc74f4fa876a5143c83f49e4f9a6bca77190916fef3641",
+      "statements": 120,
+      "covered_statements": 120
+    },
+    {
+      "path": "scripts/release_validation.py",
+      "sha256": "d87f110445cd6618aff991ff126218de47154afc7a878aa9ba37621b800ece42",
+      "statements": 75,
+      "covered_statements": 53
+    },
+    {
+      "path": "scripts/release_version_adapter.py",
+      "sha256": "2a520b4333d681cfda32437c8f5f00050839dabdcdd29527d1b1346f43fd5792",
+      "statements": 48,
+      "covered_statements": 36
+    },
+    {
+      "path": "scripts/release_versioned.py",
+      "sha256": "9461377600faf2010804eaa943b6283674457b0d5c9a55db6b2f11d0156acb75",
+      "statements": 295,
+      "covered_statements": 273
+    },
+    {
+      "path": "scripts/run_bandit.py",
+      "sha256": "132b537577fc375d8e4b2801a1077d98b9d10fc4b719800c4b0ca1bf56d8fe75",
+      "statements": 36,
+      "covered_statements": 31
+    },
+    {
+      "path": "scripts/runner_preflight.py",
+      "sha256": "c0460d162e83d2fa515615452c59567186d05f3ef26dddaa68735352bbcedf80",
+      "statements": 197,
+      "covered_statements": 195
+    },
+    {
+      "path": "scripts/stage_release_assets.py",
+      "sha256": "ec308cd5346b5e55860336dba0352e426284b674d9f6f4ae7f5bd80e11dd9003",
+      "statements": 106,
+      "covered_statements": 95
+    },
+    {
+      "path": "scripts/version_plan.py",
+      "sha256": "5ab44b0750a135f291417825b18536e0256938d8b36f87918ab5e35ce1b49a39",
+      "statements": 954,
+      "covered_statements": 930
+    },
+    {
+      "path": "scripts/version_receipt.py",
+      "sha256": "da2d97f686d8d41ae73715fdbfbcbafc31f23389152006cc2519fb9d56902169",
+      "statements": 192,
+      "covered_statements": 175
+    },
+    {
+      "path": "scripts/workflow_contracts.py",
+      "sha256": "5332b472b01df64077e7a474b7e5171ba48d8cfa2ae1b0b4d7572024effd248d",
+      "statements": 216,
+      "covered_statements": 133
+    },
+    {
+      "path": "scripts/write_binary_build_metadata.py",
+      "sha256": "d09d1642bb675b585ab3a69384efb87ff48dc3a37b2c04cadedb693cf5113c41",
+      "statements": 18,
+      "covered_statements": 16
+    },
+    {
+      "path": "scripts/write_web_build_metadata.py",
+      "sha256": "1d962dfedb82feada5a062f2e075e895deb687d79ad982596d915ad6bef668f0",
+      "statements": 24,
+      "covered_statements": 0
+    }
+  ]
+}

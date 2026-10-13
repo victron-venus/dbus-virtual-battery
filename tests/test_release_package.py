@@ -1,6 +1,7 @@
 """Check the actual release archive with explicitly mocked external prerequisites."""
 
 import hashlib
+import json
 
 # Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
 import subprocess  # nosec B404
@@ -29,12 +30,24 @@ def test_archive_contains_the_versioned_runtime(tmp_path):
     with tarfile.open(archive) as package:
         assert set(package.getnames()) == {
             f"dbus-virtual-battery/{name}"
-            for name in ("dbus-virtual-battery.py", "setup", "gitHubInfo", "version")
+            for name in json.loads((ROOT / ".release-package.json").read_text())[
+                "include"
+            ]
         }
         assert package.getmember("dbus-virtual-battery/setup").mode == 0o755
         package.extractall(tmp_path / "extracted", filter="data")
     root = tmp_path / "extracted/dbus-virtual-battery"
     assert (root / "version").read_text().strip() == TAG
+    subprocess.run(  # nosec B603
+        [
+            sys.executable,
+            str(root / "install.py"),
+            "--destdir",
+            str(tmp_path / "stage"),
+        ],
+        check=True,
+    )
+    assert (tmp_path / "stage/data/dbus-virtual-battery/setup").is_file()
     # Reviewed test harness: fixed commands and isolated fixture paths; no shell interpolation.
     subprocess.run(["bash", "-n", str(root / "setup")], check=True)  # nosec B603, B607
     # The separately installed dbus_shared and device drivers are explicit

@@ -1,5 +1,6 @@
 """Execute SetupHelper dispatch with mapped paths and stable supervisor state."""
 
+import json
 import os
 import re
 
@@ -7,6 +8,8 @@ import re
 import subprocess  # nosec B404
 import sys
 from pathlib import Path
+
+import pytest
 
 
 def test_setup_preserves_supervisor_state_and_records_completion(tmp_path):
@@ -31,6 +34,7 @@ def test_setup_preserves_supervisor_state_and_records_completion(tmp_path):
         "chainCapacity": "320",
         "chains": "mqtt_chain1\nmqtt_chain2",
         "instance": "514",
+        "productName": "Battery 'quoted' \"$(touch injected)\"; exit 7\nsecond line",
     }.items():
         (options / key).write_text(value + "\n")
     (source / "version").write_text((repo / "version").read_text())
@@ -90,3 +94,65 @@ def test_setup_preserves_supervisor_state_and_records_completion(tmp_path):
         assert "--smartshunt-index 1" in run
         assert "--chains mqtt_chain1 mqtt_chain2" in run
         assert "s25000 n4" in (service_root / name / "log/run").read_text()
+    # Execute the actual generated POSIX script against a harmless argv recorder.
+    # Configuration text must remain data when the service is later started.
+    recorder = bin_dir / "python3"
+    recorder.unlink()
+    recorder.write_text(
+        f"#!{sys.executable}\nimport json, pathlib, sys\n"
+        "pathlib.Path('argv.json').write_text(json.dumps(sys.argv[1:]))\n"
+    )
+    recorder.chmod(0o755)
+    subprocess.run(  # nosec B603, B607
+        ["sh", str(service_root / "dbus-virtual-chain/run")],
+        env=environment,
+        cwd=tmp_path,
+        check=True,
+    )
+    argv = json.loads((tmp_path / "argv.json").read_text())
+    assert argv[argv.index("--product-name") + 1] == (
+        options / "productName"
+    ).read_text().rstrip("\n")
+    assert not (tmp_path / "injected").exists()
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("smartshuntIndex", "1; touch injected"),
+        ("instance", "$(touch injected)"),
+        ("instance", ""),
+        ("enableVirtual", "yes"),
+        ("chainCapacity", "nan"),
+        ("chainCapacity", "inf"),
+        ("chainCapacity", "0"),
+        ("chainCapacity", "-5"),
+        ("chainCapacity", "280; touch injected"),
+        ("chains", "mqtt_chain1;touch injected"),
+    ],
+)
+def test_invalid_configuration_is_rejected_before_service_creation(
+    tmp_path, key, value
+):
+    repo = Path(__file__).resolve().parents[1]
+    source = (repo / "setup").read_text()
+    # Run the real parser with isolated configuration, omitting live dispatch.
+    parser = source[
+        source.index("# Default configuration") : source.index(
+            "# Create the virtual battery service"
+        )
+    ]
+    options = tmp_path / "options"
+    options.mkdir()
+    (options / key).write_text(value)
+    harness = tmp_path / "read-config.sh"
+    harness.write_text('setupOptionsDir="$1"\n' + parser + "\nreadConfig\n")
+    result = subprocess.run(  # nosec B603, B607
+        ["bash", str(harness), str(options)],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert not (tmp_path / "injected").exists()
