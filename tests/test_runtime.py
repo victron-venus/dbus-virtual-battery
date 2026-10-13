@@ -183,9 +183,9 @@ def test_update_publishes_calculator_values_and_marks_missing_sources(
     values = {
         "ss": {
             "/Connected": 1,
-            "/Dc/0/Voltage": 51.2,
+            "/Dc/0/Voltage": 40.0,
             "/Dc/0/Current": 30.0,
-            "/Soc": 80,
+            "/Soc": 20,
         },
         "a": {
             "/Connected": 1,
