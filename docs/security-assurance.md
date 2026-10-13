@@ -29,7 +29,7 @@ platform protections are separate from application memory safety and privilege.
 
 The original implementation review did not perform physical-device acceptance.
 Subsequent acceptance of the exact v2.7.9 RC2 and its unchanged signed stable
-publication is recorded in [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91)
+publication is recorded in [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91#issuecomment-6137363898)
 and [the stable release](https://github.com/victron-venus/dbus-virtual-battery/releases/tag/v2.7.9).
 See [quality evidence](quality-and-build.md) for measured statement coverage and
 limitations. Continuity/recovery remains an explicit [roadmap](../ROADMAP.md)

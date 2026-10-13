@@ -5,7 +5,7 @@ following the October 2026 review. Its [Silver assessment](https://www.bestpract
 is published with outstanding requirements. The live assessment is authoritative
 for the current badge level; this evidence index is not a security guarantee.
 
-The initial completed implementation review is [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91),
+The initial completed implementation review is [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91#issuecomment-6137363898),
 merged as `c853cd3c34253df32701c70c6b723dc8daa3ee0d`. Later changes must be checked against their own source revision
 and CI results rather than inheriting a claim from that review.
 
@@ -82,7 +82,7 @@ At this update:
   primary maintainer becomes unavailable.
 - [Stable v2.7.9](https://github.com/victron-venus/dbus-virtual-battery/releases/tag/v2.7.9)
   was promoted from the accepted, signed RC2 assets. Acceptance is recorded in
-  [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91); recipients
+  [PR #91](https://github.com/victron-venus/dbus-virtual-battery/pull/91#issuecomment-6137363898); recipients
   should still perform the documented signature and inventory verification.
 
 The live Silver form also records suggested practices that remain incomplete,
