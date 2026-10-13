@@ -1,0 +1,234 @@
+{
+  "observed_at": "2026-10-13T03:37:12.543Z",
+  "source": "af08bdb5d6a9c25b34913fe2149916df48a870bb",
+  "readme": {
+    "articleFound": true,
+    "headings": [
+      {
+        "level": "H1",
+        "text": "dbus-virtual-battery - Virtual Battery Calculator for Victron Venus OS"
+      },
+      {
+        "level": "H2",
+        "text": "Python runtime"
+      },
+      {
+        "level": "H2",
+        "text": "Overview"
+      },
+      {
+        "level": "H2",
+        "text": "Black-start recovery update (2.7.9)"
+      },
+      {
+        "level": "H2",
+        "text": "Auto-Discovery Features"
+      },
+      {
+        "level": "H3",
+        "text": "SmartShunt Auto-Discovery"
+      },
+      {
+        "level": "H3",
+        "text": "Required Chains"
+      },
+      {
+        "level": "H3",
+        "text": "Manual Override"
+      },
+      {
+        "level": "H2",
+        "text": "Configuration Options"
+      },
+      {
+        "level": "H2",
+        "text": "Usage Examples"
+      },
+      {
+        "level": "H3",
+        "text": "Default Configuration (Recommended)"
+      },
+      {
+        "level": "H3",
+        "text": "Select Specific SmartShunt Index"
+      },
+      {
+        "level": "H3",
+        "text": "Manual Chain Specification"
+      },
+      {
+        "level": "H3",
+        "text": "Custom Capacity"
+      },
+      {
+        "level": "H2",
+        "text": "System Architecture"
+      },
+      {
+        "level": "H2",
+        "text": "Installation"
+      },
+      {
+        "level": "H3",
+        "text": "Option 1: SetupHelper (Recommended)"
+      },
+      {
+        "level": "H3",
+        "text": "How PackageManager Works"
+      },
+      {
+        "level": "H2",
+        "text": "Configuration Notes"
+      },
+      {
+        "level": "H2",
+        "text": "Monitoring"
+      },
+      {
+        "level": "H2",
+        "text": "Dependencies"
+      },
+      {
+        "level": "H2",
+        "text": "Source Code"
+      },
+      {
+        "level": "H2",
+        "text": "Release process"
+      },
+      {
+        "level": "H2",
+        "text": "Release v2.7.4"
+      },
+      {
+        "level": "H3",
+        "text": "Source connection status"
+      },
+      {
+        "level": "H2",
+        "text": "Release v2.7.3"
+      },
+      {
+        "level": "H2",
+        "text": "Venus OS source validity and persistence"
+      },
+      {
+        "level": "H2",
+        "text": "Contributing and security"
+      },
+      {
+        "level": "H2",
+        "text": "Project maintenance and assurance"
+      }
+    ],
+    "images": [
+      {
+        "alt": "OpenSSF Best Practices"
+      },
+      {
+        "alt": "CI"
+      },
+      {
+        "alt": "License: MIT"
+      },
+      {
+        "alt": "Release"
+      },
+      {
+        "alt": "Downloads"
+      },
+      {
+        "alt": "Python 3.12.x"
+      },
+      {
+        "alt": "Venus OS"
+      },
+      {
+        "alt": "Platform"
+      },
+      {
+        "alt": "GitHub watchers"
+      },
+      {
+        "alt": "GitHub contributors"
+      },
+      {
+        "alt": "GitHub issues"
+      },
+      {
+        "alt": "GitHub closed issues"
+      },
+      {
+        "alt": "GitHub pull requests"
+      },
+      {
+        "alt": "GitHub last commit"
+      },
+      {
+        "alt": "Code size"
+      },
+      {
+        "alt": "Repo size"
+      },
+      {
+        "alt": "Maintenance"
+      },
+      {
+        "alt": "PRs Welcome"
+      },
+      {
+        "alt": "Made with Python"
+      },
+      {
+        "alt": "Victron Community"
+      }
+    ],
+    "tables": [
+      {
+        "headers": [
+          "Option File",
+          "Default",
+          "Description"
+        ]
+      }
+    ]
+  },
+  "keyboard_navigation": {
+    "action": "Enter on README accessibility link",
+    "url": "https://github.com/victron-venus/dbus-virtual-battery/blob/main/docs/accessibility.md"
+  },
+  "scope": "DOM and keyboard smoke test; not a screen-reader or WCAG certification",
+  "runtime_help": {
+    "command": "python3 -B /data/dbus-virtual-battery/dbus-virtual-battery.py --help",
+    "exit_code": 0,
+    "sha256": "29bc73974adf02811f1cf94daab94b621214ce53017267ce269330803cb956fe",
+    "ansi_escape_sequences": false,
+    "help_text": "usage: dbus-virtual-battery.py [-h] [--smartshunt SMARTSHUNT]\n                               [--smartshunt-index SMARTSHUNT_INDEX]\n                               [--chains [CHAINS ...]] [--instance INSTANCE]\n                               [--product-name PRODUCT_NAME]\n                               [--capacity CAPACITY]\n\nVirtual Battery Calculator for Victron\n\noptions:\n  -h, --help            show this help message and exit\n  --smartshunt SMARTSHUNT\n                        SmartShunt D-Bus service suffix (default: auto-\n                        discover first)\n  --smartshunt-index SMARTSHUNT_INDEX\n                        Index of SmartShunt to use if multiple found (default:\n                        0 for first)\n  --chains [CHAINS ...]\n                        Required chain suffixes (default: mqtt_chain1\n                        mqtt_chain2; never auto-discovered)\n  --instance INSTANCE   D-Bus device instance (default: 514)\n  --product-name PRODUCT_NAME\n                        Product name in GUI\n  --capacity CAPACITY   Chain capacity in Ah (default: 280.0)\n"
+  },
+  "authored_content_review": {
+    "files": [
+      "CODE_OF_CONDUCT.md",
+      "CONTRIBUTING.md",
+      "GOVERNANCE.md",
+      "README.md",
+      "SECURITY.md",
+      "docs/CI-ORCHESTRATION.md",
+      "docs/VERSIONING.md",
+      "docs/accessibility.md",
+      "docs/openssf-evidence.md",
+      "docs/quality-and-build.md",
+      "docs/release-packaging.md",
+      "docs/release-signatures.md",
+      "docs/release-versioning.md",
+      "docs/release-workflow.md",
+      "docs/runner-preflight.md",
+      "docs/runtime-hardening.md",
+      "docs/security-assurance.md"
+    ],
+    "blank_markdown_image_labels": [],
+    "method": "Source review of headings, descriptive links, diagrams/prose and CLI instructions; rendered README DOM and keyboard smoke check only.",
+    "finding_fixed": "Added terminal SetupHelper installation path alongside the GUI instruction.",
+    "screen_reader_tested": false,
+    "wcag_conformance_claimed": false
+  }
+}
