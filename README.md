@@ -103,6 +103,12 @@ echo "400" > /data/setupOptions/dbus-virtual-battery/chainCapacity
 
 ## System Architecture
 
+The service reads the SmartShunt and the configured battery chains over D-Bus.
+It subtracts the chain currents from the SmartShunt's total current, averages
+the chains' voltage and state of charge, and publishes the resulting virtual
+battery on D-Bus for the Victron interface.
+Required inputs must be present and fresh before dependent values are available.
+
 ```mermaid
 graph LR
     A[SmartShunt] --> B[Total System Measurement]
@@ -115,6 +121,10 @@ graph LR
 
 The virtual battery service appears on D-Bus as:
 `com.victronenergy.battery.virtual_chain`
+
+The diagram is also described in the paragraph above. Installation and monitoring
+have text-based instructions below; see [accessibility](docs/accessibility.md)
+for interface boundaries and reporting barriers.
 
 ## Installation
 
