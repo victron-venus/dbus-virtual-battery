@@ -6,7 +6,7 @@
     "binary_sha256": "b7c872db63553ccffc7253aba3ed7d4885a27d83f1ba567b1138c6315a5847e5",
     "source_url": "https://github.com/mvdan/sh/releases/tag/v3.14.1"
   },
-  "method": "Count every Bash AST Stmt node, including compound statements and nested command substitutions, across all tracked shell files (including extensionless shebang scripts) and every GitHub Actions run step. Replace Actions expressions with a non-executable placeholder before parsing. Recursively count heredoc shell, SSH/trap command strings, and count embedded Python heredoc/-c AST statements separately at zero coverage. Add conservative sed/awk expression units and all Docker instructions plus RUN shell. No non-Python execution credit is used.",
+  "method": "Count every Bash AST Stmt node, including compound statements and nested command substitutions, across all tracked shell files (including extensionless shebang scripts) and every GitHub Actions run step. Replace Actions expressions with a non-executable placeholder before parsing. Recursively count heredoc shell, SSH/trap command strings, and count embedded Python heredoc/-c AST statements separately at zero coverage. Add conservative sed/awk expression units and all Docker instructions plus RUN shell. Each declarative Compose command/entrypoint receives another zero-coverage unit. No non-Python execution credit is used.",
   "python_covered_statements": 4135,
   "python_statements": 4636,
   "additional_zero_coverage_units": 443,
@@ -378,5 +378,6 @@
     "External interpreters, installed libraries, tools and remote reusable workflows/actions are dependencies rather than project-maintained source. Test/fixture source and documentation examples are not production source.",
     "YAML/TOML/JSON configuration is data; executable workflow run steps and Docker RUN bodies are included. Docker instructions receive an extra zero-coverage allowance.",
     "Do not apply this bound to native dependency memory safety or branch coverage."
-  ]
+  ],
+  "reproduction": "coverage-scope-method.md"
 }
