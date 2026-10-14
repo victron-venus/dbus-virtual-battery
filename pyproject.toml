@@ -4,7 +4,7 @@
 
 [project]
 name = "dbus-virtual-battery"
-version = "2.7.9"
+version = "2.7.10"
 requires-python = ">=3.12,<3.13"
 
 [project.optional-dependencies]
@@ -16,6 +16,8 @@ target-version = "py312"
 extend-exclude = []
 
 [tool.coverage.run]
+# Include the real CLI work exercised in subprocess-based release contracts.
+patch = ["subprocess"]
 source = ["."]
 # Measure application and shipped maintenance tooling, never the test code itself.
 omit = [

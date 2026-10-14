@@ -37,7 +37,7 @@ wheels = [
 
 [[package]]
 name = "dbus-virtual-battery"
-version = "2.7.9"
+version = "2.7.10"
 source = { virtual = "." }
 
 [package.optional-dependencies]
