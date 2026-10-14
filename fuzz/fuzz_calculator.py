@@ -1,6 +1,6 @@
 """Fuzz the deployed calculator; any attempt to call a device API is a failure."""
 
-import importlib.util
+import importlib
 import math
 import struct
 import sys
@@ -38,12 +38,10 @@ for name in (
     setattr(shared, name, forbidden_device_call)
 sys.modules["dbus_shared"] = shared
 
+# Use normal import machinery so Atheris instruments the service and its helpers.
+sys.path.insert(0, str(ROOT))
 with atheris.instrument_imports():
-    spec = importlib.util.spec_from_file_location(
-        "fuzz_virtual_battery", ROOT / "dbus-virtual-battery.py"
-    )
-    runtime = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(runtime)
+    runtime = importlib.import_module("dbus-virtual-battery")
 
 
 def fuzz_one_input(data: bytes) -> None:
