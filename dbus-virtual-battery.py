@@ -90,7 +90,7 @@ except ModuleNotFoundError as error:
 from vedbus import VeDbusService
 
 # This service reports its own release, independently of shared helper versions.
-VERSION = "2.7.9"
+VERSION = "2.7.10"
 
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -141,7 +141,7 @@ def _calculate_time_to_go(virtual_current, remaining_capacity, chain_capacity):
         and remaining_capacity > 0
     ):
         hours = remaining_capacity / abs(virtual_current)
-        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+        time_to_go = int(min(hours, TIME_TO_GO_CAP_SECONDS / 3600) * 3600)
     elif (
         virtual_current is not None
         and remaining_capacity is not None
@@ -149,7 +149,7 @@ def _calculate_time_to_go(virtual_current, remaining_capacity, chain_capacity):
         and chain_capacity > remaining_capacity
     ):
         hours = (chain_capacity - remaining_capacity) / virtual_current
-        time_to_go = min(int(hours * 3600), TIME_TO_GO_CAP_SECONDS)
+        time_to_go = int(min(hours, TIME_TO_GO_CAP_SECONDS / 3600) * 3600)
     else:
         time_to_go = None
     return time_to_go
@@ -165,6 +165,40 @@ def _chains_have_measurements(chains):
         and math.isfinite(chain["current"])
         for chain in chains
     )
+
+
+def _invalid_calculation(status):
+    """Never publish nonfinite derived values as a valid battery sample."""
+    return {
+        "voltage": None,
+        "current": None,
+        "power": None,
+        "soc": None,
+        "soc_valid": False,
+        "cell_voltage": None,
+        "consumed_ah": None,
+        "remaining_capacity": None,
+        "time_to_go": None,
+        "status": status,
+    }
+
+
+def _electrical_values(chain_voltage_sum, chains_with_voltage, virtual_current):
+    """Derive voltage, power and per-cell voltage from the same chain totals."""
+    virtual_voltage = (
+        chain_voltage_sum / chains_with_voltage if chains_with_voltage > 0 else None
+    )
+    virtual_power = (
+        virtual_voltage * virtual_current
+        if virtual_voltage is not None and virtual_current is not None
+        else None
+    )
+    cell_voltage = (
+        virtual_voltage / CELLS_PER_CHAIN
+        if virtual_voltage is not None and virtual_voltage > 0
+        else None
+    )
+    return virtual_voltage, virtual_power, cell_voltage
 
 
 def calculate_virtual_battery(
@@ -186,36 +220,19 @@ def calculate_virtual_battery(
     )
     chains_valid = _chains_have_measurements(chains)
     if not shunt_valid or not chains_valid:
-        return {
-            "voltage": None,
-            "current": None,
-            "power": None,
-            "soc": None,
-            "soc_valid": False,
-            "cell_voltage": None,
-            "consumed_ah": None,
-            "remaining_capacity": None,
-            "time_to_go": None,
-            "status": "SmartShunt missing" if not shunt_valid else "Chain data missing",
-        }
+        return _invalid_calculation(
+            "SmartShunt missing" if not shunt_valid else "Chain data missing"
+        )
+    if not math.isfinite(chain_capacity) or chain_capacity <= 0:
+        return _invalid_calculation("Invalid chain capacity")
 
     chain_current_total, chain_voltage_sum, chains_with_voltage, chain_soc_values = (
         _chain_totals(chains)
     )
 
     virtual_current = smartshunt_current - chain_current_total
-    virtual_voltage = (
-        chain_voltage_sum / chains_with_voltage if chains_with_voltage > 0 else None
-    )
-    virtual_power = (
-        virtual_voltage * virtual_current
-        if virtual_voltage is not None and virtual_current is not None
-        else None
-    )
-    cell_voltage = (
-        virtual_voltage / CELLS_PER_CHAIN
-        if virtual_voltage is not None and virtual_voltage > 0
-        else None
+    virtual_voltage, virtual_power, cell_voltage = _electrical_values(
+        chain_voltage_sum, chains_with_voltage, virtual_current
     )
     virtual_soc = (
         sum(chain_soc_values) / len(chain_soc_values)
@@ -229,6 +246,18 @@ def calculate_virtual_battery(
     else:
         consumed_ah = None
         remaining_capacity = None
+
+    derived = (
+        virtual_current,
+        virtual_voltage,
+        virtual_power,
+        cell_voltage,
+        virtual_soc,
+        consumed_ah,
+        remaining_capacity,
+    )
+    if any(value is not None and not math.isfinite(value) for value in derived):
+        return _invalid_calculation("Calculation overflow")
 
     time_to_go = _calculate_time_to_go(
         virtual_current, remaining_capacity, chain_capacity
