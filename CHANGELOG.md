@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.7.10] - Development line
+
+### Maintenance
+
+- Require bounded fuzzing on public release candidates, with source-bound reports and retained diagnostics; beta and ordinary CI do not run mutation campaigns.
+- Reject invalid capacity and non-finite calculations; cap duration before conversion to seconds.
+
+### Upgrade
+
+Use the documented update procedure and retain local configuration. Automated tests do not establish target-device acceptance.
+
+### Security
+
+Release qualification now requires isolated fuzzing against the candidate source. Report findings through SECURITY.md.
+
 ## [2.7.9] - Development line
 
 ### Release overview

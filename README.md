@@ -1,5 +1,7 @@
 # dbus-virtual-battery - Virtual Battery Calculator for Victron Venus OS
 
+[![Fuzzing: RC only](https://img.shields.io/badge/Fuzzing-RC%20only-blue)](docs/fuzzing.md)
+
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15435/badge)](https://www.bestpractices.dev/projects/15435)
 
 
@@ -279,3 +281,9 @@ and the [OpenSSF evidence index](docs/openssf-evidence.md) for assessment refere
 ## Project maintenance and assurance
 
 See [contributing and local checks](CONTRIBUTING.md), [governance and continuity](GOVERNANCE.md), [code of conduct](CODE_OF_CONDUCT.md), [maintenance roadmap](ROADMAP.md), [security reporting](SECURITY.md), [security assurance](docs/security-assurance.md), [runtime hardening](docs/runtime-hardening.md), and [quality/build evidence](docs/quality-and-build.md). The [OpenSSF evidence index](docs/openssf-evidence.md) distinguishes verified evidence from remaining requirements.
+
+## Release-candidate fuzzing
+
+The target calls calculate_virtual_battery from the deployed single-file service with synthetic IEEE-754 measurements and capacity. Derived values must be finite or absent, SoC bounded and time-to-go capped. Import-only D-Bus shims fail immediately if invoked. The production calculation is not copied or replaced, and no bus is opened.
+
+[RC-only fuzzing policy, local reproduction and failure handling](docs/fuzzing.md).
