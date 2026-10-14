@@ -1,13 +1,14 @@
 """Replay the exact RC harness in isolation, including its device-call guard."""
 
-import subprocess
+# Runs only the fixed interpreter and repository-owned replay below, without a shell.
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
 
 def test_committed_corpus_and_numeric_boundaries_use_the_real_harness():
     root = Path(__file__).resolve().parents[1]
-    replay = r'''
+    replay = r"""
 import contextlib
 import runpy
 import struct
@@ -34,5 +35,5 @@ for call in (harness["vedbus"].VeDbusService, harness["shared"].get_bus):
         assert "must never call a device API" in str(error)
     else:
         raise AssertionError("A device API guard became permissive")
-'''
-    subprocess.run([sys.executable, "-c", replay], cwd=root, check=True)
+"""
+    subprocess.run([sys.executable, "-c", replay], cwd=root, check=True)  # nosec B603
