@@ -29,7 +29,24 @@
         "-max_len=4096"
       ],
       "seconds": 60,
-      "corpus": "fuzz/corpus/calculator"
+      "corpus": "fuzz/corpus/calculator",
+      "instrumentation": [
+        {
+          "module": "dbus-virtual-battery",
+          "functions": [
+            "calculate_virtual_battery",
+            "_chain_totals"
+          ]
+        }
+      ]
     }
+  ],
+  "preflight-paths": [
+    ".github/requirements-fuzz.in",
+    "dbus-virtual-battery.py",
+    "fuzz",
+    "pyproject.toml",
+    "requirements.txt",
+    "uv.lock"
   ]
 }
