@@ -53,7 +53,9 @@ def config():
 
 
 class FuzzSafetyContracts(unittest.TestCase):
-    def test_isolated_environment_retains_jdk_location_without_ambient_jvm_options(self):
+    def test_isolated_environment_retains_jdk_location_without_ambient_jvm_options(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             real_popen = subprocess.Popen
@@ -80,7 +82,9 @@ class FuzzSafetyContracts(unittest.TestCase):
                 patch.dict(os.environ, environment),
                 patch.object(fuzz.subprocess, "Popen", side_effect=namespace_stub),
             ):
-                result, _ = fuzz.execute([sys.executable, "-c", code], root, output, 20, True)
+                result, _ = fuzz.execute(
+                    [sys.executable, "-c", code], root, output, 20, True
+                )
             self.assertEqual(result, 0)
             observed = json.loads(output.read_text())
             self.assertIsNone(observed.pop("GH_TOKEN"))
@@ -124,12 +128,26 @@ class FuzzSafetyContracts(unittest.TestCase):
     def test_only_public_default_branch_rc_dispatch_is_accepted(self):
         event = {
             "inputs": {"channel": "rc"},
-            "repository": {"private": False, "full_name": "owner/repo", "default_branch": "main"},
+            "repository": {
+                "private": False,
+                "full_name": "owner/repo",
+                "default_branch": "main",
+            },
         }
-        fuzz.event_contract(event, "workflow_dispatch", "refs/heads/main", "owner/repo", "a" * 40)
-        for name in ("push", "schedule", "pull_request", "pull_request_target", "workflow_run"):
+        fuzz.event_contract(
+            event, "workflow_dispatch", "refs/heads/main", "owner/repo", "a" * 40
+        )
+        for name in (
+            "push",
+            "schedule",
+            "pull_request",
+            "pull_request_target",
+            "workflow_run",
+        ):
             with self.subTest(name=name), self.assertRaises(ValueError):
-                fuzz.event_contract(event, name, "refs/heads/main", "owner/repo", "a" * 40)
+                fuzz.event_contract(
+                    event, name, "refs/heads/main", "owner/repo", "a" * 40
+                )
         for channel in ("beta", "nightly", "stable", None):
             bad = copy.deepcopy(event)
             bad["inputs"]["channel"] = channel
@@ -186,7 +204,8 @@ class FuzzSafetyContracts(unittest.TestCase):
             invalid.append(bad)
             bad = config()
             bad["targets"] = [
-                {**bad["targets"][0], "name": f"target-{i}", "seconds": 120} for i in range(6)
+                {**bad["targets"][0], "name": f"target-{i}", "seconds": 120}
+                for i in range(6)
             ]
             invalid.append(bad)
             for bad in invalid:
@@ -204,7 +223,9 @@ class FuzzSafetyContracts(unittest.TestCase):
         self.assertFalse(fuzz.exercised("go", "PASS: no fuzz tests to fuzz"))
         self.assertFalse(fuzz.exercised("go", "fuzz: elapsed: 0s, execs: 0"))
         self.assertTrue(
-            fuzz.exercised("go", "fuzz: elapsed: 3s, execs: 1234 (411/sec), new interesting: 2")
+            fuzz.exercised(
+                "go", "fuzz: elapsed: 3s, execs: 1234 (411/sec), new interesting: 2"
+            )
         )
         self.assertTrue(fuzz.exercised("atheris", "Done 49210 runs in 61 second(s)"))
         self.assertFalse(fuzz.exercised("libfuzzer", "Done 0 runs in 0 second(s)"))
@@ -244,7 +265,9 @@ class FuzzSafetyContracts(unittest.TestCase):
                 "run_attempt": 2,
                 "channel": "rc",
                 "private": False,
-                "manifest_sha256": hashlib.sha256((root / fuzz.MANIFEST).read_bytes()).hexdigest(),
+                "manifest_sha256": hashlib.sha256(
+                    (root / fuzz.MANIFEST).read_bytes()
+                ).hexdigest(),
                 "status": "passed",
                 "network": "isolated",
                 "targets": [{"name": "parse", "seconds": 60, "exit_code": 0}],
@@ -278,7 +301,9 @@ class FuzzSafetyContracts(unittest.TestCase):
                         "engine": "atheris",
                         "command": ["python", "fuzz.py"],
                         "seconds": 1,
-                        "instrumentation": [{"module": "owned", "functions": ["parse"]}],
+                        "instrumentation": [
+                            {"module": "owned", "functions": ["parse"]}
+                        ],
                     }
                 ],
             }
@@ -372,7 +397,10 @@ class FuzzSafetyContracts(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "existing directory"):
                 fuzz.replay_python_target(root, root, target, 100)
             self.assertEqual(
-                fuzz.retain_corpus(root / "absent-go-cache", root / "optional")["files"], 0
+                fuzz.retain_corpus(root / "absent-go-cache", root / "optional")[
+                    "files"
+                ],
+                0,
             )
             source = root / "source"
             source.mkdir()
@@ -395,14 +423,19 @@ class FuzzSafetyContracts(unittest.TestCase):
             (root / "link").symlink_to(root / "empty", target_is_directory=True)
             for name in ("missing", "file", "empty", "link"):
                 with self.subTest(name=name), self.assertRaises(ValueError):
-                    fuzz.retain_corpus(root / name, root / (name + "-out"), required=True)
+                    fuzz.retain_corpus(
+                        root / name, root / (name + "-out"), required=True
+                    )
             (root / "escape").symlink_to(root.parent, target_is_directory=True)
             with self.assertRaisesRegex(ValueError, "outside source"):
                 fuzz.confined(root, "escape")
             (root / "seeds").mkdir()
             (root / "seeds/empty-seed").write_bytes(b"")
             self.assertEqual(
-                fuzz.retain_corpus(root / "seeds", root / "good", required=True)["files"], 1
+                fuzz.retain_corpus(root / "seeds", root / "good", required=True)[
+                    "files"
+                ],
+                1,
             )
             for linked in (root / "file", root / "empty"):
                 link = root / "seeds/linked"
@@ -427,7 +460,9 @@ class FuzzSafetyContracts(unittest.TestCase):
 
             with (
                 patch.object(fuzz, "execute", side_effect=execute),
-                patch.object(fuzz.subprocess, "check_output", return_value=str(root / "cache")),
+                patch.object(
+                    fuzz.subprocess, "check_output", return_value=str(root / "cache")
+                ),
             ):
                 report = fuzz.run_target(
                     root,
@@ -442,16 +477,24 @@ class FuzzSafetyContracts(unittest.TestCase):
             self.assertEqual(report["executions"], 23)
             self.assertEqual(report["generated_corpus"]["files"], 1)
             self.assertTrue(
-                (root / "parse/go-generated-corpus/example/FuzzParse/interesting").is_file()
+                (
+                    root / "parse/go-generated-corpus/example/FuzzParse/interesting"
+                ).is_file()
             )
 
     def test_libfuzzer_metrics_use_completed_engine_work(self):
         result = fuzz.engine_metrics(
-            "atheris", "#123 DONE cov: 10 ft: 20 corp: 3/10b\nDone 123 runs in 1 second(s)"
+            "atheris",
+            "#123 DONE cov: 10 ft: 20 corp: 3/10b\nDone 123 runs in 1 second(s)",
         )
         self.assertEqual(
             result,
-            {"engine": "atheris", "executions": 123, "coverage_edges": 10, "coverage_features": 20},
+            {
+                "engine": "atheris",
+                "executions": 123,
+                "coverage_edges": 10,
+                "coverage_features": 20,
+            },
         )
         self.assertEqual(fuzz.engine_metrics("atheris", "no target")["executions"], 0)
 
@@ -459,7 +502,9 @@ class FuzzSafetyContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             (root / "engine").mkdir()
-            (root / "engine/go.mod").write_text("module example.invalid/engine\ngo 1.26\n")
+            (root / "engine/go.mod").write_text(
+                "module example.invalid/engine\ngo 1.26\n"
+            )
 
             def execute(_command, _cwd, output, _timeout, _isolated):
                 output.write_text("fuzz: elapsed: 1s, execs: 23, new interesting: 0\n")
@@ -501,16 +546,22 @@ class FuzzSafetyContracts(unittest.TestCase):
             def missing(function):
                 function.__code__ = (lambda: 2).__code__
 
-            with self.assertRaisesRegex(ValueError, "Missing production instrumentation"):
+            with self.assertRaisesRegex(
+                ValueError, "Missing production instrumentation"
+            ):
                 python_preflight.verify_instrumentation(
                     declaration, ROOT, SimpleNamespace(instrument_func=missing)
                 )
             with self.assertRaisesRegex(ValueError, "project-local"):
-                python_preflight.verify_instrumentation(declaration, ROOT / "other", good)
+                python_preflight.verify_instrumentation(
+                    declaration, ROOT / "other", good
+                )
         with self.assertRaisesRegex(ValueError, "not loaded"):
             python_preflight.verify_instrumentation(declaration, ROOT, good)
 
-    def test_preflight_change_selection_is_public_scoped_and_fail_open_on_missing_diff(self):
+    def test_preflight_change_selection_is_public_scoped_and_fail_open_on_missing_diff(
+        self,
+    ):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             event = root / "event.json"
@@ -518,7 +569,10 @@ class FuzzSafetyContracts(unittest.TestCase):
                 json.dumps(
                     {
                         "repository": {"private": False, "full_name": "o/r"},
-                        "pull_request": {"base": {"sha": "a" * 40}, "head": {"sha": "b" * 40}},
+                        "pull_request": {
+                            "base": {"sha": "a" * 40},
+                            "head": {"sha": "b" * 40},
+                        },
                     }
                 )
             )
@@ -537,20 +591,29 @@ class FuzzSafetyContracts(unittest.TestCase):
                     (b"scripts/change_scope.py\0", True),
                     (b"app2/parser.py\0", False),
                 ):
-                    with patch.object(fuzz.subprocess, "check_output", return_value=paths):
+                    with patch.object(
+                        fuzz.subprocess, "check_output", return_value=paths
+                    ):
                         self.assertEqual(
-                            fuzz.preflight_needed(root, {"preflight-paths": ["app"]}), expected
+                            fuzz.preflight_needed(root, {"preflight-paths": ["app"]}),
+                            expected,
                         )
                 with patch.object(
                     fuzz.subprocess,
                     "check_output",
                     side_effect=subprocess.CalledProcessError(1, "git"),
                 ):
-                    self.assertTrue(fuzz.preflight_needed(root, {"preflight-paths": ["app"]}))
+                    self.assertTrue(
+                        fuzz.preflight_needed(root, {"preflight-paths": ["app"]})
+                    )
                 with patch.object(fuzz.subprocess, "check_output") as query:
-                    self.assertTrue(fuzz.preflight_needed(root, {"preflight-paths": ["."]}))
+                    self.assertTrue(
+                        fuzz.preflight_needed(root, {"preflight-paths": ["."]})
+                    )
                     query.assert_not_called()
-                event.write_text(json.dumps({"repository": {"private": True, "full_name": "o/r"}}))
+                event.write_text(
+                    json.dumps({"repository": {"private": True, "full_name": "o/r"}})
+                )
                 with self.assertRaisesRegex(ValueError, "public repository"):
                     fuzz.preflight_needed(root, {})
 
@@ -572,7 +635,9 @@ class FuzzSafetyContracts(unittest.TestCase):
             root = Path(temp)
             (root / ".github").mkdir()
             (root / "engine").mkdir()
-            (root / "engine/go.mod").write_text("module example.invalid/engine\ngo 1.26\n")
+            (root / "engine/go.mod").write_text(
+                "module example.invalid/engine\ngo 1.26\n"
+            )
             (root / "link").symlink_to(root / "engine/go.mod")
             config = {
                 "schema": 1,
@@ -588,7 +653,9 @@ class FuzzSafetyContracts(unittest.TestCase):
                 ],
             }
             for path in (".", "engine", "missing.mod", "link"):
-                (root / fuzz.MANIFEST).write_text(json.dumps({**config, "go-version-file": path}))
+                (root / fuzz.MANIFEST).write_text(
+                    json.dumps({**config, "go-version-file": path})
+                )
                 with (
                     self.subTest(path=path),
                     self.assertRaisesRegex(ValueError, "existing regular file"),
@@ -621,10 +688,15 @@ class FuzzSafetyContracts(unittest.TestCase):
                         proof = fuzz.replay_python_target(root, root, target, 100)
                         self.assertEqual(proof["executions"], 3)
                         self.assertEqual(
-                            proof, json.loads((root / "parse/instrumentation.json").read_text())
+                            proof,
+                            json.loads(
+                                (root / "parse/instrumentation.json").read_text()
+                            ),
                         )
                     else:
-                        with self.assertRaisesRegex(ValueError, "positive engine execution"):
+                        with self.assertRaisesRegex(
+                            ValueError, "positive engine execution"
+                        ):
                             fuzz.replay_python_target(root, root, target, 100)
 
     def test_every_engine_rejects_empty_declared_corpus_before_execution(self):
@@ -639,8 +711,13 @@ class FuzzSafetyContracts(unittest.TestCase):
                     "command": ["never-executed"],
                     "corpus": "empty",
                 }
-                with self.subTest(engine=engine), patch.object(fuzz, "execute") as execute:
-                    with self.assertRaisesRegex(ValueError, "at least one regular seed"):
+                with (
+                    self.subTest(engine=engine),
+                    patch.object(fuzz, "execute") as execute,
+                ):
+                    with self.assertRaisesRegex(
+                        ValueError, "at least one regular seed"
+                    ):
                         fuzz.run_target(root, root, target)
                     execute.assert_not_called()
 
@@ -653,6 +730,8 @@ class FuzzSafetyContracts(unittest.TestCase):
                 "targets": [{"engine": "atheris", "command": ["python", "harness.py"]}],
             }
             with patch.object(fuzz, "execute") as execute:
-                with self.assertRaisesRegex(ValueError, "production instrumentation declarations"):
+                with self.assertRaisesRegex(
+                    ValueError, "production instrumentation declarations"
+                ):
                     fuzz.run_preflight(root, root / "preflight", data, setup=True)
                 execute.assert_not_called()
