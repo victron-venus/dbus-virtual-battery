@@ -9,7 +9,9 @@ import copy
 import hashlib
 import json
 import os
-import subprocess
+
+# Only fixed local interpreter arguments are used; no shell is enabled.
+import subprocess  # nosec B404
 import sys
 import tempfile
 import unittest
@@ -65,7 +67,8 @@ class FuzzSafetyContracts(unittest.TestCase):
                 "JAVA_HOME": "/synthetic/jdk-17",
                 "JAVA_TOOL_OPTIONS": "-Xmx99g",
                 "JDK_JAVA_OPTIONS": "--invalid-option",
-                "GH_TOKEN": "synthetic-test-value",
+                # Synthetic sentinel verifies that credentials are stripped.
+                "GH_TOKEN": "synthetic-test-value",  # nosec B105
             }
             code = (
                 "import json,os; print(json.dumps({k:os.environ.get(k) for k in "
@@ -79,13 +82,14 @@ class FuzzSafetyContracts(unittest.TestCase):
             ):
                 result, _ = fuzz.execute([sys.executable, "-c", code], root, output, 20, True)
             self.assertEqual(result, 0)
+            observed = json.loads(output.read_text())
+            self.assertIsNone(observed.pop("GH_TOKEN"))
             self.assertEqual(
-                json.loads(output.read_text()),
+                observed,
                 {
                     "JAVA_HOME": "/synthetic/jdk-17",
                     "JAVA_TOOL_OPTIONS": None,
                     "JDK_JAVA_OPTIONS": None,
-                    "GH_TOKEN": None,
                 },
             )
 
