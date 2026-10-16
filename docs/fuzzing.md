@@ -1,5 +1,9 @@
 # Release-candidate fuzz testing
 
+See the [illustrated RC fuzzing process and verified rollout results](https://github.com/victron-venus/venus-os-ci-toolkit/blob/main/docs/rc-fuzzing-results.md)
+for the shared release flow, evidence requirements and a dated cross-project
+snapshot. The project-specific scope and reproduction guidance below still apply.
+
 ## Scope and assertions
 
 **Virtual-battery arithmetic.** The target calls calculate_virtual_battery from the deployed single-file service with synthetic IEEE-754 measurements and capacity. Derived values must be finite or absent, SoC bounded and time-to-go capped. Import-only D-Bus shims fail immediately if invoked. The production calculation is not copied or replaced, and no bus is opened.
