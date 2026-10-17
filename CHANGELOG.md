@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.7.12] - 2026-10-17
+
+### Changed
+
+- Keep the local package version in `uv.lock` synchronized through the release policy; dependency versions and hashes remain unchanged.
+
+- Document the virtual battery data flow and link maintained source-bound RC fuzzing evidence.
+
+### Upgrade
+
+Use the existing update procedure and preserve local settings. Runtime behavior and configuration are unchanged.
+
+### Security
+
+This documentation maintenance release introduces no new vulnerability fix. Existing validation and device acceptance remain required.
+
 ## [2.7.11] - 2026-10-14
 
 ### Changed
