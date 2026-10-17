@@ -43,3 +43,4 @@ store, service, and production deployment acceptance remain separate checks.
 - `dbus-virtual-battery.py`
 - `pyproject.toml`
 - `version`
+- `uv.lock` (local `dbus-virtual-battery` package version only)
