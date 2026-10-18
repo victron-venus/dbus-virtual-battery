@@ -41,6 +41,13 @@
         "value": "package",
         "field": "VERSION",
         "ecosystem": "pep440"
+      },
+      {
+        "path": "uv.lock",
+        "format": "uv-lock",
+        "value": "package",
+        "package": "dbus-virtual-battery",
+        "ecosystem": "pep440"
       }
     ],
     "artifacts": [
