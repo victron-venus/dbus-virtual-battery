@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.14] - Unreleased
+
+### Changed
+
+- Update Ruff to 0.17.1 with a matching dependency lock.
+- Use native uv dependency updates so manifest and lock changes stay together.
+- Document bounded lock updates and refresh pinned shared CI workflows.
+
+### Upgrade
+
+Use the existing upgrade procedure and preserve configuration and data. This
+maintenance release does not change battery calculations or require a migration.
+
 ## [2.7.13] - 2026-10-18
 
 ### Changed
