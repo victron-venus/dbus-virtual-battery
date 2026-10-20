@@ -13,6 +13,13 @@
 Use the existing upgrade procedure and preserve configuration and data. This
 maintenance release does not change battery calculations or require a migration.
 
+### Security
+
+Retain the existing access restrictions on the Venus OS host and its D-Bus
+services. The development-tool updates do not add authentication to telemetry
+sources or change their trust boundaries. Dependency and secret scans remain
+required before publication.
+
 ## [2.7.13] - 2026-10-18
 
 ### Changed
