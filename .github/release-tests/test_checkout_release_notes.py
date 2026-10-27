@@ -20,7 +20,9 @@ class CheckoutGitHub:
     """Provide only the two source reads; any mutation or other read fails."""
 
     def __init__(self):
-        self.repo = json.loads((ROOT / ".release-policy.json").read_text())["repository"]
+        self.repo = json.loads((ROOT / ".release-policy.json").read_text())[
+            "repository"
+        ]
         self.calls = []
 
     def api(self, path, method="GET", body=None):
