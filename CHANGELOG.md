@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.7.15] - Unreleased
+
+### Changed
+
+- Raise the dbus-python minimum in the requirements installation path from 1.5.0 to 1.5.1.
+- Update the development linter to Ruff 0.17.2 and its lock, retaining the original dependency update.
+- Refresh grouped CI pins and harden release publication against draft lookup and metadata propagation failures.
+
+### Upgrade
+
+Use the existing installation procedure and preserve configuration. The requirements installation path now requires dbus-python 1.5.1 or later. Battery aggregation logic is unchanged; verify D-Bus integration on the target Venus OS before accepting the update. Preserve an accepted package for rollback.
+
+### Security
+
+No new runtime vulnerability fix is claimed for the dbus-python minimum change. Keep local D-Bus access restricted. Required checks and source-bound release validation remain enabled.
+
 ## [2.7.14] - Unreleased
 
 ### Changed
