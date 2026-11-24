@@ -1,7 +1,29 @@
 # Changelog
 
-## [2.7.15] - Unreleased
+## [2.7.16] - Unreleased
 
+### Changed
+
+- keep local instruction files out of git.
+- add a navigation index for docs/.
+- add line-ending and language attributes.
+- isolate every auto-merge base edit (#149).
+- preserve merge identity and withdrawn auto-merge requests (#147).
+- validate the toolkit before scope regeneration (#142).
+- limit documentation pull requests to relevant checks (#141).
+- Migrate dependency updates to Renovate (#140).
+- reconcile lost creation responses (#138).
+- Validate complete release notes before reserving package versions (#136).
+
+### Upgrade
+
+Use the existing installation procedure and preserve configuration. The requirements installation path now requires dbus-python 1.5.1 or later. Battery aggregation logic is unchanged; verify D-Bus integration on the target Venus OS before accepting the update. Preserve an accepted package for rollback.
+
+### Security
+
+No new runtime vulnerability fix is claimed for the dbus-python minimum change. Keep local D-Bus access restricted. Required checks and source-bound release validation remain enabled.
+
+## [2.7.15] - 2026-11-02
 ### Changed
 
 - Raise the dbus-python minimum in the requirements installation path from 1.5.0 to 1.5.1.
